@@ -1,105 +1,177 @@
 'use client'
 import { useState, useRef } from 'react'
 
-const AMOUNTS = [100, 250, 500, 750, 1000]
+const PRESETS = [100, 150, 200, 250, 300, 350, 400, 500, 750, 1000]
 
 export default function WaterTracker({ waterGoal = 2000 }) {
   const [totalMl, setTotalMl] = useState(0)
-  const [selectedIdx, setSelectedIdx] = useState(1)
+  const [selectedIdx, setSelectedIdx] = useState(2)
   const [logs, setLogs] = useState([])
+  const [customMl, setCustomMl] = useState('')
+  const [showCustom, setShowCustom] = useState(false)
   const startY = useRef(0)
-  const ITEM_H = 52
+  const ITEM_H = 48
 
   function onDragStart(y) { startY.current = y }
   function onDragEnd(y) {
     const diff = startY.current - y
-    if (Math.abs(diff) < 10) return
-    if (diff > 20) setSelectedIdx(i => Math.min(AMOUNTS.length - 1, i + 1))
-    if (diff < -20) setSelectedIdx(i => Math.max(0, i - 1))
+    if (Math.abs(diff) < 8) return
+    if (diff > 15) setSelectedIdx(i => Math.min(PRESETS.length - 1, i + 1))
+    if (diff < -15) setSelectedIdx(i => Math.max(0, i - 1))
   }
 
-  function addWater() {
-    const ml = AMOUNTS[selectedIdx]
-    setTotalMl(prev => Math.min(waterGoal, prev + ml))
-    setLogs(prev => [{ ml, time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) }, ...prev].slice(0, 5))
+  function addWater(ml) {
+    const amount = ml || PRESETS[selectedIdx]
+    setTotalMl(prev => Math.min(waterGoal, prev + amount))
+    setLogs(prev => [{ ml: amount, time: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) }, ...prev].slice(0, 6))
+    setShowCustom(false)
+    setCustomMl('')
+  }
+
+  function addCustom() {
+    const val = parseInt(customMl)
+    if (val && val > 0 && val <= 3000) addWater(val)
   }
 
   const pct = Math.min(1, totalMl / waterGoal)
-  const wc = totalMl >= waterGoal ? '#10b981' : '#3b82f6'
-  const fillH = Math.round(130 * pct)
-  const fillY = 140 - fillH
+  const reached = totalMl >= waterGoal
+  const waterColor = reached ? '#10b981' : '#3b82f6'
+  const waveLighter = reached ? '#34d399' : '#60a5fa'
+  const GW = 90, GH = 180
+  const fillH = Math.round((GH - 20) * pct)
+  const fillY = GH - 10 - fillH
 
   return (
-    <div className="card" style={{ marginTop: 12 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+    <div className="card" style={{ marginTop: 12, padding: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
-          <div style={{ fontWeight: 600, fontSize: 15 }}>Hydration</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{totalMl}ml / {waterGoal}ml</div>
+          <div style={{ fontWeight: 700, fontSize: 15 }}>Hydration</div>
+          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
+            <span style={{ fontWeight: 700, color: reached ? '#10b981' : 'var(--primary)' }}>{totalMl}ml</span> of {waterGoal}ml
+          </div>
         </div>
-        <div style={{ fontSize: 12, fontWeight: 600, color: totalMl >= waterGoal ? '#10b981' : 'var(--muted)', background: totalMl >= waterGoal ? '#d1fae5' : 'var(--card2)', padding: '4px 10px', borderRadius: 99 }}>
-          {totalMl >= waterGoal ? 'Goal reached!' : `${waterGoal - totalMl}ml to go`}
+        <div style={{ fontSize: 12, fontWeight: 700, padding: '5px 12px', borderRadius: 99, background: reached ? '#d1fae5' : 'var(--primary-bg)', color: reached ? '#059669' : 'var(--primary)' }}>
+          {reached ? '🎉 Goal reached!' : `${waterGoal - totalMl}ml to go`}
         </div>
       </div>
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
         {/* Glass */}
-        <div style={{ flexShrink: 0 }}>
-          <svg width="60" height="160" viewBox="0 0 60 160">
-            <defs><clipPath id="gc"><path d="M5 8 L2 148 Q2 152 6 152 L54 152 Q58 152 58 148 L55 8 Z" /></clipPath></defs>
-            <path d="M5 8 L2 148 Q2 152 6 152 L54 152 Q58 152 58 148 L55 8 Z" fill="#f8faff" stroke="#e2e8f0" strokeWidth="1.5" />
-            <g clipPath="url(#gc)">
-              <rect x="2" y={fillY + 6} width="56" height={Math.max(0, fillH)} fill={wc} opacity="0.8"
-                style={{ transition: 'y 0.6s cubic-bezier(0.34,1.56,0.64,1), height 0.6s cubic-bezier(0.34,1.56,0.64,1)' }} />
-              {totalMl > 0 && <ellipse cx="30" cy={fillY + 6} rx="28" ry="4" fill={wc} style={{ transition: 'cy 0.6s cubic-bezier(0.34,1.56,0.64,1)' }} />}
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <svg width={GW} height={GH} viewBox={`0 0 ${GW} ${GH}`}>
+            <defs>
+              <clipPath id="wt-clip">
+                <path d={`M8 8 L4 ${GH-8} Q4 ${GH} 8 ${GH} L${GW-8} ${GH} Q${GW-4} ${GH} ${GW-4} ${GH-8} L${GW-8} 8 Z`} />
+              </clipPath>
+            </defs>
+            <path d={`M8 8 L4 ${GH-8} Q4 ${GH} 8 ${GH} L${GW-8} ${GH} Q${GW-4} ${GH} ${GW-4} ${GH-8} L${GW-8} 8 Z`}
+              fill="#f0f4ff" stroke="#e2e8f0" strokeWidth="1.5" />
+            <g clipPath="url(#wt-clip)">
+              {pct > 0 && <>
+                <rect x="4" y={fillY + 8} width={GW-8} height={Math.max(0,fillH)}
+                  fill={waterColor} opacity="0.75"
+                  style={{ transition: 'y 0.7s cubic-bezier(0.34,1.56,0.64,1), height 0.7s cubic-bezier(0.34,1.56,0.64,1)' }} />
+                <ellipse cx={GW/2} cy={fillY+8} rx={GW/2-4} ry="6"
+                  fill={waveLighter} opacity="0.8"
+                  style={{ transition: 'cy 0.7s cubic-bezier(0.34,1.56,0.64,1)', animation: 'wv 2.5s ease-in-out infinite' }} />
+                {pct > 0.2 && <>
+                  <circle cx="22" cy={fillY+30} r="2.5" fill="rgba(255,255,255,0.4)" style={{ animation: 'b1 2.2s ease-in-out infinite' }} />
+                  <circle cx="60" cy={fillY+50} r="2" fill="rgba(255,255,255,0.3)" style={{ animation: 'b2 3s ease-in-out infinite 0.8s' }} />
+                  <circle cx="40" cy={fillY+70} r="1.5" fill="rgba(255,255,255,0.25)" style={{ animation: 'b1 3.5s ease-in-out infinite 1.5s' }} />
+                </>}
+              </>}
             </g>
-            <path d="M10 12 L8 50" stroke="#e2e8f0" strokeWidth="2" strokeLinecap="round" />
+            <path d={`M8 8 L4 ${GH-8} Q4 ${GH} 8 ${GH} L${GW-8} ${GH} Q${GW-4} ${GH} ${GW-4} ${GH-8} L${GW-8} 8 Z`}
+              fill="none" stroke="rgba(99,102,241,0.25)" strokeWidth="1.5" />
+            <path d="M16 12 L12 55" stroke="rgba(255,255,255,0.7)" strokeWidth="3" strokeLinecap="round" />
+            {pct > 0.15 && (
+              <text x={GW/2} y={fillY + Math.max(22, fillH/2 + 6)} textAnchor="middle" fontSize="13" fontWeight="700" fill="white" opacity="0.95">
+                {Math.round(pct*100)}%
+              </text>
+            )}
           </svg>
-          {totalMl > 0 && <button onClick={() => { setTotalMl(0); setLogs([]) }} style={{ display: 'block', margin: '4px auto 0', background: 'none', border: 'none', color: 'var(--muted)', fontSize: 10, cursor: 'pointer' }}>reset</button>}
+          {totalMl > 0 && (
+            <button onClick={() => { setTotalMl(0); setLogs([]) }}
+              style={{ fontSize: 10, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 500 }}>
+              reset
+            </button>
+          )}
         </div>
 
-        <div style={{ flex: 1 }}>
-          {/* Scroll picker */}
-          <div style={{ position: 'relative', height: ITEM_H * 3, overflow: 'hidden', borderRadius: 14, background: 'var(--card2)', border: '1.5px solid var(--border)', cursor: 'ns-resize', userSelect: 'none', marginBottom: 12 }}
-            onTouchStart={e => onDragStart(e.touches[0].clientY)}
-            onTouchEnd={e => onDragEnd(e.changedTouches[0].clientY)}
-            onMouseDown={e => onDragStart(e.clientY)}
-            onMouseUp={e => onDragEnd(e.clientY)}>
-            <div style={{ position: 'absolute', top: ITEM_H, left: 0, right: 0, height: ITEM_H, background: 'rgba(99,102,241,0.08)', borderTop: '1.5px solid rgba(99,102,241,0.2)', borderBottom: '1.5px solid rgba(99,102,241,0.2)', zIndex: 1, pointerEvents: 'none' }} />
-            <div style={{ position: 'absolute', width: '100%', transition: 'transform 0.25s ease', transform: `translateY(${(1 - selectedIdx) * ITEM_H}px)` }}>
-              {AMOUNTS.map((ml, i) => {
-                const d = Math.abs(i - selectedIdx)
-                return (
-                  <div key={ml} onClick={() => setSelectedIdx(i)}
-                    style={{ height: ITEM_H, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', cursor: 'pointer', opacity: d === 0 ? 1 : d === 1 ? 0.5 : 0.2, transform: `scale(${d === 0 ? 1 : 0.85})`, transition: 'all 0.2s' }}>
-                    <span style={{ fontSize: d === 0 ? 20 : 16, fontWeight: d === 0 ? 700 : 400, color: d === 0 ? 'var(--primary)' : 'var(--muted)' }}>{ml}</span>
-                    <span style={{ fontSize: 10, color: 'var(--muted)' }}>ml</span>
-                  </div>
-                )
-              })}
+        {/* Scroll picker + button */}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6, textAlign: 'center' }}>Scroll to select</div>
+            <div style={{ position: 'relative', height: ITEM_H*3, overflow: 'hidden', borderRadius: 16, background: 'var(--surface)', border: '1.5px solid var(--border)', cursor: 'ns-resize', userSelect: 'none' }}
+              onTouchStart={e=>onDragStart(e.touches[0].clientY)}
+              onTouchEnd={e=>onDragEnd(e.changedTouches[0].clientY)}
+              onMouseDown={e=>onDragStart(e.clientY)}
+              onMouseUp={e=>onDragEnd(e.clientY)}>
+              <div style={{ position: 'absolute', top: ITEM_H, left: 0, right: 0, height: ITEM_H, background: 'var(--primary-bg)', borderTop: '2px solid var(--primary)', borderBottom: '2px solid var(--primary)', zIndex: 1, borderRadius: 8, pointerEvents: 'none' }} />
+              <div style={{ position: 'absolute', width: '100%', transition: 'transform 0.2s cubic-bezier(0.34,1.2,0.64,1)', transform: `translateY(${(1-selectedIdx)*ITEM_H}px)` }}>
+                {PRESETS.map((ml, i) => {
+                  const d = Math.abs(i - selectedIdx)
+                  return (
+                    <div key={ml} onClick={() => setSelectedIdx(i)}
+                      style={{ height: ITEM_H, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4, cursor: 'pointer', transition: 'all 0.15s', opacity: d===0?1:d===1?0.45:0.15, transform: `scale(${d===0?1:d===1?0.88:0.75})` }}>
+                      <span style={{ fontSize: d===0?22:17, fontWeight: d===0?700:500, color: d===0?'var(--primary)':'var(--muted)' }}>{ml}</span>
+                      <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 500 }}>ml</span>
+                    </div>
+                  )
+                })}
+              </div>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: ITEM_H, background: 'linear-gradient(to bottom,var(--surface),transparent)', pointerEvents: 'none', zIndex: 2 }} />
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: ITEM_H, background: 'linear-gradient(to top,var(--surface),transparent)', pointerEvents: 'none', zIndex: 2 }} />
+              <div style={{ position: 'absolute', top: 5, left: 0, right: 0, textAlign: 'center', fontSize: 9, color: 'var(--muted)', zIndex: 3, pointerEvents: 'none' }}>▲</div>
+              <div style={{ position: 'absolute', bottom: 5, left: 0, right: 0, textAlign: 'center', fontSize: 9, color: 'var(--muted)', zIndex: 3, pointerEvents: 'none' }}>▼</div>
             </div>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: ITEM_H, background: 'linear-gradient(to bottom,var(--card2),transparent)', pointerEvents: 'none', zIndex: 2 }} />
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: ITEM_H, background: 'linear-gradient(to top,var(--card2),transparent)', pointerEvents: 'none', zIndex: 2 }} />
           </div>
 
-          <button className="btn btn-primary" style={{ width: '100%', padding: '12px', fontSize: 14 }} onClick={addWater}>
-            + Add {AMOUNTS[selectedIdx]}ml
+          <button className="btn btn-primary" style={{ width: '100%', padding: '12px', fontSize: 14, fontWeight: 700 }} onClick={() => addWater()}>
+            + Add {PRESETS[selectedIdx]}ml
           </button>
 
           {logs.length > 0 && (
-            <div style={{ marginTop: 10, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
               {logs.map((l, i) => (
-                <div key={i} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 99, background: 'var(--primary-bg)', color: 'var(--primary)', fontWeight: 500 }}>
-                  +{l.ml}ml
-                </div>
+                <div key={i} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 99, background: 'var(--primary-bg)', color: 'var(--primary)', fontWeight: 600 }}>+{l.ml}ml</div>
               ))}
             </div>
           )}
         </div>
       </div>
 
-      <div style={{ marginTop: 14, height: 6, background: 'var(--card2)', borderRadius: 3, overflow: 'hidden' }}>
-        <div style={{ height: '100%', borderRadius: 3, background: wc, width: `${pct * 100}%`, transition: 'width 0.6s ease' }} />
+      {/* Progress bar */}
+      <div style={{ marginTop: 16, height: 6, background: 'var(--card2)', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ height: '100%', borderRadius: 3, background: waterColor, width: `${pct*100}%`, transition: 'width 0.6s ease' }} />
       </div>
+
+      {/* Custom ml - centered */}
+      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+        {!showCustom ? (
+          <button onClick={() => setShowCustom(true)}
+            style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 12, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <span style={{ fontSize: 14 }}>+</span> Add custom amount
+          </button>
+        ) : (
+          <div style={{ display: 'flex', gap: 8, width: '100%', maxWidth: 280 }}>
+            <input type="number" placeholder="e.g. 330ml" value={customMl}
+              onChange={e => setCustomMl(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && addCustom()}
+              style={{ flex: 1, textAlign: 'center', fontWeight: 600, fontSize: 15 }}
+              autoFocus />
+            <button className="btn btn-primary" onClick={addCustom} style={{ flexShrink: 0, padding: '10px 16px', fontSize: 13, fontWeight: 700 }}>Add</button>
+            <button onClick={() => { setShowCustom(false); setCustomMl('') }}
+              style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 18, flexShrink: 0 }}>×</button>
+          </div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes wv{0%,100%{rx:40px;ry:6px}50%{rx:38px;ry:8px}}
+        @keyframes b1{0%,100%{transform:translateY(0);opacity:.35}50%{transform:translateY(-10px);opacity:.7}}
+        @keyframes b2{0%,100%{transform:translateY(0);opacity:.25}50%{transform:translateY(-8px);opacity:.55}}
+      `}</style>
     </div>
   )
 }

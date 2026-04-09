@@ -1,10 +1,13 @@
 'use client'
+
+export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [tab, setTab] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -14,17 +17,37 @@ export default function AuthPage() {
   const [confirmed, setConfirmed] = useState(false)
 
   useEffect(() => {
+    // Check for OAuth errors in URL
+    const errorParam = searchParams.get('error')
+    const errorDesc = searchParams.get('description')
+    if (errorParam) {
+      setError(errorDesc || `Login failed: ${errorParam}`)
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) router.replace('/dashboard')
     })
-  }, [])
+  }, [searchParams, router])
 
   async function signInGoogle() {
     setLoading(true)
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: `${window.location.origin}/auth/callback` }
-    })
+    setError('')
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: `${window.location.origin}/auth/callback` }
+      })
+      if (error) {
+        setError(error.message || 'Google login failed. Please check your Supabase configuration.')
+        console.error('Google OAuth error:', error)
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'An unexpected error occurred'
+      setError(message)
+      console.error('Google login error:', e)
+    } finally {
+      setLoading(false)
+    }
   }
 
   async function submit(e) {

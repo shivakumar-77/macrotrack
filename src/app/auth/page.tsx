@@ -2,12 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [tab, setTab] = useState('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,7 +16,9 @@ export default function AuthPage() {
   const [confirmed, setConfirmed] = useState(false)
 
   useEffect(() => {
-    // Check for OAuth errors in URL
+    if (typeof window === 'undefined') return
+
+    const searchParams = new URLSearchParams(window.location.search)
     const errorParam = searchParams.get('error')
     const errorDesc = searchParams.get('description')
     if (errorParam) {
@@ -27,7 +28,7 @@ export default function AuthPage() {
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) router.replace('/dashboard')
     })
-  }, [searchParams, router])
+  }, [router])
 
   async function signInGoogle() {
     setLoading(true)

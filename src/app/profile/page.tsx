@@ -12,9 +12,24 @@ export default function ProfilePage() {
   const [weightVal, setWeightVal] = useState('')
   const [msg, setMsg] = useState('')
   const [userEmail, setUserEmail] = useState('')
-  const [form, setForm] = useState({ name:'', age:'', height:'', gender:'male', goal:'lose', cal_target:1700, protein_target:167, carb_target:144, fat_target:60, fiber_target:25, weight_goal:72, water_goal:2000 })
+  const [form, setForm] = useState({ name:'', dob:'', age:'', gender:'male', phone_number:'', photo_url:'', goal:'lose', cal_target:1700, protein_target:167, carb_target:144, fat_target:60, fiber_target:25, weight_goal:72, water_goal:2000 })
   const [secForm, setSecForm] = useState({ newEmail:'', newPassword:'', confirmPassword:'' })
   const [legalPage, setLegalPage] = useState(null)
+
+  // BMI Calculator state
+  const [bmiGender, setBmiGender] = useState('male')
+  const [bmiHeight, setBmiHeight] = useState('')
+  const [bmiWeight, setBmiWeight] = useState('')
+  const [bmiAge, setBmiAge] = useState('')
+  const [bmiResult, setBmiResult] = useState(null)
+
+  // Calorie Calculator state
+  const [calcGender, setCalcGender] = useState('male')
+  const [calcAge, setCalcAge] = useState('')
+  const [calcHeight, setCalcHeight] = useState('')
+  const [calcWeight, setCalcWeight] = useState('')
+  const [calcActivity, setCalcActivity] = useState('moderate')
+  const [calcResult, setCalcResult] = useState(null)
 
   useEffect(() => {
     async function load() {
@@ -25,13 +40,27 @@ export default function ProfilePage() {
         supabase.from('profiles').select('*').eq('id', user.id).single(),
         supabase.from('weight_logs').select('*').eq('user_id', user.id).order('logged_at',{ascending:true}).limit(30)
       ])
-      if (prof) setForm({ name:prof.name??'', age:prof.age??'', height:prof.height??'', gender:prof.gender??'male', goal:prof.goal??'lose', cal_target:prof.cal_target??1700, protein_target:prof.protein_target??167, carb_target:prof.carb_target??144, fat_target:prof.fat_target??60, fiber_target:prof.fiber_target??25, weight_goal:prof.weight_goal??72, water_goal:prof.water_goal??2000 })
+      if (prof) setForm({ name:prof.name??'', dob:prof.dob??'', age:prof.age??'', gender:prof.gender??'male', phone_number:prof.phone_number??'', photo_url:prof.photo_url??'', height:prof.height??'', goal:prof.goal??'lose', cal_target:prof.cal_target??1700, protein_target:prof.protein_target??167, carb_target:prof.carb_target??144, fat_target:prof.fat_target??60, fiber_target:prof.fat_target??25, weight_goal:prof.weight_goal??72, water_goal:prof.water_goal??2000 })
       if (wlogs) setWeights(wlogs)
     }
     load()
   }, [])
 
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 2500) }
+
+  async function handlePhotoUpload(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    const { data:{user} } = await supabase.auth.getUser()
+    if (!user) return
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${user.id}.${fileExt}`
+    const { data, error } = await supabase.storage.from('avatars').upload(fileName, file, { upsert: true })
+    if (error) { showMsg('Upload failed'); return }
+    const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(fileName)
+    setForm(p=>({...p,photo_url:publicUrl}))
+    showMsg('Photo uploaded!')
+  }
 
   async function saveForm() {
     setSaving(true)
@@ -193,6 +222,226 @@ export default function ProfilePage() {
     </div>
   )
 
+  function calculateBMI() {
+    const h = parseFloat(bmiHeight), w = parseFloat(bmiWeight)
+    if (!h || !w) return
+    const bmi = w / ((h / 100) ** 2)
+    let category, color, advice
+    if (bmi < 18.5) { category = 'Underweight'; color = '#3b82f6'; advice = 'Focus on nutrient-dense foods and strength training to gain healthy weight.' }
+    else if (bmi < 25) { category = 'Normal weight'; color = '#10b981'; advice = 'Maintain your current lifestyle with balanced nutrition and regular exercise.' }
+    else if (bmi < 30) { category = 'Overweight'; color = '#f59e0b'; advice = 'A calorie deficit of 300-500 kcal/day with regular exercise can help.' }
+    else if (bmi < 35) { category = 'Obese (Class I)'; color = '#ef4444'; advice = 'Consult a healthcare provider. A structured diet and exercise plan can help.' }
+    else { category = 'Obese (Class II+)'; color = '#dc2626'; advice = 'Please consult a doctor. Medical supervision is recommended.' }
+    const idealMin = (18.5 * ((h / 100) ** 2)).toFixed(1)
+    const idealMax = (24.9 * ((h / 100) ** 2)).toFixed(1)
+    const toLose = w > parseFloat(idealMax) ? (w - parseFloat(idealMax)).toFixed(1) : null
+    const toGain = w < parseFloat(idealMin) ? (parseFloat(idealMin) - w).toFixed(1) : null
+    setBmiResult({ bmi: bmi.toFixed(1), category, color, advice, idealMin, idealMax, toLose, toGain })
+  }
+
+  function calculateCalories() {
+    const age = parseFloat(calcAge), height = parseFloat(calcHeight), weight = parseFloat(calcWeight)
+    if (!age || !height || !weight) return
+    const bmr = calcGender === 'male' ? 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age) : 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+    const activityMul = { sedentary: 1.2, light: 1.375, moderate: 1.55, very: 1.725, extra: 1.9 }[calcActivity]
+    const tdee = bmr * activityMul
+    const safe = tdee - 500
+    const moderate = tdee - 1000
+    const aggressive = tdee - 1500
+    const gainLean = tdee + 250
+    setCalcResult({ bmr: Math.round(bmr), tdee: Math.round(tdee), safe: Math.round(safe), moderate: Math.round(moderate), aggressive: Math.round(aggressive), gainLean: Math.round(gainLean) })
+  }
+
+  const BMICalculator = () => (
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:20}}>
+        {[{label:'Height',unit:'cm',val:bmiHeight,set:setBmiHeight},{label:'Weight',unit:'kg',val:bmiWeight,set:setBmiWeight},{label:'Age',unit:'yrs',val:bmiAge,set:setBmiAge}].map(f=>(
+          <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
+            <input type="number" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
+              style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
+            <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
+          </div>
+        ))}
+      </div>
+      <button onClick={calculateBMI} className="btn btn-primary" style={{width:'100%',padding:'16px',fontSize:15,fontWeight:700,marginBottom:24}}>Calculate BMI</button>
+      {bmiResult && (
+        <div className="slide-up">
+          <div className="card" style={{textAlign:'center',marginBottom:16}}>
+            <svg width="100%" viewBox="0 0 280 160" style={{overflow:'visible'}}>
+              {[{color:'#3b82f6',s:0,e:36},{color:'#10b981',s:36,e:90},{color:'#f59e0b',s:90,e:126},{color:'#ef4444',s:126,e:162},{color:'#dc2626',s:162,e:180}].map((seg,i)=>{
+                const r=110,cx=140,cy=140,a1=(seg.s/180)*Math.PI,a2=(seg.e/180)*Math.PI,x1=cx-r*Math.cos(a1),y1=cy-r*Math.sin(a1),x2=cx-r*Math.cos(a2),y2=cy-r*Math.sin(a2)
+                return <path key={i} d={`M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${seg.e-seg.s>90?1:0} 1 ${x2} ${y2} Z`} fill={seg.color} opacity="0.85"/>
+              })}
+              <circle cx="140" cy="140" r="72" fill="white"/>
+              <g transform={`rotate(${(parseFloat(bmiResult.bmi)-10)/30*180-180}, 140, 140)`}>
+                <line x1="140" y1="140" x2="140" y2="44" stroke="var(--text)" strokeWidth="3" strokeLinecap="round"/>
+                <circle cx="140" cy="140" r="8" fill="var(--text)"/>
+              </g>
+              <text x="140" y="115" textAnchor="middle" fontSize="28" fontWeight="800" fill={bmiResult.color}>{bmiResult.bmi}</text>
+              <text x="140" y="131" textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--muted)">BMI</text>
+              <text x="140" y="148" textAnchor="middle" fontSize="13" fontWeight="700" fill={bmiResult.color}>{bmiResult.category}</text>
+            </svg>
+          </div>
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Your results</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Ideal weight</div>
+                <div style={{fontWeight:700,fontSize:14,color:'#10b981'}}>{bmiResult.idealMin}-{bmiResult.idealMax} kg</div>
+              </div>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>{bmiResult.toLose?'To lose':bmiResult.toGain?'To gain':'Status'}</div>
+                <div style={{fontWeight:700,fontSize:14,color:bmiResult.toLose?'#ef4444':bmiResult.toGain?'#3b82f6':'#10b981'}}>
+                  {bmiResult.toLose?bmiResult.toLose+' kg':bmiResult.toGain?bmiResult.toGain+' kg':'Healthy'}
+                </div>
+              </div>
+            </div>
+            <div style={{background:'#fef3c7',borderRadius:14,padding:'14px',border:'1.5px solid #fde68a'}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#d97706',marginBottom:4}}>Advice</div>
+              <div style={{fontSize:13,color:'#92400e',lineHeight:1.6}}>{bmiResult.advice}</div>
+            </div>
+          </div>
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>BMI chart</div>
+            {[{label:'Underweight',range:'< 18.5',color:'#3b82f6'},{label:'Normal weight',range:'18.5-24.9',color:'#10b981'},{label:'Overweight',range:'25-29.9',color:'#f59e0b'},{label:'Obese Class I',range:'30-34.9',color:'#ef4444'},{label:'Obese Class II+',range:'35+',color:'#dc2626'}].map((r,i,arr)=>(
+              <div key={r.label} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:i<arr.length-1?'1px solid var(--border)':'none'}}>
+                <div style={{width:10,height:10,borderRadius:'50%',background:r.color,flexShrink:0}}/>
+                <div style={{flex:1,fontSize:13,fontWeight:600}}>{r.label}</div>
+                <div style={{fontSize:13,color:'var(--muted)'}}>{r.range}</div>
+                {bmiResult.category===r.label&&<div style={{fontSize:10,fontWeight:700,background:r.color,color:'#fff',padding:'2px 8px',borderRadius:99}}>YOU</div>}
+              </div>
+            ))}
+          </div>
+          <div style={{background:'#f0fdf4',borderRadius:16,padding:'14px 16px',border:'1.5px solid #bbf7d0',marginBottom:24}}>
+            <p style={{fontSize:12,color:'#15803d',lineHeight:1.6}}>BMI is a screening tool, not a diagnostic measure. Consult a healthcare professional for a complete assessment.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+  const CalorieCalculator = () => (
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:20}}>
+        {[{label:'Age',unit:'yrs',val:calcAge,set:setCalcAge},{label:'Height',unit:'cm',val:calcHeight,set:setCalcHeight},{label:'Weight',unit:'kg',val:calcWeight,set:setCalcWeight}].map(f=>(
+          <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
+            <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
+            <input type="number" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
+              style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
+            <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{marginBottom:20}}>
+        <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Activity Level</div>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+          {[{id:'sedentary',label:'Sedentary',desc:'Little or no exercise',icon:'🛋️'},{id:'light',label:'Lightly active',desc:'1-3 days/week',icon:'🚶'},{id:'moderate',label:'Moderately active',desc:'3-5 days/week',icon:'🏃'},{id:'very',label:'Very active',desc:'6-7 days/week',icon:'🏋️'},{id:'extra',label:'Extra active',desc:'Athlete / physical job',icon:'⚡'}].map(a=>(
+            <button key={a.id} onClick={()=>setCalcActivity(a.id)}
+              style={{padding:'16px 12px',borderRadius:16,border:`2px solid ${calcActivity===a.id?'var(--primary)':'var(--border)'}`,background:calcActivity===a.id?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center'}}>
+              <div style={{fontSize:24,marginBottom:6}}>{a.icon}</div>
+              <div style={{fontWeight:700,fontSize:12,color:calcActivity===a.id?'var(--primary)':'var(--muted)'}}>{a.label}</div>
+              <div style={{fontSize:10,color:'var(--muted)',marginTop:2,lineHeight:1.3}}>{a.desc}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+      <button onClick={calculateCalories} className="btn btn-primary" style={{width:'100%',padding:'16px',fontSize:15,fontWeight:700,marginBottom:24}}>Calculate Calories</button>
+      {calcResult && (
+        <div className="slide-up">
+          <div className="card" style={{marginBottom:16}}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Your daily calorie needs</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>BMR</div>
+                <div style={{fontWeight:700,fontSize:18}}>{calcResult.bmr}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> kcal</span></div>
+                <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>Basal Metabolic Rate</div>
+              </div>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>TDEE</div>
+                <div style={{fontWeight:700,fontSize:18}}>{calcResult.tdee}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> kcal</span></div>
+                <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>Total Daily Energy Expenditure</div>
+              </div>
+            </div>
+          </div>
+          <div style={{marginBottom:16}}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Weight goals</div>
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <div style={{background:'#dbeafe',borderRadius:16,padding:'16px',border:'1.5px solid #93c5fd'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:20}}>⚖️</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:14,color:'#1e40af'}}>Maintain weight</div>
+                    <div style={{fontSize:12,color:'#3730a3'}}>Stay at current weight</div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <div style={{fontSize:18,fontWeight:800,color:'#1e40af'}}>{calcResult.tdee}</div>
+                    <div style={{fontSize:11,color:'#3730a3'}}>kcal/day</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{background:'#d1fae5',borderRadius:16,padding:'16px',border:'1.5px solid #6ee7b7'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:20}}>🌱</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:14,color:'#047857'}}>Lose 0.25 kg/week</div>
+                    <div style={{fontSize:12,color:'#065f46'}}>Safe and sustainable</div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <div style={{fontSize:18,fontWeight:800,color:'#047857'}}>{calcResult.safe}</div>
+                    <div style={{fontSize:11,color:'#065f46'}}>-500 kcal</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{background:'#fef3c7',borderRadius:16,padding:'16px',border:'1.5px solid #fde68a'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:20}}>🔥</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:14,color:'#d97706'}}>Lose 0.5 kg/week</div>
+                    <div style={{fontSize:12,color:'#92400e'}}>Steady fat loss (recommended)</div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <div style={{fontSize:18,fontWeight:800,color:'#d97706'}}>{calcResult.moderate}</div>
+                    <div style={{fontSize:11,color:'#92400e'}}>-1000 kcal</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{background:'#fee2e2',borderRadius:16,padding:'16px',border:'1.5px solid #fca5a5'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:20}}>⚡</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:14,color:'#dc2626'}}>Lose 1 kg/week</div>
+                    <div style={{fontSize:12,color:'#b91c1c'}}>Aggressive - short periods only</div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <div style={{fontSize:18,fontWeight:800,color:'#dc2626'}}>{calcResult.aggressive}</div>
+                    <div style={{fontSize:11,color:'#b91c1c'}}>-1500 kcal</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{background:'#dbeafe',borderRadius:16,padding:'16px',border:'1.5px solid #93c5fd'}}>
+                <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
+                  <span style={{fontSize:20}}>💪</span>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:14,color:'#1e40af'}}>Gain 0.25 kg/week</div>
+                    <div style={{fontSize:12,color:'#3730a3'}}>Lean muscle gain</div>
+                  </div>
+                  <div style={{textAlign:'right'}}>
+                    <div style={{fontSize:18,fontWeight:800,color:'#1e40af'}}>{calcResult.gainLean}</div>
+                    <div style={{fontSize:11,color:'#3730a3'}}>+250 kcal</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{background:'#f0fdf4',borderRadius:16,padding:'14px 16px',border:'1.5px solid #bbf7d0',marginBottom:24}}>
+            <p style={{fontSize:12,color:'#15803d',lineHeight:1.6}}>Uses the Mifflin-St Jeor equation - the most accurate formula for estimating daily calorie needs.</p>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="page" style={{paddingTop:24}}>
       {/* Header */}
@@ -203,9 +452,13 @@ export default function ProfilePage() {
       {/* Avatar card */}
       <div style={{background:'var(--card)',borderRadius:24,padding:'20px',border:'1.5px solid var(--border)',marginBottom:20,display:'flex',alignItems:'center',gap:16}}>
         <div style={{position:'relative',flexShrink:0}}>
-          <div style={{width:68,height:68,borderRadius:'50%',background:'linear-gradient(135deg,var(--primary),#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,fontWeight:800,color:'#fff'}}>
-            {form.name?form.name[0].toUpperCase():'?'}
-          </div>
+          {form.photo_url ? (
+            <img src={form.photo_url} alt="Profile" style={{width:68,height:68,borderRadius:'50%',objectFit:'cover'}}/>
+          ) : (
+            <div style={{width:68,height:68,borderRadius:'50%',background:'linear-gradient(135deg,var(--primary),#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,fontWeight:800,color:'#fff'}}>
+              {form.name?form.name[0].toUpperCase():'?'}
+            </div>
+          )}
           {/* Progress ring */}
           <svg style={{position:'absolute',top:-4,left:-4}} width="76" height="76" viewBox="0 0 76 76">
             <circle cx="38" cy="38" r="34" fill="none" stroke="#e2e8f0" strokeWidth="3"/>
@@ -245,8 +498,17 @@ export default function ProfilePage() {
             <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>Personal details</div>
             <div><Label text="Full name"/><input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="Your full name"/></div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
+              <div><Label text="Date of Birth"/><input type="date" value={form.dob} onChange={e=>setForm(p=>({...p,dob:e.target.value}))}/></div>
               <div><Label text="Age"/><input type="number" value={form.age} onChange={e=>setForm(p=>({...p,age:e.target.value}))} placeholder="25"/></div>
+            </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
               <div><Label text="Height (cm)"/><input type="number" value={form.height} onChange={e=>setForm(p=>({...p,height:e.target.value}))} placeholder="175"/></div>
+              <div><Label text="Phone Number"/><input type="tel" value={form.phone_number} onChange={e=>setForm(p=>({...p,phone_number:e.target.value}))} placeholder="+1 234 567 890"/></div>
+            </div>
+            <div>
+              <Label text="Profile Photo"/>
+              <input type="file" accept="image/*" onChange={handlePhotoUpload} style={{width:'100%',padding:'10px',borderRadius:12,border:'2px solid var(--border)',background:'var(--card)'}}/>
+              {form.photo_url && <img src={form.photo_url} alt="Profile" style={{width:60,height:60,borderRadius:'50%',marginTop:10,objectFit:'cover'}}/>}
             </div>
             <div>
               <Label text="Gender"/>
@@ -292,6 +554,8 @@ export default function ProfilePage() {
         <div>
           <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>Account</div>
           <MenuItem icon="🎯" label="My Goals" sublabel="Calories, macros & targets" onClick={()=>setTab('goals')}/>
+          <MenuItem icon="⚖️" label="BMI Calculator" sublabel="Body Mass Index" onClick={()=>setTab('bmi')}/>
+          <MenuItem icon="🧮" label="Calorie Calculator" sublabel="Daily calorie needs" onClick={()=>setTab('calorie-calc')}/>
           <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={async()=>{
             const p=await Notification.requestPermission()
             if(p==='granted'){new Notification('MacroTrack',{body:'Notifications enabled!'});showMsg('Notifications enabled!')}
@@ -337,6 +601,38 @@ export default function ProfilePage() {
             <button className="btn btn-primary" style={{width:'100%',padding:'14px',fontWeight:700}} onClick={saveForm} disabled={saving}>
               {saving?'Saving…':'Save goals'}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* BMI SUB-PAGE */}
+      {tab==='bmi'&&(
+        <div>
+          <button onClick={()=>setTab('setting')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:13,fontWeight:600,marginBottom:16,padding:0,display:'flex',alignItems:'center',gap:6}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Settings
+          </button>
+          <div className="card" style={{display:'flex',flexDirection:'column',gap:14}}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>⚖️ BMI Calculator</div>
+            <div style={{fontSize:13,color:'var(--muted)',marginBottom:8}}>Calculate your Body Mass Index to assess your weight status.</div>
+            {/* BMI Calculator content here */}
+            <BMICalculator/>
+          </div>
+        </div>
+      )}
+
+      {/* CALORIE-CALC SUB-PAGE */}
+      {tab==='calorie-calc'&&(
+        <div>
+          <button onClick={()=>setTab('setting')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:13,fontWeight:600,marginBottom:16,padding:0,display:'flex',alignItems:'center',gap:6}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Settings
+          </button>
+          <div className="card" style={{display:'flex',flexDirection:'column',gap:14}}>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>🧮 Calorie Calculator</div>
+            <div style={{fontSize:13,color:'var(--muted)',marginBottom:8}}>Calculate your daily calorie needs based on your profile and activity level.</div>
+            {/* Calorie Calculator content here */}
+            <CalorieCalculator/>
           </div>
         </div>
       )}

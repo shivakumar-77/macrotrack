@@ -49,9 +49,18 @@ export default function Dashboard() {
   return (
     <div className="page">
       <div style={{paddingTop:24,paddingBottom:4,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <div>
-          <p style={{color:'var(--muted)',fontSize:13,fontWeight:500}}>{new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p>
-          <h1 style={{fontSize:24,fontWeight:700,letterSpacing:'-0.02em',marginTop:2}}>{profile?.name?`Hey, ${profile.name.split(' ')[0]} 👋`:'Today'}</h1>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          {profile?.photo_url ? (
+            <img src={profile.photo_url} alt="Profile" style={{width:48,height:48,borderRadius:'50%',objectFit:'cover'}}/>
+          ) : (
+            <div style={{width:48,height:48,borderRadius:'50%',background:'linear-gradient(135deg,var(--primary),#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:800,color:'#fff'}}>
+              {profile?.name?profile.name[0].toUpperCase():'?'}
+            </div>
+          )}
+          <div>
+            <p style={{color:'var(--muted)',fontSize:13,fontWeight:500}}>{new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</p>
+            <h1 style={{fontSize:24,fontWeight:700,letterSpacing:'-0.02em',marginTop:2}}>{profile?.name?`Hey, ${profile.name.split(' ')[0]} 👋`:'Today'}</h1>
+          </div>
         </div>
         <div style={{padding:'6px 14px',borderRadius:99,fontSize:12,fontWeight:700,background:profile?.goal==='lose'?'#d1fae5':profile?.goal==='gain'?'#dbeafe':'#fef3c7',color:profile?.goal==='lose'?'#059669':profile?.goal==='gain'?'#2563eb':'#d97706'}}>
           {profile?.goal==='lose'?'Fat loss':profile?.goal==='gain'?'Muscle gain':'Maintain'}

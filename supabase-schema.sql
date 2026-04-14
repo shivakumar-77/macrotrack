@@ -1,8 +1,20 @@
 -- Run this in Supabase SQL Editor
 
+-- Create avatars storage bucket (run in Supabase Dashboard > Storage)
+-- Bucket name: avatars
+-- Public: true
+-- File size limit: 5MB
+-- Allowed MIME types: image/*
+
 create table if not exists profiles (
   id uuid references auth.users on delete cascade primary key,
   name text,
+  dob date,
+  age int,
+  gender text default 'male',
+  phone_number text,
+  photo_url text,
+  height numeric(5,2),
   goal text default 'lose',
   cal_target int default 1700,
   protein_target int default 167,

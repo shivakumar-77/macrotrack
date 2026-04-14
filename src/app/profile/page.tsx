@@ -1,11 +1,12 @@
 'use client'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [tab, setTab] = useState('setting')
   const [weights, setWeights] = useState([])
   const [saving, setSaving] = useState(false)
@@ -45,6 +46,13 @@ export default function ProfilePage() {
     }
     load()
   }, [])
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab')
+    if (tabParam && ['profile', 'setting', 'plan', 'goals', 'bmi', 'calorie-calc', 'password', 'email'].includes(tabParam)) {
+      setTab(tabParam)
+    }
+  }, [searchParams])
 
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 2500) }
 
@@ -716,5 +724,20 @@ export default function ProfilePage() {
       <div style={{height:20}}/>
       <BottomNav/>
     </div>
+  )
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100dvh' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 24, marginBottom: 16 }}>⏳</div>
+          <p style={{ color: 'var(--muted)' }}>Loading...</p>
+        </div>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
   )
 }

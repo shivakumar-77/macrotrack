@@ -266,7 +266,7 @@ function ProfilePageContent() {
         {[{label:'Height',unit:'cm',val:bmiHeight,set:setBmiHeight},{label:'Weight',unit:'kg',val:bmiWeight,set:setBmiWeight},{label:'Age',unit:'yrs',val:bmiAge,set:setBmiAge}].map(f=>(
           <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
-            <input type="number" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
+            <input type="text" inputMode="numeric" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
               style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
             <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
           </div>
@@ -335,7 +335,7 @@ function ProfilePageContent() {
         {[{label:'Age',unit:'yrs',val:calcAge,set:setCalcAge},{label:'Height',unit:'cm',val:calcHeight,set:setCalcHeight},{label:'Weight',unit:'kg',val:calcWeight,set:setCalcWeight}].map(f=>(
           <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
             <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
-            <input type="number" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
+            <input type="text" inputMode="numeric" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
               style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
             <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
           </div>
@@ -507,10 +507,10 @@ function ProfilePageContent() {
             <div><Label text="Full name"/><input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="Your full name"/></div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
               <div><Label text="Date of Birth"/><input type="date" value={form.dob} onChange={e=>setForm(p=>({...p,dob:e.target.value}))}/></div>
-              <div><Label text="Age"/><input type="number" value={form.age} onChange={e=>setForm(p=>({...p,age:e.target.value}))} placeholder="25"/></div>
+              <div><Label text="Age"/><input type="text" inputMode="numeric" value={form.age} onChange={e=>setForm(p=>({...p,age:e.target.value}))} placeholder="25"/></div>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
-              <div><Label text="Height (cm)"/><input type="number" value={form.height} onChange={e=>setForm(p=>({...p,height:e.target.value}))} placeholder="175"/></div>
+              <div><Label text="Height (cm)"/><input type="text" inputMode="numeric" value={form.height} onChange={e=>setForm(p=>({...p,height:e.target.value}))} placeholder="175"/></div>
               <div><Label text="Phone Number"/><input type="tel" value={form.phone_number} onChange={e=>setForm(p=>({...p,phone_number:e.target.value}))} placeholder="+1 234 567 890"/></div>
             </div>
             <div>
@@ -549,7 +549,7 @@ function ProfilePageContent() {
               </div>
             </div>
             <div style={{display:'flex',gap:8,marginBottom:16}}>
-              <input type="number" placeholder="Today's weight (kg)" value={weightVal} onChange={e=>setWeightVal(e.target.value)} step="0.1" style={{flex:1}} onKeyDown={e=>e.key==='Enter'&&logWeight()}/>
+              <input type="text" inputMode="decimal" placeholder="Today's weight (kg)" value={weightVal} onChange={e=>setWeightVal(e.target.value)} style={{flex:1}} onKeyDown={e=>e.key==='Enter'&&logWeight()}/>
               <button className="btn btn-primary" onClick={logWeight} style={{flexShrink:0,padding:'12px 20px',fontWeight:700}}>Log</button>
             </div>
             <WeightGraph/>
@@ -603,7 +603,7 @@ function ProfilePageContent() {
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
               {[{l:'Calories (kcal)',k:'cal_target'},{l:'Protein (g)',k:'protein_target'},{l:'Carbs (g)',k:'carb_target'},{l:'Fat (g)',k:'fat_target'},{l:'Fiber (g)',k:'fiber_target'},{l:'Goal weight (kg)',k:'weight_goal'},{l:'Water goal (ml)',k:'water_goal'}].map(f=>(
-                <div key={f.k}><Label text={f.l}/><input type="number" value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:parseFloat(e.target.value)||0}))}/></div>
+                <div key={f.k}><Label text={f.l}/><input type="text" inputMode="numeric" value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:parseFloat(e.target.value)||0}))}/></div>
               ))}
             </div>
             <button className="btn btn-primary" style={{width:'100%',padding:'14px',fontWeight:700}} onClick={saveForm} disabled={saving}>

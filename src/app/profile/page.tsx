@@ -491,6 +491,10 @@ function ProfilePageContent() {
 
       {tab==='profile'&&(
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <button onClick={()=>setTab('setting')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:13,fontWeight:600,marginBottom:16,padding:0,display:'flex',alignItems:'center',gap:6}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Settings
+          </button>
           <div className="card" style={{display:'flex',flexDirection:'column',gap:14}}>
             <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>Personal details</div>
             <div><Label text="Full name"/><input value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))} placeholder="Your full name"/></div>
@@ -684,6 +688,10 @@ function ProfilePageContent() {
       {/* MY PLAN TAB */}
       {tab==='plan'&&(
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <button onClick={()=>setTab('setting')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:13,fontWeight:600,marginBottom:16,padding:0,display:'flex',alignItems:'center',gap:6}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Settings
+          </button>
           <div className="card">
             <div style={{fontWeight:700,fontSize:15,marginBottom:16}}>📊 Daily targets</div>
             {[{l:'Calories',v:form.cal_target,u:'kcal',c:'#6366f1',bg:'#eef2ff'},{l:'Protein',v:form.protein_target,u:'g',c:'#3b82f6',bg:'#dbeafe'},{l:'Carbohydrates',v:form.carb_target,u:'g',c:'#f59e0b',bg:'#fef3c7'},{l:'Fat',v:form.fat_target,u:'g',c:'#ef4444',bg:'#fee2e2'},{l:'Fiber',v:form.fiber_target,u:'g',c:'#10b981',bg:'#d1fae5'},{l:'Water',v:form.water_goal,u:'ml',c:'#0ea5e9',bg:'#e0f2fe'}].map(m=>(

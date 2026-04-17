@@ -16,6 +16,16 @@ function ProfilePageContent() {
   const [form, setForm] = useState({ name:'', dob:'', age:'', gender:'male', phone_number:'', photo_url:'', goal:'lose', cal_target:1700, protein_target:167, carb_target:144, fat_target:60, fiber_target:25, weight_goal:72, water_goal:2000 })
   const [secForm, setSecForm] = useState({ newEmail:'', newPassword:'', confirmPassword:'' })
   const [legalPage, setLegalPage] = useState(null)
+  const [notificationSettings, setNotificationSettings] = useState({
+    enabled: false,
+    mealReminders: false,
+    hydrationAlerts: false,
+    breakfastTime: '08:00',
+    lunchTime: '13:00',
+    dinnerTime: '19:00',
+    hydrationInterval: 2,
+    sendReminderTest: false
+  })
 
   // BMI Calculator state
   const [bmiGender, setBmiGender] = useState('male')
@@ -49,12 +59,88 @@ function ProfilePageContent() {
 
   useEffect(() => {
     const tabParam = searchParams.get('tab')
-    if (tabParam && ['profile', 'setting', 'plan', 'goals', 'bmi', 'calorie-calc', 'password', 'email'].includes(tabParam)) {
+    if (tabParam && ['profile', 'setting', 'plan', 'goals', 'bmi', 'calorie-calc', 'notifications', 'password', 'email'].includes(tabParam)) {
       setTab(tabParam)
     }
   }, [searchParams])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const saved = localStorage.getItem('macrotrack-notification-settings')
+      if (saved) setNotificationSettings(JSON.parse(saved))
+    } catch (err) {
+      console.error('Failed to load notification settings', err)
+    }
+  }, [])
+
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 2500) }
+
+  async function ensureNotificationPermission() {
+    if (typeof window === 'undefined') return false
+    if (!('Notification' in window)) { showMsg('Browser notifications are not supported.'); return false }
+    const permission = await Notification.requestPermission()
+    if (permission === 'granted') {
+      showMsg('Notifications enabled!')
+      return true
+    }
+    showMsg('Please allow notifications in browser settings.')
+    return false
+  }
+
+  function saveNotificationSettings() {
+    if (typeof window === 'undefined') return
+    localStorage.setItem('macrotrack-notification-settings', JSON.stringify(notificationSettings))
+    showMsg('Notification settings saved!')
+  }
+
+  function triggerNotification(title, body) {
+    if (typeof window === 'undefined') return
+    if (!('Notification' in window) || Notification.permission !== 'granted') return
+    new Notification(title, { body })
+  }
+
+  function getNextDelay(time) {
+    const [hour, minute] = time.split(':').map(Number)
+    const now = new Date()
+    const next = new Date(now)
+    next.setHours(hour, minute, 0, 0)
+    if (next <= now) next.setDate(next.getDate() + 1)
+    return next.getTime() - now.getTime()
+  }
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !notificationSettings.enabled || Notification.permission !== 'granted') return
+    const timers = []
+    const intervals = []
+
+    if (notificationSettings.mealReminders) {
+      const meals = [
+        { label: 'Breakfast reminder', time: notificationSettings.breakfastTime, body: 'Time for a healthy breakfast to fuel your day.' },
+        { label: 'Lunch reminder', time: notificationSettings.lunchTime, body: 'Lunch time! Keep your energy steady with a balanced meal.' },
+        { label: 'Dinner reminder', time: notificationSettings.dinnerTime, body: 'Dinner reminder — choose protein, veggies, and healthy carbs.' }
+      ]
+      meals.forEach(meal => {
+        const delay = getNextDelay(meal.time)
+        const timer = window.setTimeout(() => {
+          triggerNotification(meal.label, meal.body)
+        }, delay)
+        timers.push(timer)
+      })
+    }
+
+    if (notificationSettings.hydrationAlerts) {
+      const interval = window.setInterval(() => {
+        triggerNotification('Hydration alert', 'Drink a glass of water to stay hydrated.')
+      }, notificationSettings.hydrationInterval * 3600000)
+      intervals.push(interval)
+    }
+
+    return () => {
+      timers.forEach(window.clearTimeout)
+      intervals.forEach(window.clearInterval)
+    }
+  }, [notificationSettings])
 
   async function handlePhotoUpload(e) {
     const file = e.target.files[0]
@@ -234,43 +320,97 @@ function ProfilePageContent() {
     const h = parseFloat(bmiHeight), w = parseFloat(bmiWeight)
     if (!h || !w) return
     const bmi = w / ((h / 100) ** 2)
-    let category, color, advice
-    if (bmi < 18.5) { category = 'Underweight'; color = '#3b82f6'; advice = 'Focus on nutrient-dense foods and strength training to gain healthy weight.' }
-    else if (bmi < 25) { category = 'Normal weight'; color = '#10b981'; advice = 'Maintain your current lifestyle with balanced nutrition and regular exercise.' }
-    else if (bmi < 30) { category = 'Overweight'; color = '#f59e0b'; advice = 'A calorie deficit of 300-500 kcal/day with regular exercise can help.' }
-    else if (bmi < 35) { category = 'Obese (Class I)'; color = '#ef4444'; advice = 'Consult a healthcare provider. A structured diet and exercise plan can help.' }
-    else { category = 'Obese (Class II+)'; color = '#dc2626'; advice = 'Please consult a doctor. Medical supervision is recommended.' }
+    let category, color, advice, risk
+    if (bmi < 18.5) {
+      category = 'Underweight'
+      color = '#3b82f6'
+      advice = 'Add calorie-dense whole foods and strength training to build healthy mass.'
+      risk = 'Increased risk of fatigue, nutrient deficiencies, and weakened immunity.'
+    } else if (bmi < 25) {
+      category = 'Normal weight'
+      color = '#10b981'
+      advice = 'Keep your balance with consistent exercise, quality protein, and nutrient-dense meals.'
+      risk = 'Lowest risk category for weight-related health issues.'
+    } else if (bmi < 30) {
+      category = 'Overweight'
+      color = '#f59e0b'
+      advice = 'Aim for gradual fat loss with a 300–500 kcal deficit and strength training.'
+      risk = 'Elevated risk of metabolic issues such as insulin resistance and high blood pressure.'
+    } else if (bmi < 35) {
+      category = 'Obese (Class I)'
+      color = '#ef4444'
+      advice = 'Focus on a structured nutrition plan and regular activity; consult a professional if needed.'
+      risk = 'Moderate risk of diabetes, heart disease, and joint strain.'
+    } else {
+      category = 'Obese (Class II+)'
+      color = '#dc2626'
+      advice = 'Seek medical advice and use a sustainable approach to reduce body weight safely.'
+      risk = 'High risk of chronic disease, cardiovascular strain, and metabolic dysfunction.'
+    }
     const idealMin = (18.5 * ((h / 100) ** 2)).toFixed(1)
     const idealMax = (24.9 * ((h / 100) ** 2)).toFixed(1)
-    const toLose = w > parseFloat(idealMax) ? (w - parseFloat(idealMax)).toFixed(1) : null
-    const toGain = w < parseFloat(idealMin) ? (parseFloat(idealMin) - w).toFixed(1) : null
-    setBmiResult({ bmi: bmi.toFixed(1), category, color, advice, idealMin, idealMax, toLose, toGain })
+    const targetChange = w > parseFloat(idealMax)
+      ? { label: 'To reach healthy range', value: `Lose ${(w - parseFloat(idealMax)).toFixed(1)} kg` }
+      : w < parseFloat(idealMin)
+        ? { label: 'To reach healthy range', value: `Gain ${(parseFloat(idealMin) - w).toFixed(1)} kg` }
+        : { label: 'You are in a healthy range', value: 'Maintain weight with balanced nutrition' }
+    setBmiResult({ bmi: bmi.toFixed(1), category, color, advice, risk, idealMin, idealMax, targetChange })
   }
 
   function calculateCalories() {
     const age = parseFloat(calcAge), height = parseFloat(calcHeight), weight = parseFloat(calcWeight)
     if (!age || !height || !weight) return
-    const bmr = calcGender === 'male' ? 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age) : 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
+    const bmr = calcGender === 'male'
+      ? 88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age)
+      : 447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age)
     const activityMul = { sedentary: 1.2, light: 1.375, moderate: 1.55, very: 1.725, extra: 1.9 }[calcActivity]
     const tdee = bmr * activityMul
-    const safe = tdee - 500
-    const moderate = tdee - 1000
-    const aggressive = tdee - 1500
-    const gainLean = tdee + 250
-    setCalcResult({ bmr: Math.round(bmr), tdee: Math.round(tdee), safe: Math.round(safe), moderate: Math.round(moderate), aggressive: Math.round(aggressive), gainLean: Math.round(gainLean) })
+    const maintain = Math.round(tdee)
+    const safe = Math.round(tdee - 250)
+    const moderate = Math.round(tdee - 500)
+    const aggressive = Math.round(tdee - 750)
+    const gainLean = Math.round(tdee + 250)
+    const protein = Math.round(weight * 1.8)
+    const fat = Math.round((tdee * 0.25) / 9)
+    const carbs = Math.round(Math.max(0, (tdee - (protein * 4 + fat * 9)) / 4))
+    setCalcResult({
+      bmr: Math.round(bmr),
+      tdee: maintain,
+      safe,
+      moderate,
+      aggressive,
+      gainLean,
+      protein,
+      fat,
+      carbs,
+      proteinPerKg: 1.8,
+      activityLabel: calcActivity
+    })
   }
 
   const BMICalculator = () => (
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:20}}>
-        {[{label:'Height',unit:'cm',val:bmiHeight,set:setBmiHeight},{label:'Weight',unit:'kg',val:bmiWeight,set:setBmiWeight},{label:'Age',unit:'yrs',val:bmiAge,set:setBmiAge}].map(f=>(
-          <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
-            <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
-            <input type="text" inputMode="numeric" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
-              style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
-            <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
-          </div>
-        ))}
+      <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+          {[{label:'Height',unit:'cm',val:bmiHeight,set:setBmiHeight},{label:'Weight',unit:'kg',val:bmiWeight,set:setBmiWeight},{label:'Age',unit:'yrs',val:bmiAge,set:setBmiAge}].map(f=>(
+            <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
+              <input type="text" inputMode="numeric" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
+                style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
+            </div>
+          ))}
+        </div>
+        {(form.height || form.age || latest?.weight_kg) && (
+          <button onClick={()=>{
+            if (form.height) setBmiHeight(form.height)
+            if (form.age) setBmiAge(form.age)
+            if (form.gender) setBmiGender(form.gender)
+            if (latest?.weight_kg) setBmiWeight(latest.weight_kg)
+          }} className="btn btn-ghost" style={{width:'100%',padding:'12px',fontSize:13,fontWeight:700,borderRadius:16,border:'1.5px solid var(--border)',background:'var(--card2)'}}>
+            Use profile values
+          </button>
+        )}
       </div>
       <button onClick={calculateBMI} className="btn btn-primary" style={{width:'100%',padding:'16px',fontSize:15,fontWeight:700,marginBottom:24}}>Calculate BMI</button>
       {bmiResult && (
@@ -295,23 +435,29 @@ function ProfilePageContent() {
             <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Your results</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
               <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
-                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Ideal weight</div>
-                <div style={{fontWeight:700,fontSize:14,color:'#10b981'}}>{bmiResult.idealMin}-{bmiResult.idealMax} kg</div>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Healthy BMI range</div>
+                <div style={{fontWeight:700,fontSize:14,color:'#10b981'}}>18.5 - 24.9</div>
               </div>
               <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
-                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>{bmiResult.toLose?'To lose':bmiResult.toGain?'To gain':'Status'}</div>
-                <div style={{fontWeight:700,fontSize:14,color:bmiResult.toLose?'#ef4444':bmiResult.toGain?'#3b82f6':'#10b981'}}>
-                  {bmiResult.toLose?bmiResult.toLose+' kg':bmiResult.toGain?bmiResult.toGain+' kg':'Healthy'}
-                </div>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Healthy weight</div>
+                <div style={{fontWeight:700,fontSize:14,color:'#10b981'}}>{bmiResult.idealMin}-{bmiResult.idealMax} kg</div>
               </div>
             </div>
-            <div style={{background:'#fef3c7',borderRadius:14,padding:'14px',border:'1.5px solid #fde68a'}}>
-              <div style={{fontSize:12,fontWeight:700,color:'#d97706',marginBottom:4}}>Advice</div>
-              <div style={{fontSize:13,color:'#92400e',lineHeight:1.6}}>{bmiResult.advice}</div>
+            <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)',marginBottom:14}}>
+              <div style={{fontSize:12,fontWeight:700,color:bmiResult.color,marginBottom:6}}>{bmiResult.targetChange.label}</div>
+              <div style={{fontSize:14,fontWeight:700,color:'var(--text)'}}>{bmiResult.targetChange.value}</div>
+            </div>
+            <div style={{background:'#fef3c7',borderRadius:14,padding:'14px',border:'1.5px solid #fde68a',marginBottom:14}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#d97706',marginBottom:4}}>Health risk</div>
+              <div style={{fontSize:13,color:'#92400e',lineHeight:1.6}}>{bmiResult.risk}</div>
+            </div>
+            <div style={{background:'#f0f9ff',borderRadius:14,padding:'14px',border:'1.5px solid #bfdbfe'}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#2563eb',marginBottom:4}}>Recommended next step</div>
+              <div style={{fontSize:13,color:'#1d4ed8',lineHeight:1.6}}>{bmiResult.advice}</div>
             </div>
           </div>
           <div className="card" style={{marginBottom:16}}>
-            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>BMI chart</div>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>BMI categories</div>
             {[{label:'Underweight',range:'< 18.5',color:'#3b82f6'},{label:'Normal weight',range:'18.5-24.9',color:'#10b981'},{label:'Overweight',range:'25-29.9',color:'#f59e0b'},{label:'Obese Class I',range:'30-34.9',color:'#ef4444'},{label:'Obese Class II+',range:'35+',color:'#dc2626'}].map((r,i,arr)=>(
               <div key={r.label} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 0',borderBottom:i<arr.length-1?'1px solid var(--border)':'none'}}>
                 <div style={{width:10,height:10,borderRadius:'50%',background:r.color,flexShrink:0}}/>
@@ -322,7 +468,7 @@ function ProfilePageContent() {
             ))}
           </div>
           <div style={{background:'#f0fdf4',borderRadius:16,padding:'14px 16px',border:'1.5px solid #bbf7d0',marginBottom:24}}>
-            <p style={{fontSize:12,color:'#15803d',lineHeight:1.6}}>BMI is a screening tool, not a diagnostic measure. Consult a healthcare professional for a complete assessment.</p>
+            <p style={{fontSize:12,color:'#15803d',lineHeight:1.6}}>BMI is a screening tool. Use it together with body composition and health markers for a full picture.</p>
           </div>
         </div>
       )}
@@ -331,15 +477,27 @@ function ProfilePageContent() {
 
   const CalorieCalculator = () => (
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:20}}>
-        {[{label:'Age',unit:'yrs',val:calcAge,set:setCalcAge},{label:'Height',unit:'cm',val:calcHeight,set:setCalcHeight},{label:'Weight',unit:'kg',val:calcWeight,set:setCalcWeight}].map(f=>(
-          <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
-            <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
-            <input type="text" inputMode="numeric" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
-              style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
-            <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
-          </div>
-        ))}
+      <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:16}}>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+          {[{label:'Age',unit:'yrs',val:calcAge,set:setCalcAge},{label:'Height',unit:'cm',val:calcHeight,set:setCalcHeight},{label:'Weight',unit:'kg',val:calcWeight,set:setCalcWeight}].map(f=>(
+            <div key={f.label} style={{background:'var(--surface)',borderRadius:16,padding:'14px 12px',border:'1.5px solid var(--border)',textAlign:'center'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:8}}>{f.label}</div>
+              <input type="text" inputMode="numeric" value={f.val} onChange={e=>f.set(e.target.value)} placeholder="0"
+                style={{textAlign:'center',fontWeight:800,fontSize:22,background:'transparent',border:'none',padding:0,width:'100%',outline:'none'}}/>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:4}}>{f.unit}</div>
+            </div>
+          ))}
+        </div>
+        {(form.height || form.age || latest?.weight_kg) && (
+          <button onClick={()=>{
+            if (form.height) setCalcHeight(form.height)
+            if (form.age) setCalcAge(form.age)
+            if (form.gender) setCalcGender(form.gender)
+            if (latest?.weight_kg) setCalcWeight(latest.weight_kg)
+          }} className="btn btn-ghost" style={{width:'100%',padding:'12px',fontSize:13,fontWeight:700,borderRadius:16,border:'1.5px solid var(--border)',background:'var(--card2)'}}>
+            Use profile values
+          </button>
+        )}
       </div>
       <div style={{marginBottom:20}}>
         <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Activity Level</div>
@@ -371,16 +529,33 @@ function ProfilePageContent() {
                 <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>Total Daily Energy Expenditure</div>
               </div>
             </div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Protein</div>
+                <div style={{fontWeight:700,fontSize:18}}>{calcResult.protein}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> g</span></div>
+                <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>~{calcResult.proteinPerKg} g/kg body weight</div>
+              </div>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Carbs</div>
+                <div style={{fontWeight:700,fontSize:18}}>{calcResult.carbs}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> g</span></div>
+                <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>Energy for training and recovery</div>
+              </div>
+              <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+                <div style={{fontSize:11,color:'var(--muted)',fontWeight:600,marginBottom:4}}>Fat</div>
+                <div style={{fontWeight:700,fontSize:18}}>{calcResult.fat}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> g</span></div>
+                <div style={{fontSize:10,color:'var(--muted)',marginTop:2}}>25% of calories from healthy fats</div>
+              </div>
+            </div>
           </div>
           <div style={{marginBottom:16}}>
-            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Weight goals</div>
+            <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Goal-based calorie plans</div>
             <div style={{display:'flex',flexDirection:'column',gap:8}}>
               <div style={{background:'#dbeafe',borderRadius:16,padding:'16px',border:'1.5px solid #93c5fd'}}>
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                   <span style={{fontSize:20}}>⚖️</span>
                   <div style={{flex:1}}>
                     <div style={{fontWeight:700,fontSize:14,color:'#1e40af'}}>Maintain weight</div>
-                    <div style={{fontSize:12,color:'#3730a3'}}>Stay at current weight</div>
+                    <div style={{fontSize:12,color:'#3730a3'}}>Current energy balance</div>
                   </div>
                   <div style={{textAlign:'right'}}>
                     <div style={{fontSize:18,fontWeight:800,color:'#1e40af'}}>{calcResult.tdee}</div>
@@ -392,12 +567,12 @@ function ProfilePageContent() {
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                   <span style={{fontSize:20}}>🌱</span>
                   <div style={{flex:1}}>
-                    <div style={{fontWeight:700,fontSize:14,color:'#047857'}}>Lose 0.25 kg/week</div>
-                    <div style={{fontSize:12,color:'#065f46'}}>Safe and sustainable</div>
+                    <div style={{fontWeight:700,fontSize:14,color:'#047857'}}>Mild fat loss</div>
+                    <div style={{fontSize:12,color:'#065f46'}}>Sustainable deficit</div>
                   </div>
                   <div style={{textAlign:'right'}}>
                     <div style={{fontSize:18,fontWeight:800,color:'#047857'}}>{calcResult.safe}</div>
-                    <div style={{fontSize:11,color:'#065f46'}}>-500 kcal</div>
+                    <div style={{fontSize:11,color:'#065f46'}}>-250 kcal</div>
                   </div>
                 </div>
               </div>
@@ -405,12 +580,12 @@ function ProfilePageContent() {
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                   <span style={{fontSize:20}}>🔥</span>
                   <div style={{flex:1}}>
-                    <div style={{fontWeight:700,fontSize:14,color:'#d97706'}}>Lose 0.5 kg/week</div>
-                    <div style={{fontSize:12,color:'#92400e'}}>Steady fat loss (recommended)</div>
+                    <div style={{fontWeight:700,fontSize:14,color:'#d97706'}}>Moderate fat loss</div>
+                    <div style={{fontSize:12,color:'#92400e'}}>Effective and safe</div>
                   </div>
                   <div style={{textAlign:'right'}}>
                     <div style={{fontSize:18,fontWeight:800,color:'#d97706'}}>{calcResult.moderate}</div>
-                    <div style={{fontSize:11,color:'#92400e'}}>-1000 kcal</div>
+                    <div style={{fontSize:11,color:'#92400e'}}>-500 kcal</div>
                   </div>
                 </div>
               </div>
@@ -418,12 +593,12 @@ function ProfilePageContent() {
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                   <span style={{fontSize:20}}>⚡</span>
                   <div style={{flex:1}}>
-                    <div style={{fontWeight:700,fontSize:14,color:'#dc2626'}}>Lose 1 kg/week</div>
-                    <div style={{fontSize:12,color:'#b91c1c'}}>Aggressive - short periods only</div>
+                    <div style={{fontWeight:700,fontSize:14,color:'#dc2626'}}>Aggressive cut</div>
+                    <div style={{fontSize:12,color:'#b91c1c'}}>Short-term only</div>
                   </div>
                   <div style={{textAlign:'right'}}>
                     <div style={{fontSize:18,fontWeight:800,color:'#dc2626'}}>{calcResult.aggressive}</div>
-                    <div style={{fontSize:11,color:'#b91c1c'}}>-1500 kcal</div>
+                    <div style={{fontSize:11,color:'#b91c1c'}}>-750 kcal</div>
                   </div>
                 </div>
               </div>
@@ -431,8 +606,8 @@ function ProfilePageContent() {
                 <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
                   <span style={{fontSize:20}}>💪</span>
                   <div style={{flex:1}}>
-                    <div style={{fontWeight:700,fontSize:14,color:'#1e40af'}}>Gain 0.25 kg/week</div>
-                    <div style={{fontSize:12,color:'#3730a3'}}>Lean muscle gain</div>
+                    <div style={{fontWeight:700,fontSize:14,color:'#1e40af'}}>Lean muscle gain</div>
+                    <div style={{fontSize:12,color:'#3730a3'}}>Controlled calorie surplus</div>
                   </div>
                   <div style={{textAlign:'right'}}>
                     <div style={{fontSize:18,fontWeight:800,color:'#1e40af'}}>{calcResult.gainLean}</div>
@@ -443,7 +618,7 @@ function ProfilePageContent() {
             </div>
           </div>
           <div style={{background:'#f0fdf4',borderRadius:16,padding:'14px 16px',border:'1.5px solid #bbf7d0',marginBottom:24}}>
-            <p style={{fontSize:12,color:'#15803d',lineHeight:1.6}}>Uses the Mifflin-St Jeor equation - the most accurate formula for estimating daily calorie needs.</p>
+            <p style={{fontSize:12,color:'#15803d',lineHeight:1.6}}>These recommendations are built from Mifflin-St Jeor and a high-protein macro split. Adjust based on progress and recovery.</p>
           </div>
         </div>
       )}
@@ -559,11 +734,7 @@ function ProfilePageContent() {
           <MenuItem icon="📈" label="My Plan" sublabel="Daily targets and current goal" onClick={()=>setTab('plan')}/>
           <MenuItem icon="⚖️" label="BMI Calculator" sublabel="Body Mass Index" onClick={()=>setTab('bmi')}/>
           <MenuItem icon="🧮" label="Calorie Calculator" sublabel="Daily calorie needs" onClick={()=>setTab('calorie-calc')}/>
-          <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={async()=>{
-            const p=await Notification.requestPermission()
-            if(p==='granted'){new Notification('MacroTrack',{body:'Notifications enabled!'});showMsg('Notifications enabled!')}
-            else showMsg('Please allow notifications in browser settings.')
-          }}/>
+          <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={()=>setTab('notifications')}/>
           <MenuItem icon="🔑" label="Change Password" sublabel="Update your password" onClick={()=>setTab('password')}/>
           <MenuItem icon="📧" label="Change Email" sublabel={userEmail} onClick={()=>setTab('email')}/>
 
@@ -636,6 +807,77 @@ function ProfilePageContent() {
             <div style={{fontSize:13,color:'var(--muted)',marginBottom:8}}>Calculate your daily calorie needs based on your profile and activity level.</div>
             {/* Calorie Calculator content here */}
             <CalorieCalculator/>
+          </div>
+        </div>
+      )}
+
+      {/* NOTIFICATIONS SUB-PAGE */}
+      {tab==='notifications'&&(
+        <div>
+          <button onClick={()=>setTab('setting')} style={{background:'none',border:'none',color:'var(--muted)',cursor:'pointer',fontSize:13,fontWeight:600,marginBottom:16,padding:0,display:'flex',alignItems:'center',gap:6}}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Back to Settings
+          </button>
+          <div className="card" style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div style={{fontWeight:700,fontSize:15}}>🔔 Notifications</div>
+            <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.6}}>Enable browser alerts for meal reminders and hydration prompts while MacroTrack is open.</div>
+            <label style={{display:'flex',alignItems:'center',gap:12}}>
+              <input type="checkbox" checked={notificationSettings.enabled} onChange={async e=>{
+                const enabled = e.target.checked
+                if (enabled) {
+                  const granted = await ensureNotificationPermission()
+                  if (!granted) return
+                }
+                setNotificationSettings(p=>({...p, enabled}))
+              }}/>
+              <span style={{fontWeight:700}}>Enable notifications</span>
+            </label>
+            <div style={{padding:'16px',borderRadius:20,background:'var(--surface)',border:'1.5px solid var(--border)'}}>
+              <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>Meal reminders</div>
+              <label style={{display:'flex',alignItems:'center',gap:12,marginBottom:10}}>
+                <input type="checkbox" checked={notificationSettings.mealReminders} onChange={e=>setNotificationSettings(p=>({...p, mealReminders:e.target.checked}))}/>
+                <span>Meal reminders</span>
+              </label>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+                <div>
+                  <Label text="Breakfast"/>
+                  <input type="time" value={notificationSettings.breakfastTime} onChange={e=>setNotificationSettings(p=>({...p, breakfastTime:e.target.value}))}/>
+                </div>
+                <div>
+                  <Label text="Lunch"/>
+                  <input type="time" value={notificationSettings.lunchTime} onChange={e=>setNotificationSettings(p=>({...p, lunchTime:e.target.value}))}/>
+                </div>
+                <div>
+                  <Label text="Dinner"/>
+                  <input type="time" value={notificationSettings.dinnerTime} onChange={e=>setNotificationSettings(p=>({...p, dinnerTime:e.target.value}))}/>
+                </div>
+              </div>
+            </div>
+            <div style={{padding:'16px',borderRadius:20,background:'var(--surface)',border:'1.5px solid var(--border)'}}>
+              <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>Hydration alerts</div>
+              <label style={{display:'flex',alignItems:'center',gap:12,marginBottom:10}}>
+                <input type="checkbox" checked={notificationSettings.hydrationAlerts} onChange={e=>setNotificationSettings(p=>({...p, hydrationAlerts:e.target.checked}))}/>
+                <span>Hydration alerts</span>
+              </label>
+              <div>
+                <Label text="Interval (hours)"/>
+                <input type="number" min="1" max="12" value={notificationSettings.hydrationInterval} onChange={e=>setNotificationSettings(p=>({...p, hydrationInterval:parseInt(e.target.value)||1}))} />
+              </div>
+            </div>
+            <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+              <button className="btn btn-primary" style={{flex:'1 1 auto',padding:'14px',fontWeight:700}} onClick={saveNotificationSettings}>
+                Save notification settings
+              </button>
+              <button className="btn btn-ghost" style={{flex:'1 1 auto',padding:'14px',fontWeight:700}} onClick={()=>{
+                if (notificationSettings.enabled && Notification.permission==='granted') {
+                  triggerNotification('MacroTrack test', 'This is your notification test alert.')
+                } else {
+                  showMsg('Enable notifications first to test alerts.')
+                }
+              }}>
+                Test notification
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -489,17 +489,6 @@ function ProfilePageContent() {
 
       {msg&&<div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>}
 
-      {/* Tabs */}
-      <div style={{display:'flex',background:'var(--card2)',borderRadius:16,padding:4,marginBottom:24,border:'1.5px solid var(--border)'}}>
-        {[{id:'profile',label:'Profile'},{id:'setting',label:'Setting'},{id:'plan',label:'My Plan'}].map(t=>(
-          <button key={t.id} onClick={()=>setTab(t.id)}
-            style={{flex:1,padding:'10px',borderRadius:12,border:'none',fontSize:13,fontWeight:600,cursor:'pointer',transition:'all 0.15s',background:tab===t.id?'var(--primary)':'transparent',color:tab===t.id?'#fff':'var(--muted)',boxShadow:tab===t.id?'0 2px 8px rgba(99,102,241,0.3)':'none'}}>
-            {t.label}
-          </button>
-        ))}
-      </div>
-
-      {/* PROFILE TAB */}
       {tab==='profile'&&(
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <div className="card" style={{display:'flex',flexDirection:'column',gap:14}}>
@@ -561,7 +550,9 @@ function ProfilePageContent() {
       {tab==='setting'&&(
         <div>
           <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>Account</div>
+          <MenuItem icon="👤" label="Profile" sublabel="Edit personal details" onClick={()=>setTab('profile')}/>
           <MenuItem icon="🎯" label="My Goals" sublabel="Calories, macros & targets" onClick={()=>setTab('goals')}/>
+          <MenuItem icon="📈" label="My Plan" sublabel="Daily targets and current goal" onClick={()=>setTab('plan')}/>
           <MenuItem icon="⚖️" label="BMI Calculator" sublabel="Body Mass Index" onClick={()=>setTab('bmi')}/>
           <MenuItem icon="🧮" label="Calorie Calculator" sublabel="Daily calorie needs" onClick={()=>setTab('calorie-calc')}/>
           <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={async()=>{

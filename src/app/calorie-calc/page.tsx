@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const ACTIVITY = [
@@ -19,23 +19,44 @@ export default function CalorieCalcPage() {
   const [activity, setActivity] = useState('moderate')
   const [result, setResult] = useState(null)
 
-  const calculate = useCallback(() => {
+  function calculate() {
     const h = parseFloat(height), w = parseFloat(weight), a = parseInt(age)
     if (!h || !w || !a) return
     const act = ACTIVITY.find(l => l.id === activity)
-    const bmr = gender === 'male' ? 10 * w + 6.25 * h - 5 * a + 5 : 10 * w + 6.25 * h - 5 * a - 161
+    const bmr = gender === 'male' ? 10*w + 6.25*h - 5*a + 5 : 10*w + 6.25*h - 5*a - 161
     const tdee = Math.round(bmr * act.mul)
     setResult({
       bmr: Math.round(bmr), tdee, actLabel: act.label,
-      safe: Math.max(1200, tdee - 200),
-      moderate: Math.max(1200, tdee - 500),
-      aggressive: Math.max(1200, tdee - 1000),
-      gainLean: tdee + 250,
-      prot: Math.round(w * 2),
-      carb: Math.round((tdee * 0.45) / 4),
-      fat: Math.round((tdee * 0.25) / 9),
+      safe: Math.max(1200, tdee-200),
+      moderate: Math.max(1200, tdee-500),
+      aggressive: Math.max(1200, tdee-1000),
+      gainLean: tdee+250,
+      prot: Math.round(w*2),
+      carb: Math.round((tdee*0.45)/4),
+      fat: Math.round((tdee*0.25)/9),
     })
-  }, [gender, age, height, weight, activity])
+  }
+
+  const inputStyle = {
+    textAlign: 'center' as const,
+    fontWeight: 800,
+    fontSize: 22,
+    background: 'transparent',
+    border: 'none',
+    padding: 0,
+    width: '100%',
+    outline: 'none',
+    color: 'var(--text)',
+    WebkitAppearance: 'none',
+  }
+
+  const boxStyle = {
+    background: 'var(--card)',
+    borderRadius: 16,
+    padding: '14px 12px',
+    border: '1.5px solid var(--border)',
+    textAlign: 'center' as const,
+  }
 
   return (
     <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 40 }}>
@@ -48,37 +69,59 @@ export default function CalorieCalcPage() {
           <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Find your daily calorie needs</p>
         </div>
       </div>
+
       <div style={{ padding: '0 20px' }}>
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>I am</div>
           <div style={{ display: 'flex', gap: 12 }}>
             {[{ id: 'male', label: 'Male', symbol: '♂', c: 'var(--primary)', bg: 'var(--primary-bg)' }, { id: 'female', label: 'Female', symbol: '♀', c: '#ec4899', bg: '#fdf2f8' }].map(g => (
               <button key={g.id} onClick={() => setGender(g.id)}
-                style={{ flex: 1, padding: '24px 20px', borderRadius: 20, border: '2px solid ' + (gender === g.id ? g.c : 'var(--border)'), background: gender === g.id ? g.bg : 'var(--card)', cursor: 'pointer', textAlign: 'center' }}>
-                <div style={{ fontSize: 40, color: gender === g.id ? g.c : 'var(--muted)', marginBottom: 8 }}>{g.symbol}</div>
-                <div style={{ fontWeight: 700, color: gender === g.id ? g.c : 'var(--muted)' }}>{g.label}</div>
+                style={{ flex: 1, padding: '24px 20px', borderRadius: 20, border: '2px solid '+(gender===g.id?g.c:'var(--border)'), background: gender===g.id?g.bg:'var(--card)', cursor: 'pointer', textAlign: 'center' }}>
+                <div style={{ fontSize: 40, color: gender===g.id?g.c:'var(--muted)', marginBottom: 8 }}>{g.symbol}</div>
+                <div style={{ fontWeight: 700, color: gender===g.id?g.c:'var(--muted)' }}>{g.label}</div>
               </button>
             ))}
           </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '14px 12px', border: '1.5px solid var(--border)', textAlign: 'center' }}>
+          <div style={boxStyle}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>Age</div>
-            <input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="0" inputMode="numeric"
-              style={{ textAlign: 'center', fontWeight: 800, fontSize: 22, background: 'transparent', border: 'none', padding: 0, width: '100%', outline: 'none', color: 'var(--text)' }}/>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={age}
+              onChange={e => setAge(e.target.value)}
+              placeholder="0"
+              style={inputStyle}
+            />
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>yrs</div>
           </div>
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '14px 12px', border: '1.5px solid var(--border)', textAlign: 'center' }}>
+          <div style={boxStyle}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>Height</div>
-            <input type="number" value={height} onChange={e => setHeight(e.target.value)} placeholder="0" inputMode="decimal"
-              style={{ textAlign: 'center', fontWeight: 800, fontSize: 22, background: 'transparent', border: 'none', padding: 0, width: '100%', outline: 'none', color: 'var(--text)' }}/>
+            <input
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              value={height}
+              onChange={e => setHeight(e.target.value)}
+              placeholder="0"
+              style={inputStyle}
+            />
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>cm</div>
           </div>
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '14px 12px', border: '1.5px solid var(--border)', textAlign: 'center' }}>
+          <div style={boxStyle}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>Weight</div>
-            <input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="0" inputMode="decimal"
-              style={{ textAlign: 'center', fontWeight: 800, fontSize: 22, background: 'transparent', border: 'none', padding: 0, width: '100%', outline: 'none', color: 'var(--text)' }}/>
+            <input
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              value={weight}
+              onChange={e => setWeight(e.target.value)}
+              placeholder="0"
+              style={inputStyle}
+            />
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>kg</div>
           </div>
         </div>
@@ -88,13 +131,13 @@ export default function CalorieCalcPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {ACTIVITY.map(l => (
               <button key={l.id} onClick={() => setActivity(l.id)}
-                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, border: '2px solid ' + (activity === l.id ? 'var(--primary)' : 'var(--border)'), background: activity === l.id ? 'var(--primary-bg)' : 'var(--card)', cursor: 'pointer', textAlign: 'left' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, border: '2px solid '+(activity===l.id?'var(--primary)':'var(--border)'), background: activity===l.id?'var(--primary-bg)':'var(--card)', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ fontSize: 22, flexShrink: 0 }}>{l.icon}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: activity === l.id ? 'var(--primary)' : 'var(--text)' }}>{l.label}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: activity===l.id?'var(--primary)':'var(--text)' }}>{l.label}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted)' }}>{l.desc}</div>
                 </div>
-                {activity === l.id && <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {activity===l.id && <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>
                 </div>}
               </button>
@@ -129,7 +172,7 @@ export default function CalorieCalcPage() {
               { icon: '⚡', label: 'Lose 1 kg/week', desc: 'Aggressive - short periods only', cal: result.aggressive, rate: '-1000 kcal', color: '#ef4444', bg: '#fee2e2', border: '#fca5a5' },
               { icon: '💪', label: 'Gain 0.25 kg/week', desc: 'Lean muscle gain', cal: result.gainLean, rate: '+250 kcal', color: '#3b82f6', bg: '#dbeafe', border: '#93c5fd' },
             ].map(g => (
-              <div key={g.label} style={{ background: g.bg, borderRadius: 20, padding: '18px', border: '1.5px solid ' + g.border, marginBottom: 12 }}>
+              <div key={g.label} style={{ background: g.bg, borderRadius: 20, padding: '18px', border: '1.5px solid '+g.border, marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                   <span style={{ fontSize: 24 }}>{g.icon}</span>
                   <div style={{ flex: 1 }}>

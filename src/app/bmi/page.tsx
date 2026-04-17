@@ -1,5 +1,5 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function BMIPage() {
@@ -10,7 +10,7 @@ export default function BMIPage() {
   const [age, setAge] = useState('')
   const [result, setResult] = useState(null)
 
-  const calculate = useCallback(() => {
+  function calculate() {
     const h = parseFloat(height), w = parseFloat(weight)
     if (!h || !w) return
     const bmi = w / ((h / 100) ** 2)
@@ -25,9 +25,39 @@ export default function BMIPage() {
     const toLose = w > parseFloat(idealMax) ? (w - parseFloat(idealMax)).toFixed(1) : null
     const toGain = w < parseFloat(idealMin) ? (parseFloat(idealMin) - w).toFixed(1) : null
     setResult({ bmi: bmi.toFixed(1), category, color, advice, idealMin, idealMax, toLose, toGain })
-  }, [height, weight])
+  }
 
   const needleAngle = result ? Math.min(180, Math.max(0, ((parseFloat(result.bmi) - 10) / 30) * 180)) : 0
+
+  const inputStyle = {
+    textAlign: 'center' as const,
+    fontWeight: 800,
+    fontSize: 22,
+    background: 'transparent',
+    border: 'none',
+    padding: 0,
+    width: '100%',
+    outline: 'none',
+    color: 'var(--text)',
+    WebkitAppearance: 'none',
+  }
+
+  const boxStyle = {
+    background: 'var(--card)',
+    borderRadius: 16,
+    padding: '14px 12px',
+    border: '1.5px solid var(--border)',
+    textAlign: 'center' as const,
+  }
+
+  const labelStyle = {
+    fontSize: 11,
+    fontWeight: 700,
+    color: 'var(--muted)',
+    textTransform: 'uppercase' as const,
+    marginBottom: 8,
+    display: 'block',
+  }
 
   return (
     <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 40 }}>
@@ -40,6 +70,7 @@ export default function BMIPage() {
           <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Body Mass Index</p>
         </div>
       </div>
+
       <div style={{ padding: '0 20px' }}>
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Gender</div>
@@ -55,22 +86,43 @@ export default function BMIPage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 20 }}>
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '14px 12px', border: '1.5px solid var(--border)', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>Height</div>
-            <input type="number" value={height} onChange={e => setHeight(e.target.value)} placeholder="0" inputMode="decimal"
-              style={{ textAlign: 'center', fontWeight: 800, fontSize: 22, background: 'transparent', border: 'none', padding: 0, width: '100%', outline: 'none', color: 'var(--text)' }}/>
+          <div style={boxStyle}>
+            <span style={labelStyle}>Height</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              value={height}
+              onChange={e => setHeight(e.target.value)}
+              placeholder="0"
+              style={inputStyle}
+            />
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>cm</div>
           </div>
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '14px 12px', border: '1.5px solid var(--border)', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>Weight</div>
-            <input type="number" value={weight} onChange={e => setWeight(e.target.value)} placeholder="0" inputMode="decimal"
-              style={{ textAlign: 'center', fontWeight: 800, fontSize: 22, background: 'transparent', border: 'none', padding: 0, width: '100%', outline: 'none', color: 'var(--text)' }}/>
+          <div style={boxStyle}>
+            <span style={labelStyle}>Weight</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              pattern="[0-9]*"
+              value={weight}
+              onChange={e => setWeight(e.target.value)}
+              placeholder="0"
+              style={inputStyle}
+            />
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>kg</div>
           </div>
-          <div style={{ background: 'var(--card)', borderRadius: 16, padding: '14px 12px', border: '1.5px solid var(--border)', textAlign: 'center' }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', marginBottom: 8 }}>Age</div>
-            <input type="number" value={age} onChange={e => setAge(e.target.value)} placeholder="0" inputMode="numeric"
-              style={{ textAlign: 'center', fontWeight: 800, fontSize: 22, background: 'transparent', border: 'none', padding: 0, width: '100%', outline: 'none', color: 'var(--text)' }}/>
+          <div style={boxStyle}>
+            <span style={labelStyle}>Age</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={age}
+              onChange={e => setAge(e.target.value)}
+              placeholder="0"
+              style={inputStyle}
+            />
             <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>yrs</div>
           </div>
         </div>
@@ -86,10 +138,10 @@ export default function BMIPage() {
                   const a1 = (seg.s / 180) * Math.PI, a2 = (seg.e / 180) * Math.PI
                   const x1 = cx - r * Math.cos(a1), y1 = cy - r * Math.sin(a1)
                   const x2 = cx - r * Math.cos(a2), y2 = cy - r * Math.sin(a2)
-                  return <path key={i} d={'M ' + cx + ' ' + cy + ' L ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + (seg.e - seg.s > 90 ? 1 : 0) + ' 1 ' + x2 + ' ' + y2 + ' Z'} fill={seg.color} opacity="0.85"/>
+                  return <path key={i} d={'M '+cx+' '+cy+' L '+x1+' '+y1+' A '+r+' '+r+' 0 '+(seg.e-seg.s>90?1:0)+' 1 '+x2+' '+y2+' Z'} fill={seg.color} opacity="0.85"/>
                 })}
                 <circle cx="140" cy="140" r="72" fill="white"/>
-                <g transform={'rotate(' + (needleAngle - 180) + ', 140, 140)'}>
+                <g transform={'rotate('+(needleAngle-180)+', 140, 140)'}>
                   <line x1="140" y1="140" x2="140" y2="44" stroke="var(--text)" strokeWidth="3" strokeLinecap="round"/>
                   <circle cx="140" cy="140" r="8" fill="var(--text)"/>
                 </g>
@@ -108,7 +160,7 @@ export default function BMIPage() {
                 <div style={{ background: 'var(--surface)', borderRadius: 14, padding: '14px', border: '1.5px solid var(--border)' }}>
                   <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginBottom: 4 }}>{result.toLose ? 'To lose' : result.toGain ? 'To gain' : 'Status'}</div>
                   <div style={{ fontWeight: 700, fontSize: 14, color: result.toLose ? '#ef4444' : result.toGain ? '#3b82f6' : '#10b981' }}>
-                    {result.toLose ? result.toLose + ' kg' : result.toGain ? result.toGain + ' kg' : 'Healthy'}
+                    {result.toLose ? result.toLose+' kg' : result.toGain ? result.toGain+' kg' : 'Healthy'}
                   </div>
                 </div>
               </div>
@@ -120,7 +172,7 @@ export default function BMIPage() {
             <div className="card" style={{ marginBottom: 16 }}>
               <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 14 }}>BMI chart</div>
               {[{ label: 'Underweight', range: '< 18.5', color: '#3b82f6' }, { label: 'Normal weight', range: '18.5-24.9', color: '#10b981' }, { label: 'Overweight', range: '25-29.9', color: '#f59e0b' }, { label: 'Obese Class I', range: '30-34.9', color: '#ef4444' }, { label: 'Obese Class II+', range: '35+', color: '#dc2626' }].map((r, i, arr) => (
-                <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: i < arr.length-1 ? '1px solid var(--border)' : 'none' }}>
                   <div style={{ width: 10, height: 10, borderRadius: '50%', background: r.color, flexShrink: 0 }}/>
                   <div style={{ flex: 1, fontSize: 13, fontWeight: 600 }}>{r.label}</div>
                   <div style={{ fontSize: 13, color: 'var(--muted)' }}>{r.range}</div>

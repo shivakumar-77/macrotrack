@@ -19,18 +19,23 @@ export function middleware(request: NextRequest) {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: blob: https:; " +
-    "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://world.openfoodfacts.org; " +
+    "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://world.openfoodfacts.org https://accounts.google.com https://www.googleapis.com; " +
     "media-src 'self' blob:; " +
-    "frame-ancestors 'none';"
+    "frame-ancestors 'none'; " +
+    "form-action 'self' https://accounts.google.com https://*.supabase.co;"
   )
   response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload')
 
   // Check auth for protected routes
-  const token = request.cookies.get('sb-access-token') ||
-    request.cookies.get('sb-refresh-token') ||
-    Array.from(request.cookies.getAll()).find(c => c.name.includes('supabase'))
+  const authToken = 
+    request.cookies.get('sb-access-token')?.value ||
+    request.cookies.get('sb-refresh-token')?.value ||
+    Array.from(request.cookies.getAll())
+      .find(c => c.name.includes('supabase-auth') || c.name.includes('sb-'))
+      ?.value
 
-  if (PROTECTED.some(p => pathname.startsWith(p)) && !token) {
+  if (PROTECTED.some(p => pathname.startsWith(p)) && !authToken) {
+    console.log(`[Middleware] No auth token for protected route: ${pathname}`)
     return NextResponse.redirect(new URL('/auth', request.url))
   }
 

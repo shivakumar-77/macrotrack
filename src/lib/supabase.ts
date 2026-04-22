@@ -27,15 +27,20 @@ const getClient = () => {
     })
     
     if (!url || url.length === 0) {
-      throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing or empty')
+      throw new Error('NEXT_PUBLIC_SUPABASE_URL is missing or empty. Please check your .env.local file.')
     }
     if (!key || key.length === 0) {
-      throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing or empty')
+      throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is missing or empty. Please check your .env.local file.')
     }
     
     // Validate URL format
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      throw new Error(`Invalid URL format: ${url}`)
+      throw new Error(`Invalid Supabase URL format: ${url}. Must start with http:// or https://`)
+    }
+    
+    // Validate key format (basic JWT check)
+    if (!key.includes('.')) {
+      throw new Error('Invalid Supabase anon key format. Key appears to be truncated or malformed.')
     }
     
     console.log(`[Supabase] Creating client with URL: ${url.substring(0, 40)}...`)
@@ -101,40 +106,48 @@ const createStub = () => ({
     signInWithPassword: async (credentials: any) => {
       const client = getClient()
       if (!client) {
-        const error = new Error('Supabase not properly configured. Please check your environment variables.')
-        return { error }
+        const error = new Error('Supabase not properly configured. Please check your environment variables (NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY).')
+        console.error('[Supabase] signInWithPassword - client not initialized:', error.message)
+        return { error, data: null }
       }
       try {
-        return await withTimeout(client.auth.signInWithPassword(credentials))
+        const result = await withTimeout(client.auth.signInWithPassword(credentials), 8000)
+        return result
       } catch (error) {
         console.error('signInWithPassword error:', error)
-        return { error }
+        const err = error instanceof Error ? error : new Error('Login failed')
+        return { error: err, data: null }
       }
     },
     signUp: async (credentials: any) => {
       const client = getClient()
       if (!client) {
         const error = new Error('Supabase not properly configured. Please check your environment variables.')
-        return { error }
+        console.error('[Supabase] signUp - client not initialized:', error.message)
+        return { error, data: null }
       }
       try {
-        return await withTimeout(client.auth.signUp(credentials))
+        const result = await withTimeout(client.auth.signUp(credentials), 8000)
+        return result
       } catch (error) {
         console.error('signUp error:', error)
-        return { error }
+        const err = error instanceof Error ? error : new Error('Signup failed')
+        return { error: err, data: null }
       }
     },
     signOut: async () => {
       const client = getClient()
       if (!client) {
         const error = new Error('Supabase not properly configured.')
+        console.error('[Supabase] signOut - client not initialized')
         return { error }
       }
       try {
-        return await withTimeout(client.auth.signOut())
+        const result = await withTimeout(client.auth.signOut(), 5000)
+        return result
       } catch (error) {
         console.error('signOut error:', error)
-        return { error }
+        return { error: error instanceof Error ? error : new Error('Logout failed') }
       }
     },
     signInWithOAuth: async (options: any) => {
@@ -144,7 +157,7 @@ const createStub = () => ({
         return { error }
       }
       try {
-        return await withTimeout(client.auth.signInWithOAuth(options))
+        return await withTimeout(client.auth.signInWithOAuth(options), 10000)
       } catch (error) {
         console.error('signInWithOAuth error:', error)
         return { error }

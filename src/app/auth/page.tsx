@@ -22,53 +22,109 @@ export default function AuthPage() {
     const errorParam = searchParams.get('error')
     const errorDesc = searchParams.get('description')
     if (errorParam) {
+      console.error('[Auth] OAuth callback error:', { error: errorParam, description: errorDesc })
       setError(errorDesc || `Login failed: ${errorParam}`)
     }
 
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) router.replace('/dashboard')
-    })
+    // Add delay for mobile to ensure cookies are set
+    const sessionCheck = setTimeout(async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) {
+          console.warn('[Auth] Session check error:', error)
+        }
+        if (data?.session) {
+          console.log('[Auth] Existing session found, redirecting to dashboard')
+          router.replace('/dashboard')
+        } else {
+          console.log('[Auth] No session found, staying on auth page')
+        }
+      } catch (e) {
+        console.error('[Auth] Session check failed:', e)
+      }
+    }, 300)
+
+    return () => clearTimeout(sessionCheck)
   }, [router])
 
   async function signInGoogle() {
     setLoading(true)
     setError('')
+    console.log('[Auth] Starting Google OAuth flow from:', window.location.origin)
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const redirectUrl = `${window.location.origin}/auth/callback`
+      console.log('[Auth] OAuth redirect URL:', redirectUrl)
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` }
+        options: { 
+          redirectTo: redirectUrl,
+          skipBrowserRedirect: false,
+        }
       })
+      
       if (error) {
-        setError(error.message || 'Google login failed. Please check your Supabase configuration.')
-        console.error('Google OAuth error:', error)
+        const errorMsg = error instanceof Error ? error.message : (typeof error === 'object' ? JSON.stringify(error) : String(error))
+        setError(errorMsg || 'Google login failed. Please check your Supabase configuration.')
+        console.error('[Auth] Google OAuth error:', error)
+        setLoading(false)
+      } else if (data) {
+        console.log('[Auth] OAuth initiated, browser should redirect...')
+        // Browser will handle redirect, don't set loading to false
       }
     } catch (e) {
       const message = e instanceof Error ? e.message : 'An unexpected error occurred'
       setError(message)
-      console.error('Google login error:', e)
-    } finally {
+      console.error('[Auth] Google login error:', e)
       setLoading(false)
     }
   }
 
-  async function submit(e) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setError(''); setLoading(true)
+    setError('')
+    setLoading(true)
     try {
       if (tab === 'login') {
+        console.log('[Auth] Attempting login for:', email)
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) throw error
-        if (data.session) router.replace('/dashboard')
+        if (error) {
+          console.error('[Auth] Login error:', error)
+          setError(error.message || 'Login failed. Please try again.')
+          setLoading(false)
+          return
+        }
+        if (data.session) {
+          console.log('[Auth] Login successful, redirecting to dashboard')
+          // Add small delay for mobile to process cookies
+          setTimeout(() => router.replace('/dashboard'), 100)
+        } else {
+          console.warn('[Auth] Login succeeded but no session returned')
+          setError('No session returned. Please try again.')
+          setLoading(false)
+        }
       } else {
+        console.log('[Auth] Attempting signup for:', email)
         const { error } = await supabase.auth.signUp({
-          email, password,
+          email,
+          password,
           options: { data: { name }, emailRedirectTo: `${window.location.origin}/auth/callback` }
         })
-        if (error) throw error
+        if (error) {
+          console.error('[Auth] Signup error:', error)
+          setError(error.message || 'Signup failed. Please try again.')
+          setLoading(false)
+          return
+        }
+        console.log('[Auth] Signup successful, showing confirmation screen')
         setConfirmed(true)
       }
-    } catch (e) { setError(e.message) }
-    finally { setLoading(false) }
+    } catch (e) {
+      const errorMsg = e instanceof Error ? e.message : 'An unexpected error occurred'
+      setError(errorMsg)
+      console.error('[Auth] Unexpected error:', e)
+      setLoading(false)
+    }
   }
 
   if (confirmed) return (

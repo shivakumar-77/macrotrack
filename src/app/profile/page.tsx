@@ -250,6 +250,7 @@ export default function ProfilePage() {
           <MenuItem icon="👤" label="Profile" sublabel="Edit personal details" onClick={() => setTab('profile')}/>
           <MenuItem icon="🎯" label="My Goals" sublabel="Calories, macros & targets" onClick={() => setTab('goals')}/>
           <MenuItem icon="📊" label="My Plan" sublabel="Daily targets and current goal" onClick={() => setTab('plan')}/>
+          <MenuItem icon="📏" label="Body Measurements" sublabel="Track waist, chest, arms over time" onClick={() => router.push("/measurements")}/>
           <MenuItem icon="⚖️" label="BMI Calculator" sublabel="Body Mass Index" onClick={() => router.push('/bmi')}/>
           <MenuItem icon="🔥" label="Calorie Calculator" sublabel="Daily calorie needs" onClick={() => router.push('/calorie-calc')}/>
           <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={async () => {

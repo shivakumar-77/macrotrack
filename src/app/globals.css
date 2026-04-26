@@ -155,3 +155,17 @@ input::placeholder { color: #94a3b8; }
   font-size: 12px;
   font-weight: 600;
 }
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f0f13;
+    --surface: #0f0f13;
+    --card: #1a1a24;
+    --card2: #22222e;
+    --text: #f1f5f9;
+    --muted: #64748b;
+    --border: #2a2a3a;
+    --primary-bg: #1e1b4b;
+  }
+}

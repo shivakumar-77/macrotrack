@@ -253,7 +253,7 @@ export default function ProfilePage() {
           <MenuItem icon="📏" label="Body Measurements" sublabel="Track waist, chest, arms over time" onClick={() => router.push("/measurements")}/>
           <MenuItem icon="⚖️" label="BMI Calculator" sublabel="Body Mass Index" onClick={() => router.push('/bmi')}/>
           <MenuItem icon="🔥" label="Calorie Calculator" sublabel="Daily calorie needs" onClick={() => router.push('/calorie-calc')}/>
-          <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={async () => {
+          <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={() => router.push("/notifications")}/> sublabel="Meal & hydration reminders" onClick={async () => {
             const p = await Notification.requestPermission()
             if (p === 'granted') { new Notification('MacroTrack', { body: 'Notifications enabled!' }); showMsg('Notifications enabled!') }
             else showMsg('Allow notifications in browser settings.')
@@ -262,6 +262,7 @@ export default function ProfilePage() {
           <MenuItem icon="📧" label="Change Email" sublabel={userEmail} onClick={() => setTab('email')}/>
 
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10, marginTop: 20 }}>Other</div>
+          <MenuItem icon="📤" label="Share Progress" sublabel="Download your progress card" onClick={() => router.push("/share")}/>
           <MenuItem icon="📋" label="Terms & Conditions" onClick={() => setLegalPage('terms')}/>
           <MenuItem icon="🔒" label="Privacy Policy" onClick={() => setLegalPage('privacy')}/>
           <MenuItem icon="🛡️" label="Data & Privacy" onClick={() => setLegalPage('data')}/>

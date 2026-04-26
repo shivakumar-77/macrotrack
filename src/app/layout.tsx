@@ -46,6 +46,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               navigator.serviceWorker.register('/sw.js').catch(() => {})
             })
           }
+          // Apply saved theme on page load
+          const theme = localStorage.getItem('theme') || 'system'
+          const html = document.documentElement
+          if (theme === 'light') {
+            html.setAttribute('data-theme', 'light')
+          } else if (theme === 'dark') {
+            html.setAttribute('data-theme', 'dark')
+          }
         `}}/>
       </body>
     </html>

@@ -13,6 +13,7 @@ export default function ProfilePage() {
   const [msg, setMsg] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [photoUrl, setPhotoUrl] = useState(null)
+  const [theme, setTheme] = useState('system')
   const fileRef = useRef(null)
   const [form, setForm] = useState({
     name: '', dob: '', age: '', height: '', gender: 'male',
@@ -45,6 +46,11 @@ export default function ProfilePage() {
       if (wlogs) setWeights(wlogs)
     }
     load()
+    
+    // Load theme from localStorage
+    const savedTheme = localStorage.getItem('theme') || 'system'
+    setTheme(savedTheme)
+    applyTheme(savedTheme)
   }, [])
 
   function showMsg(m) { setMsg(m); setTimeout(() => setMsg(''), 2500) }
@@ -97,6 +103,24 @@ export default function ProfilePage() {
   function calcAge(dob) {
     if (!dob) return ''
     return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+  }
+
+  function applyTheme(t) {
+    const html = document.documentElement
+    localStorage.setItem('theme', t)
+    
+    if (t === 'light') {
+      html.setAttribute('data-theme', 'light')
+    } else if (t === 'dark') {
+      html.setAttribute('data-theme', 'dark')
+    } else {
+      html.removeAttribute('data-theme')
+    }
+  }
+
+  function changeTheme(newTheme) {
+    setTheme(newTheme)
+    applyTheme(newTheme)
   }
 
   const latest = weights[weights.length - 1]
@@ -253,11 +277,8 @@ export default function ProfilePage() {
           <MenuItem icon="📏" label="Body Measurements" sublabel="Track waist, chest, arms over time" onClick={() => router.push("/measurements")}/>
           <MenuItem icon="⚖️" label="BMI Calculator" sublabel="Body Mass Index" onClick={() => router.push('/bmi')}/>
           <MenuItem icon="🔥" label="Calorie Calculator" sublabel="Daily calorie needs" onClick={() => router.push('/calorie-calc')}/>
-          <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={() => router.push("/notifications")}/> sublabel="Meal & hydration reminders" onClick={async () => {
-            const p = await Notification.requestPermission()
-            if (p === 'granted') { new Notification('MacroTrack', { body: 'Notifications enabled!' }); showMsg('Notifications enabled!') }
-            else showMsg('Allow notifications in browser settings.')
-          }}/>
+          <MenuItem icon="🌙" label="Theme" sublabel={theme === 'light' ? 'Light mode' : theme === 'dark' ? 'Dark mode' : 'System default'} onClick={() => setTab('theme')}/>
+          <MenuItem icon="🔔" label="Notifications" sublabel="Meal & hydration reminders" onClick={() => router.push("/notifications")}/>
           <MenuItem icon="🔑" label="Change Password" sublabel="Update your password" onClick={() => setTab('password')}/>
           <MenuItem icon="📧" label="Change Email" sublabel={userEmail} onClick={() => setTab('email')}/>
 
@@ -419,6 +440,47 @@ export default function ProfilePage() {
             </div>
           </div>
           <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600 }} onClick={() => setTab('goals')}>Edit my goals →</button>
+        </div>
+      )}
+
+      {/* THEME */}
+      {tab === 'theme' && (
+        <div>
+          <BackBtn to="setting"/>
+          <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 8 }}>🌙 Select Theme</div>
+            <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>Choose your preferred display mode</p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
+              {[
+                { id: 'light', label: '☀️ Light', desc: 'Light theme' },
+                { id: 'dark', label: '🌙 Dark', desc: 'Dark theme' },
+                { id: 'system', label: '🖥️ System', desc: 'Follow system' }
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => changeTheme(t.id)}
+                  style={{
+                    padding: '16px 12px',
+                    borderRadius: 16,
+                    border: '2.5px solid ' + (theme === t.id ? 'var(--primary)' : 'var(--border)'),
+                    background: theme === t.id ? 'var(--primary-bg)' : 'var(--card2)',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    transition: 'all 0.15s'
+                  }}
+                >
+                  <div style={{ fontSize: 24, marginBottom: 6 }}>{t.label.split(' ')[0]}</div>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: theme === t.id ? 'var(--primary)' : 'var(--text)' }}>{t.label.split(' ').slice(1).join(' ')}</div>
+                  <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>{t.desc}</div>
+                </button>
+              ))}
+            </div>
+
+            <div style={{ background: 'var(--primary-bg)', borderRadius: 14, padding: '14px', border: '1.5px solid var(--primary)', marginTop: 14 }}>
+              <p style={{ fontSize: 12, color: 'var(--primary)', fontWeight: 600 }}>✓ Theme preference saved</p>
+            </div>
+          </div>
         </div>
       )}
 

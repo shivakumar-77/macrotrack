@@ -105,9 +105,9 @@ export default function Dashboard() {
   const statusConf = suggestions ? (STATUS_CONFIG[suggestions.status] || STATUS_CONFIG.on_track) : null
 
   return (
-    <div className="page">
+    <div className="page-root">
       {/* Header with photo */}
-      <div style={{ paddingTop:24, paddingBottom:4, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div style={{ paddingTop: 0, paddingBottom:4, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div>
           <p style={{ color:'var(--muted)', fontSize:13, fontWeight:500 }}>
             {new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}

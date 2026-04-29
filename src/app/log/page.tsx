@@ -230,7 +230,7 @@ export default function LogPage() {
   )
 
   return (
-    <div className="page" style={{ paddingTop:24 }}>
+    <div className="page-root">
       {/* Toast */}
       {toastMsg && (
         <div style={{ position:'fixed', top:20, left:'50%', transform:'translateX(-50%)', background:'#1e293b', color:'#fff', padding:'10px 20px', borderRadius:99, fontSize:13, fontWeight:600, zIndex:9999, boxShadow:'0 4px 20px rgba(0,0,0,0.3)', whiteSpace:'nowrap' }}>

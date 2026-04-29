@@ -3,9 +3,11 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { useTheme } from '@/components/ThemeProvider'
 
 export default function ProfilePage() {
   const router = useRouter()
+  const { theme, setTheme } = useTheme()
   const [view, setView] = useState('main') // main | edit | goals | security | notifications | legal
   const [legalPage, setLegalPage] = useState('')
   const [saving, setSaving] = useState(false)
@@ -186,7 +188,7 @@ export default function ProfilePage() {
   if (view==='legal') {
     const page = LEGAL[legalPage]
     return (
-      <div className="page" style={{paddingTop:24}}>
+      <div className="page-root" style={{paddingTop:0}}>
         <BackBtn label={page.title} to="main"/>
         <div className="card" style={{lineHeight:1.8,fontSize:13,color:'var(--muted)',marginBottom:20}}>
           <p style={{fontWeight:700,color:'var(--text)',marginBottom:16}}>Last updated: April 2025</p>
@@ -204,7 +206,7 @@ export default function ProfilePage() {
 
   // ── EDIT PROFILE ───────────────────────────────────────────
   if (view==='edit') return (
-    <div className="page" style={{paddingTop:24}}>
+    <div className="page-root" style={{paddingTop:0}}>
       <BackBtn to="main"/>
       {msg&&<div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>}
       <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
@@ -282,7 +284,7 @@ export default function ProfilePage() {
 
   // ── GOALS ─────────────────────────────────────────────────
   if (view==='goals') return (
-    <div className="page" style={{paddingTop:24}}>
+    <div className="page-root" style={{paddingTop:0}}>
       <BackBtn to="main"/>
       {msg&&<div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>}
       <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
@@ -331,7 +333,7 @@ export default function ProfilePage() {
 
   // ── SECURITY ───────────────────────────────────────────────
   if (view==='security') return (
-    <div className="page" style={{paddingTop:24}}>
+    <div className="page-root" style={{paddingTop:0}}>
       <BackBtn to="main"/>
       {msg&&<div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>}
       <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
@@ -364,7 +366,7 @@ export default function ProfilePage() {
 
   // ── NOTIFICATIONS ──────────────────────────────────────────
   if (view==='notifications') return (
-    <div className="page" style={{paddingTop:24}}>
+    <div className="page-root" style={{paddingTop:0}}>
       <BackBtn to="main"/>
       {msg&&<div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>}
       <div className="card" style={{marginBottom:14}}>
@@ -412,7 +414,7 @@ export default function ProfilePage() {
 
   // ── MAIN ACCOUNT VIEW ──────────────────────────────────────
   return (
-    <div className="page" style={{paddingTop:24}}>
+    <div className="page-root" style={{paddingTop:0}}>
       <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em',marginBottom:20}}>Account</h1>
 
       {msg&&<div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>}
@@ -478,6 +480,19 @@ export default function ProfilePage() {
               <div style={{fontSize:12,color:'var(--muted)',marginTop:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.sub}</div>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        ))}
+      </div>
+
+
+      {/* Theme */}
+      <div style={{fontSize:12,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:10}}>Appearance</div>
+      <div style={{display:'flex',gap:8,marginBottom:24}}>
+        {([['light','☀️','Light'],['auto','⚙️','Auto'],['dark','🌙','Dark']] as const).map(([val,icon,label])=>(
+          <button key={val} onClick={()=>setTheme(val)}
+            style={{flex:1,padding:'12px 8px',borderRadius:16,border:'2px solid '+(theme===val?'var(--primary)':'var(--border)'),background:theme===val?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',transition:'all 0.15s'}}>
+            <div style={{fontSize:20,marginBottom:4}}>{icon}</div>
+            <div style={{fontSize:12,fontWeight:700,color:theme===val?'var(--primary)':'var(--muted)'}}>{label}</div>
           </button>
         ))}
       </div>

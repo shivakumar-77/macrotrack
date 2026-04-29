@@ -63,7 +63,7 @@ export default function InsightsPage() {
 
   return (
     <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 100 }}>
-      <div style={{ padding: '52px 20px 20px' }}>
+      <div style={{ padding: 'calc(env(safe-area-inset-top,0px) + 12px) 20px 16px' }}>
         <h1 style={{ fontSize: 24, fontWeight: 700, letterSpacing: '-0.02em' }}>Nutrition Insights</h1>
         <p style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>Your weekly AI-powered analysis</p>
       </div>

@@ -243,7 +243,7 @@ export default function Dashboard() {
           Meal Planner
           <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>AI-generated plan</div>
         </button>
-        <button onClick={() => router.push('/weight')}
+        <button onClick={() => router.push('/insights')}
           style={{ padding:'14px', borderRadius:16, background:'linear-gradient(135deg,var(--primary),#818cf8)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
           <div style={{ fontSize:22, marginBottom:4 }}>📊</div>
           Insights

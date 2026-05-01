@@ -1,7 +1,6 @@
 'use client'
-export const dynamic = 'force-dynamic'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { EXERCISES, CATEGORIES } from '@/lib/exercises'
 import BottomNav from '@/components/BottomNav'
@@ -34,7 +33,7 @@ const EXERCISE_VIDEOS: Record<string, string> = {
   'hip_thrust_barbell': 'xDmFkJxPzeM',
 }
 
-export default function ExercisesPage() {
+function ExercisesContent() {
   const router = useRouter()
   const params = useSearchParams()
   const [search, setSearch] = useState('')
@@ -319,5 +318,13 @@ export default function ExercisesPage() {
 
       <BottomNav/>
     </div>
+  )
+}
+
+export default function ExercisesPage() {
+  return (
+    <Suspense fallback={<div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: 'var(--muted)' }}>Loading exercises…</div>}>
+      <ExercisesContent />
+    </Suspense>
   )
 }

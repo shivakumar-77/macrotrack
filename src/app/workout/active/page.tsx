@@ -167,7 +167,7 @@ function ActiveWorkoutContent() {
   const totalSets = exercises.reduce((s,e)=>s+e.sets.length,0)
 
   return (
-    <div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:20 }}>
+    <div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:'20px' }}>
 
       {/* Professional Header */}
       <div style={{ position:'sticky', top:0, zIndex:100, background:'linear-gradient(135deg, var(--surface) 0%, rgba(99,102,241,0.03) 100%)', borderBottom:'1px solid var(--border)', padding:'calc(env(safe-area-inset-top,0px) + 16px) 20px 16px', backdropFilter:'blur(12px)' }}>

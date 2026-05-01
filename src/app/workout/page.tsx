@@ -65,8 +65,7 @@ export default function WorkoutPage() {
             <p style={{ fontSize:13, color:'var(--muted)', marginTop:2 }}>Track your training</p>
           </div>
           <button onClick={() => router.push('/workout/body')}
-            style={{ background:'var(--card2)', border:'1.5px solid var(--border)', borderRadius:12, padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer', color:'var(--text)' }}>
-            🫀 Body Map
+            style={{ background:'var(--card2)', border:'1.5px solid var(--border)', borderRadius:12, padding:'8px 14px', fontSize:12, fontWeight:700, cursor:'pointer', color:'var(--text)', display:'flex', gap:4 }}><span>📚</span> Exercises
           </button>
         </div>
 

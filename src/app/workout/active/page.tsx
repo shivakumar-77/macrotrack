@@ -1,10 +1,10 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { EXERCISES, CATEGORIES } from '@/lib/exercises'
 
-export default function ActiveWorkoutPage() {
+function ActiveWorkoutContent() {
   const router = useRouter()
   const params = useSearchParams()
   const [name, setName] = useState('My Workout')
@@ -343,5 +343,13 @@ export default function ActiveWorkoutPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function ActiveWorkoutPage() {
+  return (
+    <Suspense fallback={<div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', display:'flex', alignItems:'center', justifyContent:'center' }}>Loading…</div>}>
+      <ActiveWorkoutContent />
+    </Suspense>
   )
 }

@@ -3,6 +3,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon } from '@/lib/icons'
+import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
 export default function ProfilePage() {
@@ -164,7 +166,7 @@ export default function ProfilePage() {
 
   const MenuItem = ({icon, label, sub, onClick, danger=false}) => (
     <button onClick={onClick}
-      style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'15px 16px',background:'var(--card)',borderRadius:16,border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',marginBottom:8,WebkitTapHighlightColor:'transparent'}}>
+      style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'15px 16px',background:'var(--card)',borderRadius:16,border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',marginBottom:8,WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
       <div style={{width:42,height:42,borderRadius:13,background:danger?'#fef2f2':'var(--card2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
         {icon}
       </div>
@@ -178,7 +180,7 @@ export default function ProfilePage() {
 
   const BackBtn = ({label='Back'}) => (
     <button onClick={()=>setView('main')}
-      style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'var(--primary)',fontSize:15,fontWeight:600,padding:'0 0 16px 0',WebkitTapHighlightColor:'transparent'}}>
+      style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'var(--primary)',fontSize:15,fontWeight:600,padding:'0 0 16px 0',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       {label}
     </button>
@@ -312,7 +314,7 @@ export default function ProfilePage() {
             <div style={{display:'flex',gap:8}}>
               {['male','female','other'].map(g=>(
                 <button key={g} onClick={()=>setForm(p=>({...p,gender:g}))}
-                  style={{flex:1,padding:'11px',borderRadius:12,border:'2px solid '+(form.gender===g?'var(--primary)':'var(--border)'),background:form.gender===g?'var(--primary-bg)':'transparent',color:form.gender===g?'var(--primary)':'var(--muted)',fontWeight:700,fontSize:13,cursor:'pointer',textTransform:'capitalize',WebkitTapHighlightColor:'transparent'}}>
+                  style={{flex:1,padding:'11px',borderRadius:12,border:'2px solid '+(form.gender===g?'var(--primary)':'var(--border)'),background:form.gender===g?'var(--primary-bg)':'transparent',color:form.gender===g?'var(--primary)':'var(--muted)',fontWeight:700,fontSize:13,cursor:'pointer',textTransform:'capitalize',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
                   {g}
                 </button>
               ))}
@@ -360,7 +362,7 @@ export default function ProfilePage() {
             <div style={{display:'flex',gap:8}}>
               {[{key:'lose',label:'Lose fat',icon:'📉',color:'#10b981',bg:'#d1fae5'},{key:'maintain',label:'Maintain',icon:'⚖️',color:'#f59e0b',bg:'#fef3c7'},{key:'gain',label:'Build muscle',icon:'💪',color:'#3b82f6',bg:'#dbeafe'}].map(g=>(
                 <button key={g.key} onClick={()=>setForm(p=>({...p,goal:g.key}))}
-                  style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent'}}>
+                  style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
                   <div style={{fontSize:22,marginBottom:6}}>{g.icon}</div>
                   <div style={{fontSize:11,fontWeight:700,color:form.goal===g.key?g.color:'var(--muted)'}}>{g.label}</div>
                 </button>
@@ -445,7 +447,7 @@ export default function ProfilePage() {
           <p style={{fontSize:13,color:'var(--muted)',marginBottom:16,lineHeight:1.7}}>
             Permanently delete your MacroTrack account and all associated data. This action <strong>cannot be undone</strong>. All food logs, weight history, and profile data will be permanently removed.
           </p>
-          <button style={{width:'100%',padding:'14px',borderRadius:14,background:'#fef2f2',border:'1.5px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:14,cursor:'pointer',WebkitTapHighlightColor:'transparent'}}
+          <button style={{width:'100%',padding:'14px',borderRadius:14,background:'#fef2f2',border:'1.5px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:14,cursor:'pointer',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}
             onClick={async()=>{if(confirm('This will permanently delete your account and all data. Are you sure?')){await supabase.auth.signOut();router.replace('/auth')}}}>
             Delete my account permanently
           </button>
@@ -500,7 +502,7 @@ export default function ProfilePage() {
                   style={{fontSize:12,color:r.enabled?'var(--primary)':'var(--muted)',fontWeight:700,background:'none',border:'none',padding:0,marginTop:2,outline:'none',width:'auto'}}/>
               </div>
               <button onClick={()=>setReminders(p=>p.map(x=>x.id===r.id?{...x,enabled:!x.enabled}:x))}
-                style={{width:48,height:28,borderRadius:99,background:r.enabled?'var(--primary)':'var(--border)',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0,WebkitTapHighlightColor:'transparent'}}>
+                style={{width:48,height:28,borderRadius:99,background:r.enabled?'var(--primary)':'var(--border)',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0,WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
                 <div style={{position:'absolute',top:4,left:r.enabled?26:4,width:20,height:20,borderRadius:'50%',background:'#fff',transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/>
               </button>
             </div>
@@ -527,7 +529,7 @@ export default function ProfilePage() {
 
         {/* Profile card */}
         <button onClick={()=>setView('edit')}
-          style={{width:'100%',background:'var(--card)',borderRadius:20,padding:'16px 18px',border:'1.5px solid var(--border)',marginBottom:24,display:'flex',alignItems:'center',gap:14,cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+          style={{width:'100%',background:'var(--card)',borderRadius:20,padding:'16px 18px',border:'1.5px solid var(--border)',marginBottom:24,display:'flex',alignItems:'center',gap:14,cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
           <div style={{position:'relative',flexShrink:0}}>
             <div style={{width:56,height:56,borderRadius:'50%',overflow:'hidden',background:'linear-gradient(135deg,var(--primary),#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:800,color:'#fff'}}>
               {photoUrl ? <img src={photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : (form.name?form.name[0].toUpperCase():'?')}
@@ -562,7 +564,7 @@ export default function ProfilePage() {
             {icon:'📤',label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
           ].map(t=>(
             <button key={t.label} onClick={t.go}
-              style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+              style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
               <div style={{fontSize:26,marginBottom:8}}>{t.icon}</div>
               <div style={{fontWeight:700,fontSize:13,color:'var(--text)'}}>{t.label}</div>
               <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{t.sub}</div>
@@ -572,16 +574,16 @@ export default function ProfilePage() {
 
         {/* Settings */}
         <SectionLabel text="Settings"/>
-        <MenuItem icon="🎯" label="Goals & targets" sub="Calories, macros, weight goal" onClick={()=>setView('goals')}/>
-        <MenuItem icon="🔔" label="Notifications" sub={notifPermission==='granted'?`${reminders.filter(r=>r.enabled).length} reminders active`:'Set meal reminders'} onClick={()=>setView('notifications')}/>
-        <MenuItem icon="🔒" label="Security" sub="Password, email, account" onClick={()=>setView('security')}/>
+        <MenuItem icon={<TargetIcon size={20} color='var(--primary)'/>} label="Goals & targets" sub="Calories, macros, weight goal" onClick={()=>setView('goals')}/>
+        <MenuItem icon={<BellIcon size={20} color='var(--primary)'/>} label="Notifications" sub={notifPermission==='granted'?`${reminders.filter(r=>r.enabled).length} reminders active`:'Set meal reminders'} onClick={()=>setView('notifications')}/>
+        <MenuItem icon={<LockIcon size={20} color='var(--primary)'/>} label="Security" sub="Password, email, account" onClick={()=>setView('security')}/>
 
         {/* Appearance */}
         <SectionLabel text="Appearance"/>
         <div style={{display:'flex',gap:8,marginBottom:24}}>
           {[['light','☀️','Light'],['auto','⚙️','Auto'],['dark','🌙','Dark']].map(([val,icon,label])=>(
             <button key={val} onClick={()=>setTheme(val)}
-              style={{flex:1,padding:'13px 8px',borderRadius:16,border:'2px solid '+(theme===val?'var(--primary)':'var(--border)'),background:theme===val?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',transition:'all 0.15s',WebkitTapHighlightColor:'transparent'}}>
+              style={{flex:1,padding:'13px 8px',borderRadius:16,border:'2px solid '+(theme===val?'var(--primary)':'var(--border)'),background:theme===val?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',transition:'all 0.15s',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
               <div style={{fontSize:22,marginBottom:5}}>{icon}</div>
               <div style={{fontSize:12,fontWeight:700,color:theme===val?'var(--primary)':'var(--muted)'}}>{label}</div>
             </button>
@@ -593,7 +595,7 @@ export default function ProfilePage() {
         <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:24}}>
           {[['terms','Terms & Conditions'],['privacy','Privacy Policy'],['data','Data & Privacy']].map(([key,label])=>(
             <button key={key} onClick={()=>{setLegalPage(key);setView('legal')}}
-              style={{padding:'9px 16px',borderRadius:99,fontSize:13,fontWeight:500,cursor:'pointer',border:'1.5px solid var(--border)',background:'var(--card)',color:'var(--muted)',WebkitTapHighlightColor:'transparent'}}>
+              style={{padding:'9px 16px',borderRadius:99,fontSize:13,fontWeight:500,cursor:'pointer',border:'1.5px solid var(--border)',background:'var(--card)',color:'var(--muted)',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
               {label}
             </button>
           ))}
@@ -601,7 +603,7 @@ export default function ProfilePage() {
 
         {/* Log out */}
         <button onClick={async()=>{await supabase.auth.signOut();router.replace('/auth')}}
-          style={{width:'100%',padding:'15px',borderRadius:16,background:'#fef2f2',border:'1.5px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:15,cursor:'pointer',WebkitTapHighlightColor:'transparent'}}>
+          style={{width:'100%',padding:'15px',borderRadius:16,background:'#fef2f2',border:'1.5px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:15,cursor:'pointer',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
           Log out
         </button>
       </div>

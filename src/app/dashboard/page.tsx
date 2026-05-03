@@ -3,6 +3,9 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { SkeletonDashboard, PageLoader } from '@/components/Skeleton'
+import { useToast } from '@/components/Toast'
+import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon } from '@/lib/icons'
 import MacroRing from '@/components/MacroRing'
 
 const today = () => new Date().toISOString().slice(0, 10)
@@ -96,11 +99,7 @@ export default function Dashboard() {
   const mealColors = { breakfast:'#f59e0b', lunch:'#10b981', dinner:'#6366f1', snack:'#ef4444', other:'#94a3b8' }
   const mealIcons = { breakfast:'🌅', lunch:'☀️', dinner:'🌙', snack:'🍎', other:'🍽️' }
 
-  if (loading) return (
-    <div style={{ display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100dvh' }}>
-      <div style={{ width:32, height:32, borderRadius:'50%', border:'3px solid var(--primary)', borderTopColor:'transparent', animation:'spin 0.7s linear infinite' }}/>
-    </div>
-  )
+  if (loading) return <SkeletonDashboard/>
 
   const statusConf = suggestions ? (STATUS_CONFIG[suggestions.status] || STATUS_CONFIG.on_track) : null
 

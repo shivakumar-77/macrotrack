@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { PageLoader } from '@/components/Skeleton'
 
 const CATEGORY_COLORS = {
   'Performance': '#6366f1',
@@ -131,11 +132,7 @@ export default function SupplementsPage() {
     return d.toISOString().slice(0,10)
   })
 
-  if (loading) return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh'}}>
-      <div style={{width:32,height:32,borderRadius:'50%',border:'3px solid var(--primary)',borderTopColor:'transparent',animation:'spin 0.7s linear infinite'}}/>
-    </div>
-  )
+  if (loading) return <PageLoader/>
 
   return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
@@ -335,7 +332,7 @@ export default function SupplementsPage() {
             <div style={{overflowY:'auto',flex:1}}>
               {POPULAR_SUPPLEMENTS.map(s=>(
                 <button key={s.name} onClick={()=>quickAddSupplement(s)}
-                  style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'14px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+                  style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'14px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
                   <div style={{width:46,height:46,borderRadius:14,background:s.color+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
                     {s.icon}
                   </div>

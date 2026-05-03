@@ -1,15 +1,17 @@
 'use client'
 import { useRouter } from 'next/navigation'
+import { BackIcon } from '@/lib/icons'
 
 interface Props {
   title: string
   subtitle?: string
   href?: string
-  right?: React.ReactNode
   onBack?: () => void
+  right?: React.ReactNode
+  transparent?: boolean
 }
 
-export default function PageHeader({ title, subtitle, href, right, onBack }: Props) {
+export default function PageHeader({ title, subtitle, href, onBack, right, transparent }: Props) {
   const router = useRouter()
   function go() {
     if (onBack) { onBack(); return }
@@ -18,16 +20,25 @@ export default function PageHeader({ title, subtitle, href, right, onBack }: Pro
   }
 
   return (
-    <div className="page-header">
-      <button onClick={go}
-        style={{ width:36, height:36, borderRadius:10, background:'var(--card2)', border:'1.5px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0, WebkitTapHighlightColor:'transparent' }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.5">
-          <polyline points="15 18 9 12 15 6"/>
-        </svg>
+    <div style={{
+      position: 'sticky', top: 0, zIndex: 100,
+      background: transparent ? 'transparent' : 'var(--surface)',
+      paddingTop: 'calc(env(safe-area-inset-top,0px) + 12px)',
+      paddingLeft: 'calc(env(safe-area-inset-left,0px) + 20px)',
+      paddingRight: 'calc(env(safe-area-inset-right,0px) + 20px)',
+      paddingBottom: 12,
+      borderBottom: transparent ? 'none' : '0.5px solid var(--border)',
+      backdropFilter: transparent ? 'none' : 'saturate(180%) blur(20px)',
+      WebkitBackdropFilter: transparent ? 'none' : 'saturate(180%) blur(20px)',
+      display: 'flex', alignItems: 'center', gap: 12,
+    }}>
+      <button onClick={go} className="press-effect"
+        style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--card2)', border: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, color: 'var(--primary)' }}>
+        <BackIcon size={18} color="var(--primary)" strokeWidth={2.5}/>
       </button>
-      <div style={{ flex:1 }}>
-        <div style={{ fontWeight:700, fontSize:18, letterSpacing:'-0.02em' }}>{title}</div>
-        {subtitle && <div style={{ fontSize:12, color:'var(--muted)', marginTop:1 }}>{subtitle}</div>}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontWeight: 700, fontSize: 18, letterSpacing: '-0.02em', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title}</div>
+        {subtitle && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 1 }}>{subtitle}</div>}
       </div>
       {right}
     </div>

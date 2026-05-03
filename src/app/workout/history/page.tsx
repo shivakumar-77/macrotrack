@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { PageLoader } from '@/components/Skeleton'
 
 export default function WorkoutHistoryPage() {
   const router = useRouter()

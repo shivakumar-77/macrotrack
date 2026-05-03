@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { PageLoader } from '@/components/Skeleton'
 
 export default function WorkoutPage() {
   const router = useRouter()
@@ -48,11 +49,7 @@ export default function WorkoutPage() {
     return h>0?`${h}h ${m%60}m`:`${m}m`
   }
 
-  if (loading) return (
-    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100dvh'}}>
-      <div style={{width:32,height:32,borderRadius:'50%',border:'3px solid var(--primary)',borderTopColor:'transparent',animation:'spin 0.7s linear infinite'}}/>
-    </div>
-  )
+  if (loading) return <PageLoader/>
 
   return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
@@ -87,7 +84,7 @@ export default function WorkoutPage() {
         <div style={{marginBottom:20}}>
           <p style={{fontSize:13,color:'var(--muted)',fontWeight:500,marginBottom:10}}>Quick start</p>
           <button onClick={()=>router.push('/workout/active?quick=1')}
-            style={{width:'100%',background:'var(--primary)',borderRadius:16,padding:'16px',border:'none',cursor:'pointer',fontSize:16,fontWeight:700,color:'#fff',WebkitTapHighlightColor:'transparent'}}>
+            style={{width:'100%',background:'var(--primary)',borderRadius:16,padding:'16px',border:'none',cursor:'pointer',fontSize:16,fontWeight:700,color:'#fff',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
             Start an empty workout
           </button>
         </div>

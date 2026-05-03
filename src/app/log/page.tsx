@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { PageLoader } from '@/components/Skeleton'
 import BarcodeScanner from '@/components/BarcodeScanner'
 
 const MEAL_TYPES = ['breakfast','lunch','dinner','snack','other']

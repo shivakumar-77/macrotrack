@@ -1,16 +1,17 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
+import { ToastProvider } from '@/components/Toast'
 
 export const metadata: Metadata = {
   title: 'MacroTrack',
-  description: 'AI-powered nutrition and macro tracking',
+  description: 'AI-powered fitness & nutrition',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'MacroTrack' },
   formatDetection: { telephone: false },
   icons: {
     icon: [{ url: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon.png' }],
   },
 }
 
@@ -33,27 +34,28 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
         <link rel="manifest" href="/manifest.json"/>
-        <meta name="theme-color" content="#6366f1"/>
-        {/* Prevent flash of wrong theme */}
+        {/* No-flash theme script */}
         <script dangerouslySetInnerHTML={{ __html: `
-          (function(){
-            var t = localStorage.getItem('macrotrack_theme') || 'auto';
-            if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
-            else if (t === 'light') document.documentElement.setAttribute('data-theme','light');
-          })();
-        `}}/>
+(function(){
+  var t=localStorage.getItem('macrotrack_theme')||'auto';
+  var d=document.documentElement;
+  if(t==='dark')d.setAttribute('data-theme','dark');
+  else if(t==='light')d.setAttribute('data-theme','light');
+  else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)d.setAttribute('data-theme','dark');
+})();`}}/>
       </head>
       <body>
         <ThemeProvider>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </ThemeProvider>
         <script dangerouslySetInnerHTML={{ __html: `
-          if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-              navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {})
-            })
-          }
-        `}}/>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js',{scope:'/'}).catch(()=>{})
+  })
+}`}}/>
       </body>
     </html>
   )

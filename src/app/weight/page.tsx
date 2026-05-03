@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { PageLoader } from '@/components/Skeleton'
 
 function toISO(d) { return d.toISOString().slice(0, 10) }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r }

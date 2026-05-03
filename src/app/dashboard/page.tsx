@@ -251,6 +251,14 @@ export default function Dashboard() {
         </button>
       </div>
 
+      {/* Supplements tracker */}
+      <button onClick={() => router.push('/supplements')}
+        style={{ width:'100%', marginTop:12, padding:'14px', borderRadius:16, background:'linear-gradient(135deg,#ec4899,#db2777)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
+        <div style={{ fontSize:22, marginBottom:4 }}>💊</div>
+        Supplements
+        <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>Track daily intake</div>
+      </button>
+
       {/* Log food */}
       <button className="btn btn-primary pulse-primary"
         style={{ width:'100%', marginTop:12, fontSize:16, fontWeight:700, padding:'16px' }}

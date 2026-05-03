@@ -43,6 +43,8 @@ function ExercisesContent() {
   const [showBodyPicker, setShowBodyPicker] = useState(false)
   const [showCatPicker, setShowCatPicker] = useState(false)
   const [showSortPicker, setShowSortPicker] = useState(false)
+  const [showBodyPartModal, setShowBodyPartModal] = useState(null)
+  const [showEquipmentModal, setShowEquipmentModal] = useState(null)
   const [sort, setSort] = useState('name') // name | category
   const listRef = useRef(null)
 
@@ -101,11 +103,11 @@ function ExercisesContent() {
 
         {/* Filter pills — exactly like your design */}
         <div style={{display:'flex',gap:8}}>
-          <button onClick={()=>setShowBodyPicker(true)}
+          <button onClick={()=>setShowBodyPartModal(bodyPart)}
             style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:bodyPart!=='Any body part'?'var(--primary)':'var(--card2)',color:bodyPart!=='Any body part'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {bodyPart}
           </button>
-          <button onClick={()=>setShowCatPicker(true)}
+          <button onClick={()=>setShowEquipmentModal(category)}
             style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:category!=='Any category'?'var(--primary)':'var(--card2)',color:category!=='Any category'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {category}
           </button>
@@ -317,6 +319,88 @@ function ExercisesContent() {
       )}
 
       <BottomNav/>
+
+      {/* Body Part Exercises Modal */}
+      {showBodyPartModal && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:300,display:'flex',alignItems:'flex-end',backdropFilter:'blur(4px)'}}>
+          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',maxHeight:'80dvh',display:'flex',flexDirection:'column',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)',animation:'slideUp 0.3s ease'}}>
+            <div style={{padding:'16px 20px 8px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',flexShrink:0}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:2}}>Exercises</div>
+                <div style={{fontWeight:700,fontSize:18}}>{showBodyPartModal}</div>
+              </div>
+              <button onClick={()=>setShowBodyPartModal(null)} style={{background:'var(--card2)',border:'none',borderRadius:8,width:30,height:30,cursor:'pointer',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)'}}>✕</button>
+            </div>
+            <div style={{overflowY:'auto',flex:1}}>
+              {EXERCISES.filter(e => {
+                const matchBody = showBodyPartModal==='Any body part' || e.category===showBodyPartModal ||
+                  (showBodyPartModal==='Full Body' && (e.category==='Full Body'||e.category==='Olympic'||e.category==='Cardio'))
+                return matchBody
+              }).length === 0 ? (
+                <div style={{textAlign:'center',padding:'40px 20px',color:'var(--muted)'}}>
+                  <div style={{fontSize:32,marginBottom:12}}>💪</div>
+                  <div style={{fontWeight:600}}>No exercises</div>
+                </div>
+              ) : (
+                EXERCISES.filter(e => {
+                  const matchBody = showBodyPartModal==='Any body part' || e.category===showBodyPartModal ||
+                    (showBodyPartModal==='Full Body' && (e.category==='Full Body'||e.category==='Olympic'||e.category==='Cardio'))
+                  return matchBody
+                }).map(ex => (
+                  <button key={ex.id} onClick={()=>{ setShowBodyPartModal(null); setSelected(ex) }}
+                    style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'12px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+                    <div style={{width:48,height:48,borderRadius:10,background:'var(--card2)',border:'1.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
+                      {ex.emoji}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontWeight:600,fontSize:14,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ex.name}</div>
+                      <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{ex.equipment}</div>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Equipment Exercises Modal */}
+      {showEquipmentModal && (
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:300,display:'flex',alignItems:'flex-end',backdropFilter:'blur(4px)'}}>
+          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',maxHeight:'80dvh',display:'flex',flexDirection:'column',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)',animation:'slideUp 0.3s ease'}}>
+            <div style={{padding:'16px 20px 8px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',flexShrink:0}}>
+              <div>
+                <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:2}}>Exercises</div>
+                <div style={{fontWeight:700,fontSize:18}}>{showEquipmentModal}</div>
+              </div>
+              <button onClick={()=>setShowEquipmentModal(null)} style={{background:'var(--card2)',border:'none',borderRadius:8,width:30,height:30,cursor:'pointer',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)'}}>✕</button>
+            </div>
+            <div style={{overflowY:'auto',flex:1}}>
+              {EXERCISES.filter(e => showEquipmentModal==='Any category' || e.equipment===showEquipmentModal).length === 0 ? (
+                <div style={{textAlign:'center',padding:'40px 20px',color:'var(--muted)'}}>
+                  <div style={{fontSize:32,marginBottom:12}}>🏋️</div>
+                  <div style={{fontWeight:600}}>No exercises</div>
+                </div>
+              ) : (
+                EXERCISES.filter(e => showEquipmentModal==='Any category' || e.equipment===showEquipmentModal).map(ex => (
+                  <button key={ex.id} onClick={()=>{ setShowEquipmentModal(null); setSelected(ex) }}
+                    style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'12px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+                    <div style={{width:48,height:48,borderRadius:10,background:'var(--card2)',border:'1.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
+                      {ex.emoji}
+                    </div>
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontWeight:600,fontSize:14,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ex.name}</div>
+                      <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{ex.category}</div>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

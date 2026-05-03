@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { EXERCISES, CATEGORIES } from '@/lib/exercises'
 
+const BODY_PARTS = ['Any body part','Core','Arms','Back','Chest','Legs','Shoulders','Full Body']
+
 function ActiveWorkoutContent() {
   const router = useRouter()
   const params = useSearchParams()
@@ -14,6 +16,9 @@ function ActiveWorkoutContent() {
   const [showExercisePicker, setShowExercisePicker] = useState(false)
   const [searchQ, setSearchQ] = useState('')
   const [filterCat, setFilterCat] = useState('All')
+  const [filterBody, setFilterBody] = useState('Any body part')
+  const [showBodyPicker, setShowBodyPicker] = useState(false)
+  const [showCatPicker, setShowCatPicker] = useState(false)
   const [saving, setSaving] = useState(false)
   const [restTimer, setRestTimer] = useState(null)
   const [restElapsed, setRestElapsed] = useState(0)
@@ -21,6 +26,10 @@ function ActiveWorkoutContent() {
   const [showMetricsModal, setShowMetricsModal] = useState(false)
   const timerRef = useRef(null)
   const restRef = useRef(null)
+  const bodyButtonRef = useRef(null)
+  const catButtonRef = useRef(null)
+  const bodyPickerRef = useRef(null)
+  const catPickerRef = useRef(null)
 
   useEffect(() => {
     const templateId = params.get('template')
@@ -40,6 +49,31 @@ function ActiveWorkoutContent() {
   useEffect(() => {
     localStorage.setItem('macrotrack_active_workout', JSON.stringify({ name, exercises, startedAt: startTime }))
   }, [name, exercises])
+
+  useEffect(() => {
+    function handleOutsideClick(e) {
+      if (bodyPickerRef.current && bodyPickerRef.current.contains(e.target)) return
+      if (bodyButtonRef.current && bodyButtonRef.current.contains(e.target)) return
+      if (catPickerRef.current && catPickerRef.current.contains(e.target)) return
+      if (catButtonRef.current && catButtonRef.current.contains(e.target)) return
+      setShowBodyPicker(false)
+      setShowCatPicker(false)
+    }
+    if (showBodyPicker || showCatPicker) {
+      document.addEventListener('click', handleOutsideClick)
+      return () => document.removeEventListener('click', handleOutsideClick)
+    }
+  }, [showBodyPicker, showCatPicker])
+
+  function handleBodyPartOpen() {
+    setShowCatPicker(false)
+    setShowBodyPicker(!showBodyPicker)
+  }
+
+  function handleCategoryOpen() {
+    setShowBodyPicker(false)
+    setShowCatPicker(!showCatPicker)
+  }
 
   async function loadTemplate(id) {
     const { data } = await supabase.from('workout_templates').select('*').eq('id', id).single()
@@ -141,6 +175,7 @@ function ActiveWorkoutContent() {
 
   const filtered = EXERCISES.filter(e =>
     (filterCat === 'All' || e.category === filterCat) &&
+    (filterBody === 'Any body part' || e.muscle === filterBody || (filterBody === 'Full Body' && (e.muscle === 'Full Body' || e.muscle === 'Olympic'))) &&
     (!searchQ || e.name.toLowerCase().includes(searchQ.toLowerCase()) || e.muscle.toLowerCase().includes(searchQ.toLowerCase()))
   )
 
@@ -328,13 +363,41 @@ function ActiveWorkoutContent() {
             <div style={{ padding: '14px 16px', borderBottom: '1.5px solid var(--border)', background: 'var(--card)' }}>
               <input type="text" placeholder="Search exercises…" value={searchQ} onChange={e => setSearchQ(e.target.value)}
                 style={{ width: '100%', padding: '12px 14px', borderRadius: 12, fontSize: 14, background: 'var(--card2)', border: '1.5px solid var(--border)', color: 'var(--text)', outline: 'none', marginBottom: 12, transition: 'all 0.2s' }} />
-              <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4 }}>
-                {CATEGORIES.map(c => (
-                  <button key={c} onClick={() => setFilterCat(c)}
-                    style={{ padding: '8px 16px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', flexShrink: 0, border: '1.5px solid ' + (filterCat === c ? 'var(--primary)' : 'var(--border)'), background: filterCat === c ? 'var(--primary)' : 'transparent', color: filterCat === c ? '#fff' : 'var(--muted)', transition: 'all 0.2s' }}>
-                    {c}
-                  </button>
-                ))}
+              <div style={{display:'flex',gap:8,position:'relative'}}>
+                <button ref={bodyButtonRef} onClick={handleBodyPartOpen}
+                  style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:filterBody!=='Any body part'?'var(--primary)':'var(--card2)',color:filterBody!=='Any body part'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                  {filterBody}
+                </button>
+                <button ref={catButtonRef} onClick={handleCategoryOpen}
+                  style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:filterCat!=='All'?'var(--primary)':'var(--card2)',color:filterCat!=='All'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                  {filterCat}
+                </button>
+
+                {/* Body Part Popover */}
+                {showBodyPicker && bodyButtonRef.current && (
+                  <div ref={bodyPickerRef} style={{position:'absolute',top:'100%',left:0,marginTop:8,background:'var(--surface)',backdropFilter:'blur(20px)',borderRadius:20,border:'1.5px solid var(--border)',boxShadow:'0 20px 60px rgba(0,0,0,0.2)',zIndex:300,minWidth:200,maxHeight:280,overflowY:'auto',animation:'popoverIn 0.2s ease'}}>
+                    {BODY_PARTS.map((bp,i)=>(
+                      <button key={bp} onClick={()=>{setFilterBody(bp);setShowBodyPicker(false)}}
+                        style={{width:'100%',padding:'12px 16px',background:'none',border:'none',borderBottom:i<BODY_PARTS.length-1?'1px solid var(--border)':'none',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent',transition:'background 0.15s'}} onMouseEnter={e=>e.currentTarget.style.background='var(--card2)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <div style={{fontWeight:600,fontSize:14,color:filterBody===bp?'var(--primary)':'var(--text)'}}>{bp}</div>
+                        {filterBody===bp&&<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Category Popover */}
+                {showCatPicker && catButtonRef.current && (
+                  <div ref={catPickerRef} style={{position:'absolute',top:'100%',right:0,marginTop:8,background:'var(--surface)',backdropFilter:'blur(20px)',borderRadius:20,border:'1.5px solid var(--border)',boxShadow:'0 20px 60px rgba(0,0,0,0.2)',zIndex:300,minWidth:200,maxHeight:280,overflowY:'auto',animation:'popoverIn 0.2s ease'}}>
+                    {['All',...CATEGORIES].map((c,i)=>(
+                      <button key={c} onClick={()=>{setFilterCat(c);setShowCatPicker(false)}}
+                        style={{width:'100%',padding:'12px 16px',background:'none',border:'none',borderBottom:i<CATEGORIES.length?'1px solid var(--border)':'none',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent',transition:'background 0.15s'}} onMouseEnter={e=>e.currentTarget.style.background='var(--card2)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                        <div style={{fontWeight:600,fontSize:14,color:filterCat===c?'var(--primary)':'var(--text)'}}>{c}</div>
+                        {filterCat===c&&<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -401,6 +464,18 @@ export default function ActiveWorkoutPage() {
   return (
     <Suspense fallback={<div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 600, color: 'var(--muted)' }}>Loading workout…</div>}>
       <ActiveWorkoutContent />
+      <style>{`
+        @keyframes popoverIn {
+          from {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
     </Suspense>
   )
 }

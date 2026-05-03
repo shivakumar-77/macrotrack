@@ -103,11 +103,11 @@ function ExercisesContent() {
 
         {/* Filter pills — exactly like your design */}
         <div style={{display:'flex',gap:8}}>
-          <button onClick={()=>setShowBodyPartModal(bodyPart)}
+          <button onClick={()=>setShowBodyPicker(true)}
             style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:bodyPart!=='Any body part'?'var(--primary)':'var(--card2)',color:bodyPart!=='Any body part'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {bodyPart}
           </button>
-          <button onClick={()=>setShowEquipmentModal(category)}
+          <button onClick={()=>setShowCatPicker(true)}
             style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:category!=='Any category'?'var(--primary)':'var(--card2)',color:category!=='Any category'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {category}
           </button>

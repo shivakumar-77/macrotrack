@@ -43,10 +43,33 @@ function ExercisesContent() {
   const [showBodyPicker, setShowBodyPicker] = useState(false)
   const [showCatPicker, setShowCatPicker] = useState(false)
   const [showSortPicker, setShowSortPicker] = useState(false)
-  const [showBodyPartModal, setShowBodyPartModal] = useState(null)
-  const [showEquipmentModal, setShowEquipmentModal] = useState(null)
   const [sort, setSort] = useState('name') // name | category
   const listRef = useRef(null)
+  const bodyButtonRef = useRef(null)
+  const catButtonRef = useRef(null)
+  const sortButtonRef = useRef(null)
+  const bodyPickerRef = useRef(null)
+  const catPickerRef = useRef(null)
+  const sortPickerRef = useRef(null)
+
+  // Close popover when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (bodyPickerRef.current && !bodyPickerRef.current.contains(e.target) && bodyButtonRef.current && !bodyButtonRef.current.contains(e.target)) {
+        setShowBodyPicker(false)
+      }
+      if (catPickerRef.current && !catPickerRef.current.contains(e.target) && catButtonRef.current && !catButtonRef.current.contains(e.target)) {
+        setShowCatPicker(false)
+      }
+      if (sortPickerRef.current && !sortPickerRef.current.contains(e.target) && sortButtonRef.current && !sortButtonRef.current.contains(e.target)) {
+        setShowSortPicker(false)
+      }
+    }
+    if (showBodyPicker || showCatPicker || showSortPicker) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showBodyPicker, showCatPicker, showSortPicker])
 
   const filtered = EXERCISES.filter(e => {
     const matchBody = bodyPart==='Any body part' || e.category===bodyPart ||
@@ -102,19 +125,68 @@ function ExercisesContent() {
         </div>
 
         {/* Filter pills — exactly like your design */}
-        <div style={{display:'flex',gap:8}}>
-          <button onClick={()=>setShowBodyPicker(true)}
+        <div style={{display:'flex',gap:8,position:'relative'}}>
+          <button ref={bodyButtonRef} onClick={()=>setShowBodyPicker(!showBodyPicker)}
             style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:bodyPart!=='Any body part'?'var(--primary)':'var(--card2)',color:bodyPart!=='Any body part'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {bodyPart}
           </button>
-          <button onClick={()=>setShowCatPicker(true)}
+          <button ref={catButtonRef} onClick={()=>setShowCatPicker(!showCatPicker)}
             style={{flex:1,padding:'8px 12px',borderRadius:10,border:'1.5px solid var(--border)',background:category!=='Any category'?'var(--primary)':'var(--card2)',color:category!=='Any category'?'#fff':'var(--text)',fontSize:12,fontWeight:600,cursor:'pointer',textAlign:'left',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
             {category}
           </button>
-          <button onClick={()=>setShowSortPicker(true)}
+          <button ref={sortButtonRef} onClick={()=>setShowSortPicker(!showSortPicker)}
             style={{width:38,height:38,borderRadius:10,border:'1.5px solid var(--border)',background:'var(--card2)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/></svg>
           </button>
+
+          {/* Body Part Popover Dropdown */}
+          {showBodyPicker && bodyButtonRef.current && (
+            <div ref={bodyPickerRef} style={{position:'absolute',top:'100%',left:0,marginTop:8,background:'rgba(15,15,19,0.95)',backdropFilter:'blur(20px)',borderRadius:20,border:'1px solid rgba(255,255,255,0.1)',boxShadow:'0 20px 60px rgba(0,0,0,0.3)',zIndex:300,minWidth:200,maxHeight:320,overflowY:'auto',animation:'popoverIn 0.2s ease'}}>
+              {BODY_PARTS.map((bp,i)=>(
+                <button key={bp} onClick={()=>{setBodyPart(bp);setShowBodyPicker(false)}}
+                  style={{width:'100%',padding:'12px 16px',background:'none',border:'none',borderBottom:i<BODY_PARTS.length-1?'1px solid rgba(255,255,255,0.05)':'none',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent',transition:'background 0.15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.08)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:14,color:bodyPart===bp?'var(--primary)':'#fff'}}>{bp}</div>
+                    {bp!=='Any body part'&&<div style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:1}}>
+                      {EXERCISES.filter(e=>e.category===bp||(bp==='Full Body'&&(e.category==='Full Body'||e.category==='Olympic'))).length} exercises
+                    </div>}
+                  </div>
+                  {bodyPart===bp&&<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Equipment Popover Dropdown */}
+          {showCatPicker && catButtonRef.current && (
+            <div ref={catPickerRef} style={{position:'absolute',top:'100%',left:'calc(50% + 20px)',marginTop:8,marginLeft:4,background:'rgba(15,15,19,0.95)',backdropFilter:'blur(20px)',borderRadius:20,border:'1px solid rgba(255,255,255,0.1)',boxShadow:'0 20px 60px rgba(0,0,0,0.3)',zIndex:300,minWidth:200,maxHeight:320,overflowY:'auto',animation:'popoverIn 0.2s ease'}}>
+              {EQUIPMENT_TYPES.map((eq,i)=>(
+                <button key={eq} onClick={()=>{setCategory(eq);setShowCatPicker(false)}}
+                  style={{width:'100%',padding:'12px 16px',background:'none',border:'none',borderBottom:i<EQUIPMENT_TYPES.length-1?'1px solid rgba(255,255,255,0.05)':'none',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent',transition:'background 0.15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.08)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  <div>
+                    <div style={{fontWeight:600,fontSize:14,color:category===eq?'var(--primary)':'#fff'}}>{eq}</div>
+                    {eq!=='Any category'&&<div style={{fontSize:11,color:'rgba(255,255,255,0.5)',marginTop:1}}>
+                      {EXERCISES.filter(e=>e.equipment===eq).length} exercises
+                    </div>}
+                  </div>
+                  {category===eq&&<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Sort Popover Dropdown */}
+          {showSortPicker && sortButtonRef.current && (
+            <div ref={sortPickerRef} style={{position:'absolute',top:'100%',right:0,marginTop:8,background:'rgba(15,15,19,0.95)',backdropFilter:'blur(20px)',borderRadius:20,border:'1px solid rgba(255,255,255,0.1)',boxShadow:'0 20px 60px rgba(0,0,0,0.3)',zIndex:300,minWidth:160,overflow:'hidden',animation:'popoverIn 0.2s ease'}}>
+              {[['name','▲ Name'],['category','Category']].map(([val,label],i)=>(
+                <button key={val} onClick={()=>{setSort(val);setShowSortPicker(false)}}
+                  style={{width:'100%',padding:'12px 16px',background:'none',border:'none',borderBottom:i===0?'1px solid rgba(255,255,255,0.05)':'none',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent',transition:'background 0.15s'}} onMouseEnter={e=>e.currentTarget.style.background='rgba(255,255,255,0.08)'} onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                  <div style={{fontWeight:600,fontSize:14,color:sort===val?'var(--primary)':'#fff'}}>{label}</div>
+                  {sort===val&&<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -252,155 +324,20 @@ function ExercisesContent() {
         </div>
       )}
 
-      {/* Body Part picker modal */}
-      {showBodyPicker&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:200,display:'flex',alignItems:'flex-end'}}>
-          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)'}}>
-            <div style={{padding:'16px 20px 8px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)'}}>
-              <div style={{fontWeight:700,fontSize:18}}>Body Part</div>
-              <button onClick={()=>setShowBodyPicker(false)} style={{background:'var(--card2)',border:'none',borderRadius:8,width:30,height:30,cursor:'pointer',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)'}}>✕</button>
-            </div>
-            {BODY_PARTS.map(bp=>(
-              <button key={bp} onClick={()=>{setBodyPart(bp);setShowBodyPicker(false)}}
-                style={{width:'100%',padding:'16px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent'}}>
-                <div>
-                  <div style={{fontWeight:600,fontSize:15,color:bodyPart===bp?'var(--primary)':'var(--text)'}}>{bp}</div>
-                  {bp!=='Any body part'&&<div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>
-                    {EXERCISES.filter(e=>e.category===bp||(bp==='Full Body'&&(e.category==='Full Body'||e.category==='Olympic'))).length} exercises
-                  </div>}
-                </div>
-                {bodyPart===bp&&<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Equipment/Category picker modal */}
-      {showCatPicker&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:200,display:'flex',alignItems:'flex-end'}}>
-          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',maxHeight:'80dvh',display:'flex',flexDirection:'column',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)'}}>
-            <div style={{padding:'16px 20px 8px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',flexShrink:0}}>
-              <div style={{fontWeight:700,fontSize:18}}>Equipment</div>
-              <button onClick={()=>setShowCatPicker(false)} style={{background:'var(--card2)',border:'none',borderRadius:8,width:30,height:30,cursor:'pointer',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)'}}>✕</button>
-            </div>
-            <div style={{overflowY:'auto',flex:1}}>
-              {EQUIPMENT_TYPES.map(eq=>(
-                <button key={eq} onClick={()=>{setCategory(eq);setShowCatPicker(false)}}
-                  style={{width:'100%',padding:'16px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between',WebkitTapHighlightColor:'transparent'}}>
-                  <div>
-                    <div style={{fontWeight:600,fontSize:15,color:category===eq?'var(--primary)':'var(--text)'}}>{eq}</div>
-                    {eq!=='Any category'&&<div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>
-                      {EXERCISES.filter(e=>e.equipment===eq).length} exercises
-                    </div>}
-                  </div>
-                  {category===eq&&<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sort picker */}
-      {showSortPicker&&(
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:200,display:'flex',alignItems:'flex-end'}} onClick={()=>setShowSortPicker(false)}>
-          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)'}} onClick={e=>e.stopPropagation()}>
-            <div style={{padding:'16px 20px 8px',borderBottom:'1px solid var(--border)',fontWeight:700,fontSize:18}}>Sort by</div>
-            {[['name','▲ Name'],['category','Category']].map(([val,label])=>(
-              <button key={val} onClick={()=>{setSort(val);setShowSortPicker(false)}}
-                style={{width:'100%',padding:'16px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                <div style={{fontWeight:600,fontSize:15,color:sort===val?'var(--primary)':'var(--text)'}}>{label}</div>
-                {sort===val&&<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
       <BottomNav/>
 
-      {/* Body Part Exercises Modal */}
-      {showBodyPartModal && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:300,display:'flex',alignItems:'flex-end',backdropFilter:'blur(4px)'}}>
-          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',maxHeight:'80dvh',display:'flex',flexDirection:'column',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)',animation:'slideUp 0.3s ease'}}>
-            <div style={{padding:'16px 20px 8px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',flexShrink:0}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:2}}>Exercises</div>
-                <div style={{fontWeight:700,fontSize:18}}>{showBodyPartModal}</div>
-              </div>
-              <button onClick={()=>setShowBodyPartModal(null)} style={{background:'var(--card2)',border:'none',borderRadius:8,width:30,height:30,cursor:'pointer',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)'}}>✕</button>
-            </div>
-            <div style={{overflowY:'auto',flex:1}}>
-              {EXERCISES.filter(e => {
-                const matchBody = showBodyPartModal==='Any body part' || e.category===showBodyPartModal ||
-                  (showBodyPartModal==='Full Body' && (e.category==='Full Body'||e.category==='Olympic'||e.category==='Cardio'))
-                return matchBody
-              }).length === 0 ? (
-                <div style={{textAlign:'center',padding:'40px 20px',color:'var(--muted)'}}>
-                  <div style={{fontSize:32,marginBottom:12}}>💪</div>
-                  <div style={{fontWeight:600}}>No exercises</div>
-                </div>
-              ) : (
-                EXERCISES.filter(e => {
-                  const matchBody = showBodyPartModal==='Any body part' || e.category===showBodyPartModal ||
-                    (showBodyPartModal==='Full Body' && (e.category==='Full Body'||e.category==='Olympic'||e.category==='Cardio'))
-                  return matchBody
-                }).map(ex => (
-                  <button key={ex.id} onClick={()=>{ setShowBodyPartModal(null); setSelected(ex) }}
-                    style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'12px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
-                    <div style={{width:48,height:48,borderRadius:10,background:'var(--card2)',border:'1.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
-                      {ex.emoji}
-                    </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontWeight:600,fontSize:14,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ex.name}</div>
-                      <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{ex.equipment}</div>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Equipment Exercises Modal */}
-      {showEquipmentModal && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.8)',zIndex:300,display:'flex',alignItems:'flex-end',backdropFilter:'blur(4px)'}}>
-          <div style={{background:'var(--surface)',width:'100%',maxWidth:430,margin:'0 auto',borderRadius:'24px 24px 0 0',maxHeight:'80dvh',display:'flex',flexDirection:'column',paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 20px)',animation:'slideUp 0.3s ease'}}>
-            <div style={{padding:'16px 20px 8px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)',flexShrink:0}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:2}}>Exercises</div>
-                <div style={{fontWeight:700,fontSize:18}}>{showEquipmentModal}</div>
-              </div>
-              <button onClick={()=>setShowEquipmentModal(null)} style={{background:'var(--card2)',border:'none',borderRadius:8,width:30,height:30,cursor:'pointer',fontSize:18,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--muted)'}}>✕</button>
-            </div>
-            <div style={{overflowY:'auto',flex:1}}>
-              {EXERCISES.filter(e => showEquipmentModal==='Any category' || e.equipment===showEquipmentModal).length === 0 ? (
-                <div style={{textAlign:'center',padding:'40px 20px',color:'var(--muted)'}}>
-                  <div style={{fontSize:32,marginBottom:12}}>🏋️</div>
-                  <div style={{fontWeight:600}}>No exercises</div>
-                </div>
-              ) : (
-                EXERCISES.filter(e => showEquipmentModal==='Any category' || e.equipment===showEquipmentModal).map(ex => (
-                  <button key={ex.id} onClick={()=>{ setShowEquipmentModal(null); setSelected(ex) }}
-                    style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'12px 20px',background:'none',border:'none',borderBottom:'0.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
-                    <div style={{width:48,height:48,borderRadius:10,background:'var(--card2)',border:'1.5px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0}}>
-                      {ex.emoji}
-                    </div>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontWeight:600,fontSize:14,color:'var(--text)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{ex.name}</div>
-                      <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>{ex.category}</div>
-                    </div>
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-                  </button>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <style>{`
+        @keyframes popoverIn {
+          from {
+            opacity: 0;
+            transform: translateY(-8px) scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `}</style>
     </div>
   )
 }

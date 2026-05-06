@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { SkeletonDashboard, PageLoader } from '@/components/Skeleton'
 import { useToast } from '@/components/Toast'
-import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon, CheckIcon, MuscleIcon, WarningIcon, TrophyIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, FoodIcon, PartyIcon, SupplementIcon, RobotIcon } from '@/lib/icons'
+import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon, CheckIcon, MuscleIcon, WarningIcon, TrophyIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, FoodIcon, PartyIcon, SupplementIcon, RobotIcon, WaveIcon } from '@/lib/icons'
 import MacroRing from '@/components/MacroRing'
 
 const today = () => new Date().toISOString().slice(0, 10)
@@ -269,7 +269,8 @@ export default function Dashboard() {
           Meal Planner
           <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>AI-generated plan</div>
         </button>
-        <button onClick={() => router.push('/insights')}
+        <button onClick={() => router.push('/insights')
+              router.push('/progress')}
           style={{ padding:'14px', borderRadius:16, background:'linear-gradient(135deg,var(--primary),#818cf8)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
           <div style={{ fontSize:22, marginBottom:4 }}><ChartBarIcon size={24} color='#fff'/></div>
           Insights

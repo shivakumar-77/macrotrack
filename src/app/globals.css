@@ -123,7 +123,6 @@ body {
   padding-bottom: calc(var(--sab) + 90px);
   padding-left: calc(var(--sal) + 20px);
   padding-right: calc(var(--sar) + 20px);
-  min-height: 100dvh;
   animation: pageIn 0.3s ease both;
 }
 .page { /* legacy alias */
@@ -132,7 +131,6 @@ body {
   padding-bottom: calc(var(--sab) + 90px);
   padding-left: calc(var(--sal) + 20px);
   padding-right: calc(var(--sar) + 20px);
-  min-height: 100dvh;
   animation: pageIn 0.3s ease both;
 }
 .page-sub {
@@ -144,8 +142,8 @@ body {
 
 /* ── Bottom nav ── */
 .bottom-nav {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 430px;
+  position: fixed; inset: auto 0 0 0;
+  width: 100%; max-width: 430px; margin: 0 auto;
   display: flex; align-items: flex-start; justify-content: space-around;
   background: var(--nav-bg);
   backdrop-filter: saturate(180%) blur(20px);

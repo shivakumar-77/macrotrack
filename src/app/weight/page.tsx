@@ -333,11 +333,11 @@ export default function WeightPage() {
       {/* Stats strip */}
       <div style={{ display:'flex', gap:10, padding:'0 20px', marginBottom:20, overflowX:'auto', paddingBottom:4 }}>
         {[
-          { label:'Current', val: latest?`${latest.weight_kg} kg`:'—', color:'var(--primary)', icon:'⚖️' },
-          { label:'Goal', val:`${goal} kg`, color:'#10b981', icon:'🎯' },
-          { label:'To go', val: toGoal!==null?`${Math.abs(toGoal).toFixed(1)} kg`:'—', color: toGoal&&toGoal<=0?'#10b981':'#f59e0b', icon: toGoal&&toGoal<=0?'🏆':'📍' },
-          { label:'Total', val: totalChg!==null?`${totalChg>0?'+':''}${totalChg} kg`:'—', color: isLosing?'#10b981':'#ef4444', icon: isLosing?'📉':'📈' },
-          { label:'7d avg', val: weekAvg?`${weekAvg} kg`:'—', color:'#6366f1', icon:'📊' },
+          { label:'Current', val: latest?`${latest.weight_kg} kg`:'—', color:'var(--primary)', icon:'ScaleIcon' },
+          { label:'Goal', val:`${goal} kg`, color:'#10b981', icon:'TargetIcon' },
+          { label:'To go', val: toGoal!==null?`${Math.abs(toGoal).toFixed(1)} kg`:'—', color: toGoal&&toGoal<=0?'#10b981':'#f59e0b', icon: toGoal&&toGoal<=0?'TrophyIcon':'📍' },
+          { label:'Total', val: totalChg!==null?`${totalChg>0?'+':''}${totalChg} kg`:'—', color: isLosing?'#10b981':'#ef4444', icon: isLosing?'ChartDownIcon':'ChartUpIcon' },
+          { label:'7d avg', val: weekAvg?`${weekAvg} kg`:'—', color:'#6366f1', icon:'ChartBarIcon' },
           { label:'BMI', val: bmiVal?String(bmiVal):'—', color:bmiColor, icon:'🧮' },
         ].map(s => (
           <div key={s.label} style={{ flexShrink:0, background:'var(--card)', borderRadius:16, padding:'12px 14px', border:'1.5px solid var(--border)', textAlign:'center', minWidth:80 }}>

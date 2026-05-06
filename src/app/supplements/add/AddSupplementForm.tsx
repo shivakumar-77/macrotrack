@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
-const ICONS = ['💊','🧴','💉','🌿','⚡','🔥','☀️','🌙','💪','🐟','🥛','🍵','☕','🧪','🔋','🦴','🌱','🔩','❤️','🧬']
+const ICONS = ['PillIcon','BottleIcon','SyringeIcon','LeafIcon','BoltIcon','FireIcon','SunIcon','MoonIcon','MuscleIcon','FishIcon','GlassIcon','🍵','CoffeeIcon','BeakerIcon','BatteryIcon','BoneIcon','SproutIcon','NutBoltIcon','HeartIcon','DNAIcon']
 const COLORS = ['#6366f1','#3b82f6','#10b981','#f59e0b','#ef4444','#ec4899','#8b5cf6','#0ea5e9','#14b8a6','#f97316']
 const CATEGORIES = ['Performance','Recovery','Health','Weight','Vitamins','Minerals','Hormones','General']
 const UNITS = ['capsule','tablet','scoop','g','mg','ml','IU','softgel','gummy','drop']
@@ -20,7 +20,7 @@ export default function AddSupplementForm() {
   const editId = params.get('edit')
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
-    name:'', category:'General', icon:'💊', color:'#6366f1',
+    name:'', category:'General', icon:'PillIcon', color:'#6366f1',
     dose_amount:'1', dose_unit:'capsule', times_per_day:1,
     frequency:'daily', stock_count:'', stock_unit:'capsule',
     goal:'', notes:''
@@ -34,7 +34,7 @@ export default function AddSupplementForm() {
     const { data } = await supabase.from('supplements').select('*').eq('id', editId).single()
     if (data) setForm({
       name:data.name||'', category:data.category||'General',
-      icon:data.icon||'💊', color:data.color||'#6366f1',
+      icon:data.icon||'PillIcon', color:data.color||'#6366f1',
       dose_amount:String(data.dose_amount||1), dose_unit:data.dose_unit||'capsule',
       times_per_day:data.times_per_day||1, frequency:data.frequency||'daily',
       stock_count:String(data.stock_count||''), stock_unit:data.stock_unit||'capsule',

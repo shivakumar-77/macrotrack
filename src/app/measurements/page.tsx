@@ -5,12 +5,12 @@ import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 
 const MEASUREMENTS = [
-  { key: 'waist', label: 'Waist', icon: '📏', color: '#6366f1' },
-  { key: 'chest', label: 'Chest', icon: '💪', color: '#3b82f6' },
-  { key: 'hips', label: 'Hips', icon: '🔵', color: '#ec4899' },
-  { key: 'arms', label: 'Arms', icon: '💪', color: '#f59e0b' },
-  { key: 'thighs', label: 'Thighs', icon: '🦵', color: '#10b981' },
-  { key: 'shoulders', label: 'Shoulders', icon: '🏋️', color: '#ef4444' },
+  { key: 'waist', label: 'Waist', icon: 'RulerIcon', color: '#6366f1' },
+  { key: 'chest', label: 'Chest', icon: 'MuscleIcon', color: '#3b82f6' },
+  { key: 'hips', label: 'Hips', icon: 'CircleIcon', color: '#ec4899' },
+  { key: 'arms', label: 'Arms', icon: 'MuscleIcon', color: '#f59e0b' },
+  { key: 'thighs', label: 'Thighs', icon: 'LegIcon', color: '#10b981' },
+  { key: 'shoulders', label: 'Shoulders', icon: 'MuscleIcon', color: '#ef4444' },
 ]
 
 export default function MeasurementsPage() {

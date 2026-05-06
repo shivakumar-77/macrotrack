@@ -6,17 +6,17 @@ import { supabase } from '@/lib/supabase'
 const STEPS = ['goal', 'body', 'activity', 'done']
 
 const GOALS = [
-  { key:'lose', icon:'📉', label:'Lose weight', desc:'Burn fat, get leaner', color:'#10b981', bg:'#d1fae5' },
-  { key:'maintain', icon:'⚖️', label:'Stay healthy', desc:'Maintain current weight', color:'#f59e0b', bg:'#fef3c7' },
-  { key:'gain', icon:'💪', label:'Build muscle', desc:'Gain strength and size', color:'#3b82f6', bg:'#dbeafe' },
+  { key:'lose', icon:'ChartDownIcon', label:'Lose weight', desc:'Burn fat, get leaner', color:'#10b981', bg:'#d1fae5' },
+  { key:'maintain', icon:'ScaleIcon', label:'Stay healthy', desc:'Maintain current weight', color:'#f59e0b', bg:'#fef3c7' },
+  { key:'gain', icon:'MuscleIcon', label:'Build muscle', desc:'Gain strength and size', color:'#3b82f6', bg:'#dbeafe' },
 ]
 
 const ACTIVITY_LEVELS = [
-  { key:'sedentary', icon:'🛋️', label:'Sedentary', desc:'Desk job, little exercise', mul:1.2 },
-  { key:'light', icon:'🚶', label:'Lightly active', desc:'1–3 workouts/week', mul:1.375 },
-  { key:'moderate', icon:'🏃', label:'Moderately active', desc:'3–5 workouts/week', mul:1.55 },
-  { key:'very', icon:'🏋️', label:'Very active', desc:'6–7 workouts/week', mul:1.725 },
-  { key:'extra', icon:'⚡', label:'Athlete', desc:'Physical job + daily training', mul:1.9 },
+  { key:'sedentary', icon:'CouchIcon', label:'Sedentary', desc:'Desk job, little exercise', mul:1.2 },
+  { key:'light', icon:'WalkIcon', label:'Lightly active', desc:'1–3 workouts/week', mul:1.375 },
+  { key:'moderate', icon:'PlayIcon', label:'Moderately active', desc:'3–5 workouts/week', mul:1.55 },
+  { key:'very', icon:'MuscleIcon', label:'Very active', desc:'6–7 workouts/week', mul:1.725 },
+  { key:'extra', icon:'BoltIcon', label:'Athlete', desc:'Physical job + daily training', mul:1.9 },
 ]
 
 export default function OnboardingPage() {

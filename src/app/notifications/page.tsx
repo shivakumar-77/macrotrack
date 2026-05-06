@@ -5,12 +5,12 @@ import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 
 const DEFAULT_REMINDERS = [
-  { id: 'breakfast', label: 'Breakfast reminder', icon: '🌅', time: '08:00', enabled: true, url: '/log' },
-  { id: 'lunch', label: 'Lunch reminder', icon: '☀️', time: '13:00', enabled: true, url: '/log' },
-  { id: 'dinner', label: 'Dinner reminder', icon: '🌙', time: '20:00', enabled: true, url: '/log' },
-  { id: 'water', label: 'Water reminder', icon: '💧', time: '10:00', enabled: false, url: '/water' },
-  { id: 'water2', label: 'Water reminder 2', icon: '💧', time: '15:00', enabled: false, url: '/water' },
-  { id: 'weight', label: 'Weight log reminder', icon: '⚖️', time: '07:00', enabled: false, url: '/profile' },
+  { id: 'breakfast', label: 'Breakfast reminder', icon: 'SunriseIcon', time: '08:00', enabled: true, url: '/log' },
+  { id: 'lunch', label: 'Lunch reminder', icon: 'SunIcon', time: '13:00', enabled: true, url: '/log' },
+  { id: 'dinner', label: 'Dinner reminder', icon: 'MoonIcon', time: '20:00', enabled: true, url: '/log' },
+  { id: 'water', label: 'Water reminder', icon: 'DropletIcon', time: '10:00', enabled: false, url: '/water' },
+  { id: 'water2', label: 'Water reminder 2', icon: 'DropletIcon', time: '15:00', enabled: false, url: '/water' },
+  { id: 'weight', label: 'Weight log reminder', icon: 'ScaleIcon', time: '07:00', enabled: false, url: '/profile' },
 ]
 
 export default function NotificationsPage() {
@@ -137,7 +137,7 @@ export default function NotificationsPage() {
         <div className="card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
             <div style={{ width: 48, height: 48, borderRadius: 16, background: permission === 'granted' ? '#d1fae5' : '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>
-              {permission === 'granted' ? '✅' : '🔔'}
+              {permission === 'granted' ? 'CheckIcon' : 'BellIcon'}
             </div>
             <div>
               <div style={{ fontWeight: 700, fontSize: 15 }}>

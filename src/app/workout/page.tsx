@@ -92,10 +92,10 @@ export default function WorkoutPage() {
         {/* 2x2 grid */}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:28}}>
           {[
-            {label:'Exercises',icon:'💪',sub:'Browse all',action:()=>router.push('/workout/exercises')},
-            {label:'Create Templates',icon:'📋',sub:'Build routines',action:()=>router.push('/workout/template')},
-            {label:'History',icon:'📊',sub:`${stats.total} workouts`,action:()=>router.push('/workout/history')},
-            {label:'Body Anatomy',icon:'🫀',sub:'Muscle map',action:()=>router.push('/workout/body')},
+            {label:'Exercises',icon:'MuscleIcon',sub:'Browse all',action:()=>router.push('/workout/exercises')},
+            {label:'Create Templates',icon:'ClipboardIcon',sub:'Build routines',action:()=>router.push('/workout/template')},
+            {label:'History',icon:'ChartBarIcon',sub:`${stats.total} workouts`,action:()=>router.push('/workout/history')},
+            {label:'Body Anatomy',icon:'HeartBeatIcon',sub:'Muscle map',action:()=>router.push('/workout/body')},
           ].map(item=>(
             <button key={item.label} onClick={item.action}
               style={{background:'var(--card)',borderRadius:20,padding:'18px 16px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',position:'relative',WebkitTapHighlightColor:'transparent',minHeight:110,display:'flex',flexDirection:'column',justifyContent:'space-between'}}>

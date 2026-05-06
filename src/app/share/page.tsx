@@ -121,10 +121,10 @@ export default function SharePage() {
           {/* Stats grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
-              { icon: '🔥', label: 'Day streak', val: stats.streak, unit: 'days' },
-              { icon: '📉', label: 'Weight lost', val: stats.weightLost, unit: 'kg' },
-              { icon: '📅', label: 'Days active', val: stats.daysActive, unit: 'days' },
-              { icon: '🍽️', label: 'Meals logged', val: stats.totalLogs, unit: 'total' },
+              { icon: 'FireIcon', label: 'Day streak', val: stats.streak, unit: 'days' },
+              { icon: 'ChartDownIcon', label: 'Weight lost', val: stats.weightLost, unit: 'kg' },
+              { icon: 'CalendarIcon', label: 'Days active', val: stats.daysActive, unit: 'days' },
+              { icon: 'FoodIcon', label: 'Meals logged', val: stats.totalLogs, unit: 'total' },
             ].map(s => (
               <div key={s.label} style={{ background: t.accent, borderRadius: 16, padding: '16px 14px' }}>
                 <div style={{ fontSize: 22, marginBottom: 6 }}>{s.icon}</div>

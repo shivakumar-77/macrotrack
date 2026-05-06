@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
 import BarcodeScanner from '@/components/BarcodeScanner'
+import { SearchIcon, CameraIcon, TagIcon, PackageIcon, EditIcon, StarIcon, ClockIcon, SaladIcon } from '@/lib/icons'
 
 const MEAL_TYPES = ['breakfast','lunch','dinner','snack','other']
 const todayStr = () => new Date().toISOString().slice(0,10)
@@ -79,7 +80,7 @@ export default function LogPage() {
   function toggleFav(food) {
     const added = saveFav({ ...food, baseQty: food.baseQty||100 })
     const f = getFavs(); setFavs(f); setFavNames(new Set(f.map(x => x.name)))
-    showToast(added ? '⭐ Added to favourites' : '★ Removed from favourites')
+    showToast(added ? 'Added to favourites' : 'Removed from favourites')
   }
 
   async function logFood(foodOverride) {
@@ -95,7 +96,7 @@ export default function LogPage() {
     saveHistory({ name:src.name, cal:src.cal, protein:src.protein, carb:src.carb, fat:src.fat, fiber:src.fiber||0, unit:src.unit||'g', baseQty:src.baseQty||src.qty })
     setHistory(getHistory())
     setSaving(false)
-    showToast('✓ Logged to ' + mealType)
+    showToast('Logged to ' + mealType)
     setTimeout(() => router.push('/dashboard'), 700)
   }
 
@@ -207,8 +208,8 @@ export default function LogPage() {
         </button>
         {showStar && (
           <button onClick={() => toggleFav(food)}
-            style={{ padding:'14px 16px 14px 0', background:'none', border:'none', cursor:'pointer', fontSize:20, color:starred?'#f59e0b':'var(--muted)', transition:'color 0.2s, transform 0.2s', transform:starred?'scale(1.2)':'scale(1)' }}>
-            {starred ? '⭐' : '☆'}
+            style={{ padding:'14px 16px 14px 0', background:'none', border:'none', cursor:'pointer', width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <StarIcon size={20} color={starred?'#f59e0b':'var(--muted)'} strokeWidth={starred?2.5:1.8}/>
           </button>
         )}
       </div>
@@ -218,7 +219,7 @@ export default function LogPage() {
   const FavCard = ({ food }) => (
     <div style={{ flexShrink:0, width:120, background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden' }}>
       <div style={{ background:'linear-gradient(135deg,var(--primary-bg),#e0e7ff)', padding:'14px 12px 8px', textAlign:'center' }}>
-        <div style={{ fontSize:28, marginBottom:4 }}>⭐</div>
+        <div style={{ marginBottom:4, display:'flex', alignItems:'center', justifyContent:'center' }}><StarIcon size={28} color='#f59e0b'/></div>
         <div style={{ fontWeight:700, fontSize:12, color:'var(--text)', lineHeight:1.3 }}>{food.name}</div>
       </div>
       <div style={{ padding:'8px 10px 10px' }}>
@@ -242,12 +243,15 @@ export default function LogPage() {
       <h1 style={{ fontSize:24, fontWeight:700, letterSpacing:'-0.02em', marginBottom:20 }}>Log food</h1>
 
       <div style={{ display:'flex', gap:8, marginBottom:24, overflowX:'auto', paddingBottom:4 }}>
-        {[{id:'search',e:'🔍',l:'Search'},{id:'scan',e:'📷',l:'AI Scan'},{id:'recipe',e:'🏷️',l:'Recipe'},{id:'barcode',e:'📦',l:'Barcode'},{id:'manual',e:'✏️',l:'Manual'}].map(t=>(
+        {[{id:'search',i:SearchIcon,l:'Search'},{id:'scan',i:CameraIcon,l:'AI Scan'},{id:'recipe',i:TagIcon,l:'Recipe'},{id:'barcode',i:PackageIcon,l:'Barcode'},{id:'manual',i:EditIcon,l:'Manual'}].map(t=>{
+          const Icon = t.i
+          return (
           <button key={t.id} onClick={() => setTab(t.id)}
-            style={{ padding:'9px 16px', fontSize:13, fontWeight:600, borderRadius:12, whiteSpace:'nowrap', cursor:'pointer', border:'1.5px solid '+(tab===t.id?'var(--primary)':'var(--border)'), background:tab===t.id?'var(--primary)':'var(--card)', color:tab===t.id?'#fff':'var(--muted)' }}>
-            {t.e} {t.l}
+            style={{ padding:'9px 16px', fontSize:13, fontWeight:600, borderRadius:12, whiteSpace:'nowrap', cursor:'pointer', border:'1.5px solid '+(tab===t.id?'var(--primary)':'var(--border)'), background:tab===t.id?'var(--primary)':'var(--card)', color:tab===t.id?'#fff':'var(--muted)', display:'flex', alignItems:'center', gap:6 }}>
+            <Icon size={16} color={tab===t.id?'#fff':'currentColor'} strokeWidth={1.8}/> {t.l}
           </button>
-        ))}
+          )
+        })}
       </div>
 
       {/* SEARCH TAB */}
@@ -272,7 +276,7 @@ export default function LogPage() {
           {!query && !selected && favs.length>0 && (
             <div style={{ marginBottom:20 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-                <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em' }}>⭐ Favourites</div>
+                <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', display:'flex', alignItems:'center', gap:6 }}><StarIcon size={14} color='var(--muted)'/> Favourites</div>
                 <button onClick={() => setShowFavs(s=>!s)} style={{ background:'none', border:'none', color:'var(--primary)', fontSize:12, fontWeight:600, cursor:'pointer' }}>
                   {showFavs?'Show less':'Show all'}
                 </button>
@@ -286,7 +290,7 @@ export default function LogPage() {
           {/* Recent history */}
           {!query && !selected && history.length>0 && (
             <div style={{ marginBottom:20 }}>
-              <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10 }}>🕐 Recent</div>
+              <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}><ClockIcon size={14} color='var(--muted)'/> Recent</div>
               <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden' }}>
                 {history.slice(0,8).map((h,i) => <FoodRow key={i} food={h} onSelect={selectFood}/>)}
               </div>
@@ -295,10 +299,10 @@ export default function LogPage() {
 
           {!query && !selected && history.length===0 && favs.length===0 && (
             <div style={{ textAlign:'center', padding:'40px 0', color:'var(--muted)' }}>
-              <div style={{ width:64, height:64, background:'var(--primary-bg)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px', fontSize:28 }}>🥗</div>
+              <div style={{ width:64, height:64, background:'var(--primary-bg)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}><SaladIcon size={32} color='var(--primary)'/></div>
               <p style={{ fontWeight:600, fontSize:15, marginBottom:6 }}>Search any food</p>
               <p style={{ fontSize:13 }}>egg, chicken, rice, dal, roti, dosa…</p>
-              <p style={{ fontSize:12, color:'var(--muted)', marginTop:8 }}>⭐ Star foods to add to favourites</p>
+              <p style={{ fontSize:12, color:'var(--muted)', marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}><StarIcon size={14} color='var(--muted)'/> Star foods to add to favourites</p>
             </div>
           )}
 
@@ -313,8 +317,8 @@ export default function LogPage() {
                   </div>
                   <div style={{ display:'flex', gap:8, flexShrink:0 }}>
                     <button onClick={() => toggleFav(selected)}
-                      style={{ width:38, height:38, borderRadius:10, background:'var(--card2)', border:'none', cursor:'pointer', fontSize:18, display:'flex', alignItems:'center', justifyContent:'center', color:favNames.has(selected.name)?'#f59e0b':'var(--muted)', transition:'color 0.2s' }}>
-                      {favNames.has(selected.name)?'⭐':'☆'}
+                      style={{ width:38, height:38, borderRadius:10, background:'var(--card2)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:favNames.has(selected.name)?'#f59e0b':'var(--muted)', transition:'color 0.2s' }}>
+                      <StarIcon size={18} color={favNames.has(selected.name)?'#f59e0b':'var(--muted)'} strokeWidth={favNames.has(selected.name)?2.5:1.8}/>
                     </button>
                     <button onClick={() => { setSelected(null); setQuery('') }}
                       style={{ width:38, height:38, borderRadius:10, background:'var(--card2)', border:'none', cursor:'pointer', fontSize:18, display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>×</button>
@@ -338,7 +342,7 @@ export default function LogPage() {
           <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={scanPhoto} style={{ display:'none' }}/>
           {!photoPreview && !selected && (
             <div style={{ textAlign:'center', padding:'24px 0' }}>
-              <div style={{ width:80, height:80, background:'linear-gradient(135deg,#f59e0b,#ef4444)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px', fontSize:36 }}>🏷️</div>
+              <div style={{ width:80, height:80, background:'linear-gradient(135deg,#f59e0b,#ef4444)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}><TagIcon size={40} color='#fff'/></div>
               <p style={{ fontWeight:700, fontSize:18, marginBottom:8 }}>Recipe & Label Scanner</p>
               <p style={{ color:'var(--muted)', fontSize:13, marginBottom:8, lineHeight:1.7 }}>
                 Take a photo of any food label, nutrition facts panel, or recipe card.
@@ -347,7 +351,7 @@ export default function LogPage() {
                 AI reads the nutrition information and automatically fills in all your macros.
               </p>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:28 }}>
-                {[{icon:'📦',l:'Food labels'},{icon:'🍽️',l:'Recipes'},{icon:'🧾',l:'Menus'}].map(x=>(
+                {[{icon:'PackageIcon',l:'Food labels'},{icon:'FoodIcon',l:'Recipes'},{icon:'🧾',l:'Menus'}].map(x=>( /* TODO: Replace emoji icons in this section with SVG icons */
                   <div key={x.l} style={{ background:'var(--card)', borderRadius:16, padding:'16px 10px', border:'1.5px solid var(--border)', textAlign:'center' }}>
                     <div style={{ fontSize:28, marginBottom:6 }}>{x.icon}</div>
                     <div style={{ fontSize:12, fontWeight:600, color:'var(--muted)' }}>{x.l}</div>
@@ -383,13 +387,13 @@ export default function LogPage() {
               {photoPreview && <img src={photoPreview} alt="Food" style={{ width:'100%', borderRadius:20, marginBottom:16, maxHeight:240, objectFit:'cover' }}/>}
               <div className="card">
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
-                  <div style={{ background:'#fef3c7', color:'#d97706', fontSize:11, fontWeight:700, padding:'4px 10px', borderRadius:99 }}>🏷️ LABEL SCANNED</div>
+                  <div style={{ background:'#fef3c7', color:'#d97706', fontSize:11, fontWeight:700, padding:'4px 10px', borderRadius:99, display:'flex', alignItems:'center', gap:6 }}><TagIcon size={14} color='#d97706'/> LABEL SCANNED</div>
                 </div>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:4 }}>
                   <div style={{ fontWeight:700, fontSize:17 }}>{selected.name}</div>
                   <button onClick={() => toggleFav(selected)}
                     style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:favNames.has(selected.name)?'#f59e0b':'var(--muted)', flexShrink:0 }}>
-                    {favNames.has(selected.name)?'⭐':'☆'}
+                    {favNames.has(selected.name)?'AwardIcon':'☆'}
                   </button>
                 </div>
                 {selected.description && <p style={{ fontSize:13, color:'var(--muted)', marginBottom:16, lineHeight:1.6 }}>{selected.description}</p>}
@@ -446,7 +450,7 @@ export default function LogPage() {
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
                   <div style={{ background:'#d1fae5', color:'#059669', fontSize:11, fontWeight:700, padding:'4px 10px', borderRadius:99 }}>AI IDENTIFIED</div>
                   <button onClick={() => toggleFav(selected)} style={{ background:'none', border:'none', fontSize:22, cursor:'pointer', color:favNames.has(selected.name)?'#f59e0b':'var(--muted)' }}>
-                    {favNames.has(selected.name)?'⭐':'☆'}
+                    {favNames.has(selected.name)?'AwardIcon':'☆'}
                   </button>
                 </div>
                 <div style={{ fontWeight:700, fontSize:17, marginBottom:4 }}>{selected.name}</div>

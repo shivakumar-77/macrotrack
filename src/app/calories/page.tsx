@@ -109,9 +109,9 @@ export default function CaloriesPage() {
         {/* Month stats */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
           {[
-            { label: 'Days logged', val: Object.keys(monthLogs).length, color: 'var(--primary)', icon: '📅' },
-            { label: 'Avg calories', val: monthAvgCal, color: '#10b981', icon: '🔥' },
-            { label: 'On target', val: daysOnTarget, color: '#f59e0b', icon: '🎯' },
+            { label: 'Days logged', val: Object.keys(monthLogs).length, color: 'var(--primary)', icon: 'CalendarIcon' },
+            { label: 'Avg calories', val: monthAvgCal, color: '#10b981', icon: 'FireIcon' },
+            { label: 'On target', val: daysOnTarget, color: '#f59e0b', icon: 'TargetIcon' },
           ].map(s => (
             <div key={s.label} className="card" style={{ padding: '12px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>

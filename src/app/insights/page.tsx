@@ -228,7 +228,7 @@ export default function InsightsPage() {
                   <div style={{fontSize:12,opacity:0.75,marginTop:4}}>out of 100</div>
                 </div>
                 <div style={{textAlign:'right'}}>
-                  <div style={{fontSize:40,marginBottom:4}}>{insights.score>=80?'🏆':insights.score>=60?'💪':insights.score>=40?'📈':'🌱'}</div>
+                  <div style={{fontSize:40,marginBottom:4}}>{insights.score>=80?'TrophyIcon':insights.score>=60?'MuscleIcon':insights.score>=40?'ChartUpIcon':'SproutIcon'}</div>
                   <div style={{fontSize:13,fontWeight:700,opacity:0.9}}>{insights.score>=80?'Elite':insights.score>=60?'Good':insights.score>=40?'Building':'Starting'}</div>
                 </div>
               </div>

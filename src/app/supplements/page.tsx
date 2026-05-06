@@ -17,18 +17,18 @@ const CATEGORY_COLORS = {
 }
 
 const POPULAR_SUPPLEMENTS = [
-  { name:'Creatine Monohydrate', category:'Performance', icon:'⚡', color:'#6366f1', dose_amount:5, dose_unit:'g', goal:'Increase muscle strength and power output', notes:'Take with water or juice. Best taken consistently daily.' },
-  { name:'Whey Protein', category:'Recovery', icon:'🥛', color:'#10b981', dose_amount:30, dose_unit:'g', goal:'Support muscle recovery and protein synthesis', notes:'Best consumed within 30 minutes post-workout.' },
-  { name:'Vitamin D3', category:'Vitamins', icon:'☀️', color:'#f59e0b', dose_amount:2000, dose_unit:'IU', goal:'Support immune system and bone health', notes:'Take with a fat-containing meal for best absorption.' },
-  { name:'Omega-3 Fish Oil', category:'Health', icon:'🐟', color:'#3b82f6', dose_amount:2, dose_unit:'capsule', goal:'Reduce inflammation and support heart health', notes:'Take with meals to reduce fishy aftertaste.' },
-  { name:'Magnesium', category:'Minerals', icon:'🔋', color:'#8b5cf6', dose_amount:400, dose_unit:'mg', goal:'Improve sleep quality and muscle recovery', notes:'Best taken 30-60 minutes before bed.' },
-  { name:'Pre-Workout', category:'Performance', icon:'🔥', color:'#ef4444', dose_amount:1, dose_unit:'scoop', goal:'Increase energy and workout performance', notes:'Take 20-30 minutes before training.' },
-  { name:'BCAA', category:'Recovery', icon:'💪', color:'#10b981', dose_amount:10, dose_unit:'g', goal:'Reduce muscle breakdown during training', notes:'Can be taken before, during or after workout.' },
-  { name:'Ashwagandha', category:'Health', icon:'🌿', color:'#10b981', dose_amount:600, dose_unit:'mg', goal:'Reduce cortisol and stress levels', notes:'Take with meals. Effects build over 4-8 weeks.' },
-  { name:'Zinc', category:'Minerals', icon:'🔩', color:'#8b5cf6', dose_amount:15, dose_unit:'mg', goal:'Support testosterone and immune function', notes:'Take on empty stomach or with light meal.' },
-  { name:'Caffeine', category:'Performance', icon:'☕', color:'#f59e0b', dose_amount:200, dose_unit:'mg', goal:'Enhance focus and athletic performance', notes:'Avoid after 2pm to prevent sleep disruption.' },
-  { name:'Collagen', category:'Recovery', icon:'🦴', color:'#ec4899', dose_amount:15, dose_unit:'g', goal:'Support joint health and skin elasticity', notes:'Take with vitamin C for better absorption.' },
-  { name:'Melatonin', category:'Health', icon:'🌙', color:'#6366f1', dose_amount:3, dose_unit:'mg', goal:'Improve sleep quality and circadian rhythm', notes:'Take 30-60 minutes before sleep.' },
+  { name:'Creatine Monohydrate', category:'Performance', icon:'BoltIcon', color:'#6366f1', dose_amount:5, dose_unit:'g', goal:'Increase muscle strength and power output', notes:'Take with water or juice. Best taken consistently daily.' },
+  { name:'Whey Protein', category:'Recovery', icon:'GlassIcon', color:'#10b981', dose_amount:30, dose_unit:'g', goal:'Support muscle recovery and protein synthesis', notes:'Best consumed within 30 minutes post-workout.' },
+  { name:'Vitamin D3', category:'Vitamins', icon:'SunIcon', color:'#f59e0b', dose_amount:2000, dose_unit:'IU', goal:'Support immune system and bone health', notes:'Take with a fat-containing meal for best absorption.' },
+  { name:'Omega-3 Fish Oil', category:'Health', icon:'FishIcon', color:'#3b82f6', dose_amount:2, dose_unit:'capsule', goal:'Reduce inflammation and support heart health', notes:'Take with meals to reduce fishy aftertaste.' },
+  { name:'Magnesium', category:'Minerals', icon:'BatteryIcon', color:'#8b5cf6', dose_amount:400, dose_unit:'mg', goal:'Improve sleep quality and muscle recovery', notes:'Best taken 30-60 minutes before bed.' },
+  { name:'Pre-Workout', category:'Performance', icon:'FireIcon', color:'#ef4444', dose_amount:1, dose_unit:'scoop', goal:'Increase energy and workout performance', notes:'Take 20-30 minutes before training.' },
+  { name:'BCAA', category:'Recovery', icon:'MuscleIcon', color:'#10b981', dose_amount:10, dose_unit:'g', goal:'Reduce muscle breakdown during training', notes:'Can be taken before, during or after workout.' },
+  { name:'Ashwagandha', category:'Health', icon:'LeafIcon', color:'#10b981', dose_amount:600, dose_unit:'mg', goal:'Reduce cortisol and stress levels', notes:'Take with meals. Effects build over 4-8 weeks.' },
+  { name:'Zinc', category:'Minerals', icon:'NutBoltIcon', color:'#8b5cf6', dose_amount:15, dose_unit:'mg', goal:'Support testosterone and immune function', notes:'Take on empty stomach or with light meal.' },
+  { name:'Caffeine', category:'Performance', icon:'CoffeeIcon', color:'#f59e0b', dose_amount:200, dose_unit:'mg', goal:'Enhance focus and athletic performance', notes:'Avoid after 2pm to prevent sleep disruption.' },
+  { name:'Collagen', category:'Recovery', icon:'BoneIcon', color:'#ec4899', dose_amount:15, dose_unit:'g', goal:'Support joint health and skin elasticity', notes:'Take with vitamin C for better absorption.' },
+  { name:'Melatonin', category:'Health', icon:'MoonIcon', color:'#6366f1', dose_amount:3, dose_unit:'mg', goal:'Improve sleep quality and circadian rhythm', notes:'Take 30-60 minutes before sleep.' },
 ]
 
 function today() { return new Date().toISOString().slice(0,10) }
@@ -227,7 +227,7 @@ export default function SupplementsPage() {
                     <div style={{display:'flex',alignItems:'center',gap:14}}>
                       {/* Icon circle */}
                       <div style={{width:52,height:52,borderRadius:16,background:taken?(supp.color||'var(--primary)'):(supp.color||'var(--primary)')+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0,transition:'background 0.2s'}}>
-                        {taken?<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={supp.color||'#6366f1'} strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>:supp.icon||'💊'}
+                        {taken?<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={supp.color||'#6366f1'} strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>:supp.icon||'PillIcon'}
                       </div>
 
                       <div style={{flex:1,minWidth:0}}>
@@ -294,7 +294,7 @@ export default function SupplementsPage() {
                 return (
                   <div key={log.id} style={{display:'flex',alignItems:'center',gap:12,padding:'12px 16px',borderBottom:i<logs.length-1?'0.5px solid var(--border)':'none'}}>
                     <div style={{width:32,height:32,borderRadius:10,background:(supp?.color||'var(--primary)')+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>
-                      {supp?.icon||'💊'}
+                      {supp?.icon||'PillIcon'}
                     </div>
                     <div style={{flex:1}}>
                       <div style={{fontWeight:600,fontSize:13}}>{supp?.name||'Unknown'}</div>

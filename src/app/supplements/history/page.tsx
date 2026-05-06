@@ -125,7 +125,7 @@ export default function SupplementHistoryPage() {
                 return (
                   <div key={log.id} style={{display:'flex',alignItems:'center',gap:12,padding:'11px 14px',borderBottom:i<dayLog.length-1?'0.5px solid var(--border)':'none'}}>
                     <div style={{width:32,height:32,borderRadius:10,background:(supp?.color||'var(--primary)')+'22',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,flexShrink:0}}>
-                      {supp?.icon||'💊'}
+                      {supp?.icon||'PillIcon'}
                     </div>
                     <div style={{flex:1}}>
                       <div style={{fontWeight:600,fontSize:13}}>{supp?.name||'Unknown'}</div>

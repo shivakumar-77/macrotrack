@@ -138,9 +138,9 @@ export default function ProgressPage() {
       <div style={{ padding: '0 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 16 }}>
           {[
-            { label: 'Current', val: latest ? latest.weight_kg + ' kg' : '—', color: 'var(--primary)', icon: '⚖️' },
-            { label: 'Change', val: change ? (parseFloat(change) > 0 ? '+' : '') + change + ' kg' : '—', color: parseFloat(change) < 0 ? '#10b981' : '#ef4444', icon: parseFloat(change) < 0 ? '📉' : '📈' },
-            { label: 'Goal', val: profile?.weight_goal ? profile.weight_goal + ' kg' : '—', color: '#f59e0b', icon: '🎯' },
+            { label: 'Current', val: latest ? latest.weight_kg + ' kg' : '—', color: 'var(--primary)', icon: 'ScaleIcon' },
+            { label: 'Change', val: change ? (parseFloat(change) > 0 ? '+' : '') + change + ' kg' : '—', color: parseFloat(change) < 0 ? '#10b981' : '#ef4444', icon: parseFloat(change) < 0 ? 'ChartDownIcon' : 'ChartUpIcon' },
+            { label: 'Goal', val: profile?.weight_goal ? profile.weight_goal + ' kg' : '—', color: '#f59e0b', icon: 'TargetIcon' },
           ].map(s => (
             <div key={s.label} className="card" style={{ padding: '14px 10px', textAlign: 'center' }}>
               <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
@@ -193,12 +193,12 @@ export default function ProgressPage() {
         <div className="card">
           <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Achievements</div>
           {[
-            { icon: '🥇', label: 'First log', desc: 'Logged your first meal', done: foodStreak.dates?.length > 0 },
-            { icon: '🔥', label: '7-day streak', desc: 'Logged food 7 days in a row', done: foodStreak.longest >= 7 },
-            { icon: '💧', label: 'Hydration hero', desc: 'Hit water goal 7 days', done: waterStreak.longest >= 7 },
-            { icon: '⚖️', label: 'Scale master', desc: 'Logged weight 5 times', done: weights.length >= 5 },
-            { icon: '📉', label: 'First milestone', desc: 'Lost your first 1kg', done: parseFloat(change) <= -1 },
-            { icon: '🏅', label: 'Month warrior', desc: '30-day logging streak', done: foodStreak.longest >= 30 },
+            { icon: 'TrophyIcon', label: 'First log', desc: 'Logged your first meal', done: foodStreak.dates?.length > 0 },
+            { icon: 'FireIcon', label: '7-day streak', desc: 'Logged food 7 days in a row', done: foodStreak.longest >= 7 },
+            { icon: 'DropletIcon', label: 'Hydration hero', desc: 'Hit water goal 7 days', done: waterStreak.longest >= 7 },
+            { icon: 'ScaleIcon', label: 'Scale master', desc: 'Logged weight 5 times', done: weights.length >= 5 },
+            { icon: 'ChartDownIcon', label: 'First milestone', desc: 'Lost your first 1kg', done: parseFloat(change) <= -1 },
+            { icon: 'MedalIcon', label: 'Month warrior', desc: '30-day logging streak', done: foodStreak.longest >= 30 },
           ].map(a => (
             <div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 14, background: a.done ? '#d1fae5' : 'var(--card2)', border: '1.5px solid ' + (a.done ? '#6ee7b7' : 'var(--border)'), opacity: a.done ? 1 : 0.5, marginBottom: 10 }}>
               <div style={{ fontSize: 28, flexShrink: 0 }}>{a.icon}</div>

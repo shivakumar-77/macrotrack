@@ -3,11 +3,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 const ACTIVITY = [
-  { id: 'sedentary', label: 'Sedentary', desc: 'Little or no exercise', icon: '🛋️', mul: 1.2 },
-  { id: 'light', label: 'Lightly active', desc: '1-3 days/week', icon: '🚶', mul: 1.375 },
-  { id: 'moderate', label: 'Moderately active', desc: '3-5 days/week', icon: '🏃', mul: 1.55 },
-  { id: 'very', label: 'Very active', desc: '6-7 days/week', icon: '🏋️', mul: 1.725 },
-  { id: 'extra', label: 'Extra active', desc: 'Athlete / physical job', icon: '⚡', mul: 1.9 },
+  { id: 'sedentary', label: 'Sedentary', desc: 'Little or no exercise', icon: 'CouchIcon', mul: 1.2 },
+  { id: 'light', label: 'Lightly active', desc: '1-3 days/week', icon: 'WalkIcon', mul: 1.375 },
+  { id: 'moderate', label: 'Moderately active', desc: '3-5 days/week', icon: 'PlayIcon', mul: 1.55 },
+  { id: 'very', label: 'Very active', desc: '6-7 days/week', icon: 'MuscleIcon', mul: 1.725 },
+  { id: 'extra', label: 'Extra active', desc: 'Athlete / physical job', icon: 'BoltIcon', mul: 1.9 },
 ]
 
 export default function CalorieCalcPage() {
@@ -166,11 +166,11 @@ export default function CalorieCalcPage() {
             </div>
 
             {[
-              { icon: '⚖️', label: 'Maintain weight', desc: 'Stay at current weight', cal: result.tdee, rate: 'No change', color: '#6366f1', bg: '#eef2ff', border: '#c7d2fe' },
-              { icon: '🌱', label: 'Lose 0.25 kg/week', desc: 'Safe and sustainable', cal: result.safe, rate: '-200 kcal', color: '#10b981', bg: '#d1fae5', border: '#6ee7b7' },
-              { icon: '🔥', label: 'Lose 0.5 kg/week', desc: 'Steady fat loss (recommended)', cal: result.moderate, rate: '-500 kcal', color: '#f59e0b', bg: '#fef3c7', border: '#fde68a' },
-              { icon: '⚡', label: 'Lose 1 kg/week', desc: 'Aggressive - short periods only', cal: result.aggressive, rate: '-1000 kcal', color: '#ef4444', bg: '#fee2e2', border: '#fca5a5' },
-              { icon: '💪', label: 'Gain 0.25 kg/week', desc: 'Lean muscle gain', cal: result.gainLean, rate: '+250 kcal', color: '#3b82f6', bg: '#dbeafe', border: '#93c5fd' },
+              { icon: 'ScaleIcon', label: 'Maintain weight', desc: 'Stay at current weight', cal: result.tdee, rate: 'No change', color: '#6366f1', bg: '#eef2ff', border: '#c7d2fe' },
+              { icon: 'SproutIcon', label: 'Lose 0.25 kg/week', desc: 'Safe and sustainable', cal: result.safe, rate: '-200 kcal', color: '#10b981', bg: '#d1fae5', border: '#6ee7b7' },
+              { icon: 'FireIcon', label: 'Lose 0.5 kg/week', desc: 'Steady fat loss (recommended)', cal: result.moderate, rate: '-500 kcal', color: '#f59e0b', bg: '#fef3c7', border: '#fde68a' },
+              { icon: 'BoltIcon', label: 'Lose 1 kg/week', desc: 'Aggressive - short periods only', cal: result.aggressive, rate: '-1000 kcal', color: '#ef4444', bg: '#fee2e2', border: '#fca5a5' },
+              { icon: 'MuscleIcon', label: 'Gain 0.25 kg/week', desc: 'Lean muscle gain', cal: result.gainLean, rate: '+250 kcal', color: '#3b82f6', bg: '#dbeafe', border: '#93c5fd' },
             ].map(g => (
               <div key={g.label} style={{ background: g.bg, borderRadius: 20, padding: '18px', border: '1.5px solid '+g.border, marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>

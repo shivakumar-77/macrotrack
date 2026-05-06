@@ -3,52 +3,71 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { SaladIcon, FoodIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, WarningIcon, TimerIcon, PencilIcon, LightbulbIcon, CartIcon } from '@/lib/icons'
 
 const QUIZ = [
   {
-    id:'diet_type', question:'What best describes your diet?', icon:'🥗',
+    id:'diet_type', question:'What best describes your diet?', iconType:'salad',
     options:['Vegetarian','Non-vegetarian','Vegan','Eggetarian'],
     custom:true
   },
   {
-    id:'cuisine', question:'What cuisine do you prefer?', icon:'🍽️',
+    id:'cuisine', question:'What cuisine do you prefer?', iconType:'food',
     options:['Indian (North)','Indian (South)','Mixed / Both','Continental'],
     custom:true
   },
   {
-    id:'breakfast_pref', question:'What do you usually eat for breakfast?', icon:'🌅',
+    id:'breakfast_pref', question:'What do you usually eat for breakfast?', iconType:'sunrise',
     options:['Eggs & protein','Idli / Dosa / Upma','Oats / Cereal','Paratha / Roti'],
     custom:true
   },
   {
-    id:'lunch_pref', question:'Your ideal lunch is…', icon:'☀️',
+    id:'lunch_pref', question:'Your ideal lunch is…', iconType:'sun',
     options:['Rice + Dal + Sabzi','Roti + Sabzi + Curd','Chicken / Paneer curry','Salad + Soup'],
     custom:true
   },
   {
-    id:'dinner_pref', question:'For dinner you prefer…', icon:'🌙',
+    id:'dinner_pref', question:'For dinner you prefer…', iconType:'moon',
     options:['Light — soup / salad','Same as lunch','Protein-heavy meal','Roti + Vegetables'],
     custom:true
   },
   {
-    id:'snack_pref', question:'Your go-to snacks are…', icon:'🍎',
+    id:'snack_pref', question:'Your go-to snacks are…', iconType:'apple',
     options:['Fruits / Nuts','Protein bar / Shake','Biscuits / Chips','Tea / Coffee + light snack'],
     custom:true
   },
   {
-    id:'allergies', question:'Any foods to avoid?', icon:'⚠️',
+    id:'allergies', question:'Any foods to avoid?', iconType:'warning',
     options:['None — I eat everything','Lactose intolerant','Gluten-free','Nut allergy'],
     custom:true
   },
   {
-    id:'cooking_time', question:'How much time for meal prep?', icon:'⏱️',
+    id:'cooking_time', question:'How much time for meal prep?', iconType:'timer',
     options:['Quick — under 15 min','Moderate — 15-30 min','I love cooking — 30+ min','Prefer ready-to-eat'],
     custom:false
   },
 ]
 
 const MEAL_COLORS = { Breakfast:'#f59e0b', Lunch:'#10b981', Snack:'#6366f1', Dinner:'#3b82f6' }
-const MEAL_ICONS  = { Breakfast:'🌅', Lunch:'☀️', Snack:'🍎', Dinner:'🌙' }
+
+const getQuizIcon = (type) => {
+  const icons = {
+    salad: <SaladIcon size={24}/>,
+    food: <FoodIcon size={24}/>,
+    sunrise: <SunriseIcon size={24}/>,
+    sun: <SunIcon size={24}/>,
+    moon: <MoonIcon size={24}/>,
+    apple: <AppleIcon size={24}/>,
+    warning: <WarningIcon size={24}/>,
+    timer: <TimerIcon size={24}/>,
+  }
+  return icons[type]
+}
+
+const getMealIcon = (meal) => {
+  const icons = { Breakfast:<SunriseIcon size={18}/>, Lunch:<SunIcon size={18}/>, Snack:<AppleIcon size={18}/>, Dinner:<MoonIcon size={18}/> }
+  return icons[meal]
+}
 
 export default function MealPlanPage() {
   const router = useRouter()
@@ -127,7 +146,7 @@ Create ONLY a JSON response matching this exact structure:
     {
       "type": "Breakfast",
       "time": "7:00 - 9:00 AM",
-      "emoji": "🌅",
+      "emoji": "SunriseIcon",
       "items": [
         {"name": "specific food name", "qty": "150g", "cal": 250, "protein": 12, "carb": 30, "fat": 8, "note": "optional cooking tip"}
       ],
@@ -318,7 +337,7 @@ Create ONLY a JSON response matching this exact structure:
         {/* Meal cards */}
         {plan.meals?.map((meal,i)=>{
           const color  = MEAL_COLORS[meal.type]||'#6366f1'
-          const icon   = meal.emoji||MEAL_ICONS[meal.type]||'🍽️'
+          const icon   = meal.emoji||MEAL_ICONS[meal.type]||'FoodIcon'
           const logged = loggedMeals.has(meal.type)
           return (
             <div key={i} className="card" style={{marginBottom:14,borderLeft:'4px solid '+color}}>

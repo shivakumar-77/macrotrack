@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
-import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon } from '@/lib/icons'
+import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon, WaterIcon, SaladIcon } from '@/lib/icons'
 import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -21,11 +21,11 @@ export default function ProfilePage() {
   const fileRef = useRef(null)
   const [notifPermission, setNotifPermission] = useState('default')
   const [reminders, setReminders] = useState([
-    { id:'breakfast', label:'Breakfast', icon:'🌅', time:'08:00', enabled:true },
-    { id:'lunch',     label:'Lunch',     icon:'☀️', time:'13:00', enabled:true },
-    { id:'dinner',    label:'Dinner',    icon:'🌙', time:'20:00', enabled:true },
-    { id:'water',     label:'Water',     icon:'💧', time:'10:00', enabled:false },
-    { id:'weight',    label:'Weight log',icon:'⚖️', time:'07:30', enabled:false },
+    { id:'breakfast', label:'Breakfast', icon:'sunrise', time:'08:00', enabled:true },
+    { id:'lunch',     label:'Lunch',     icon:'sun', time:'13:00', enabled:true },
+    { id:'dinner',    label:'Dinner',    icon:'moon', time:'20:00', enabled:true },
+    { id:'water',     label:'Water',     icon:'water', time:'10:00', enabled:false },
+    { id:'weight',    label:'Weight log',icon:'scale', time:'07:30', enabled:false },
   ])
   const [form, setForm] = useState({
     name:'', dob:'', age:'', height:'', gender:'male', phone:'',
@@ -138,7 +138,7 @@ export default function ProfilePage() {
   async function enableNotifications() {
     const p = await Notification.requestPermission()
     setNotifPermission(p)
-    if (p==='granted') { new Notification('MacroTrack 🎉',{body:'Reminders enabled!'}); showMsg('Notifications enabled!') }
+    if (p==='granted') { new Notification('MacroTrack',{body:'Reminders enabled!'}); showMsg('Notifications enabled!') }
     else showMsg('Please allow notifications in browser settings.')
   }
 
@@ -360,7 +360,7 @@ export default function ProfilePage() {
           <div>
             <L text="My main goal"/>
             <div style={{display:'flex',gap:8}}>
-              {[{key:'lose',label:'Lose fat',icon:'📉',color:'#10b981',bg:'#d1fae5'},{key:'maintain',label:'Maintain',icon:'⚖️',color:'#f59e0b',bg:'#fef3c7'},{key:'gain',label:'Build muscle',icon:'💪',color:'#3b82f6',bg:'#dbeafe'}].map(g=>(
+              {[{key:'lose',label:'Lose fat',icon:'ChartDownIcon',color:'#10b981',bg:'#d1fae5'},{key:'maintain',label:'Maintain',icon:'ScaleIcon',color:'#f59e0b',bg:'#fef3c7'},{key:'gain',label:'Build muscle',icon:'MuscleIcon',color:'#3b82f6',bg:'#dbeafe'}].map(g=>(
                 <button key={g.key} onClick={()=>setForm(p=>({...p,goal:g.key}))}
                   style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
                   <div style={{fontSize:22,marginBottom:6}}>{g.icon}</div>
@@ -468,7 +468,7 @@ export default function ProfilePage() {
         <div className="card" style={{marginBottom:14}}>
           <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:16}}>
             <div style={{width:48,height:48,borderRadius:16,background:notifPermission==='granted'?'#d1fae5':'#fef3c7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0}}>
-              {notifPermission==='granted'?'✅':'🔔'}
+              {notifPermission==='granted'?'CheckIcon':'BellIcon'}
             </div>
             <div>
               <div style={{fontWeight:700,fontSize:15}}>{notifPermission==='granted'?'Notifications active':'Enable notifications'}</div>
@@ -558,10 +558,10 @@ export default function ProfilePage() {
         <SectionLabel text="Tools"/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:24}}>
           {[
-            {icon:'⚖️',label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
-            {icon:'🔥',label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
-            {icon:'📏',label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
-            {icon:'📤',label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
+            {icon:'ScaleIcon',label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
+            {icon:'FireIcon',label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
+            {icon:'RulerIcon',label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
+            {icon:'UploadIcon',label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
           ].map(t=>(
             <button key={t.label} onClick={t.go}
               style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
@@ -581,7 +581,7 @@ export default function ProfilePage() {
         {/* Appearance */}
         <SectionLabel text="Appearance"/>
         <div style={{display:'flex',gap:8,marginBottom:24}}>
-          {[['light','☀️','Light'],['auto','⚙️','Auto'],['dark','🌙','Dark']].map(([val,icon,label])=>(
+          {[['light','SunIcon','Light'],['auto','⚙️','Auto'],['dark','MoonIcon','Dark']].map(([val,icon,label])=>(
             <button key={val} onClick={()=>setTheme(val)}
               style={{flex:1,padding:'13px 8px',borderRadius:16,border:'2px solid '+(theme===val?'var(--primary)':'var(--border)'),background:theme===val?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',transition:'all 0.15s',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
               <div style={{fontSize:22,marginBottom:5}}>{icon}</div>

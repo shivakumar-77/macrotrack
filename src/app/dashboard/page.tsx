@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { SkeletonDashboard, PageLoader } from '@/components/Skeleton'
 import { useToast } from '@/components/Toast'
-import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon } from '@/lib/icons'
+import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon, CheckIcon, MuscleIcon, WarningIcon, TrophyIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, FoodIcon, PartyIcon, SupplementIcon, RobotIcon } from '@/lib/icons'
 import MacroRing from '@/components/MacroRing'
 
 const today = () => new Date().toISOString().slice(0, 10)
@@ -37,11 +37,11 @@ function getFoodImage(name) {
 }
 
 const STATUS_CONFIG = {
-  on_track: { icon: '✅', label: 'On track', color: '#10b981', bg: '#d1fae5' },
-  low_protein: { icon: '💪', label: 'Low protein', color: '#3b82f6', bg: '#dbeafe' },
-  low_calories: { icon: '⚡', label: 'Need more food', color: '#f59e0b', bg: '#fef3c7' },
-  over_calories: { icon: '⚠️', label: 'Over calories', color: '#ef4444', bg: '#fee2e2' },
-  great: { icon: '🏆', label: 'Perfect day!', color: '#10b981', bg: '#d1fae5' },
+  on_track: { iconType: 'check', label: 'On track', color: '#10b981', bg: '#d1fae5' },
+  low_protein: { iconType: 'muscle', label: 'Low protein', color: '#3b82f6', bg: '#dbeafe' },
+  low_calories: { iconType: 'bolt', label: 'Need more food', color: '#f59e0b', bg: '#fef3c7' },
+  over_calories: { iconType: 'warning', label: 'Over calories', color: '#ef4444', bg: '#fee2e2' },
+  great: { iconType: 'trophy', label: 'Perfect day!', color: '#10b981', bg: '#d1fae5' },
 }
 
 export default function Dashboard() {
@@ -97,7 +97,34 @@ export default function Dashboard() {
 
   const mealGroups = ['breakfast','lunch','dinner','snack','other']
   const mealColors = { breakfast:'#f59e0b', lunch:'#10b981', dinner:'#6366f1', snack:'#ef4444', other:'#94a3b8' }
-  const mealIcons = { breakfast:'🌅', lunch:'☀️', dinner:'🌙', snack:'🍎', other:'🍽️' }
+  const mealIconTypes = { breakfast:'sunrise', lunch:'sun', dinner:'moon', snack:'apple', other:'food' }
+  
+  const getIcon = (type) => {
+    const iconMap = {
+      check: <CheckIcon size={16} color={statusConf.color}/>,
+      muscle: <MuscleIcon size={16} color={statusConf.color}/>,
+      bolt: <BoltIcon size={16} color={statusConf.color}/>,
+      warning: <WarningIcon size={16} color={statusConf.color}/>,
+      trophy: <TrophyIcon size={16} color={statusConf.color}/>,
+      sunrise: <SunriseIcon size={14}/>,
+      sun: <SunIcon size={14}/>,
+      moon: <MoonIcon size={14}/>,
+      apple: <AppleIcon size={14}/>,
+      food: <FoodIcon size={14}/>,
+    }
+    return iconMap[type] || null
+  }
+
+  const getMealIcon = (meal) => {
+    const iconMap = {
+      breakfast: <SunriseIcon size={18}/>,
+      lunch: <SunIcon size={18}/>,
+      dinner: <MoonIcon size={18}/>,
+      snack: <AppleIcon size={18}/>,
+      other: <FoodIcon size={18}/>,
+    }
+    return iconMap[meal] || null
+  }
 
   if (loading) return <SkeletonDashboard/>
 
@@ -111,8 +138,8 @@ export default function Dashboard() {
           <p style={{ color:'var(--muted)', fontSize:13, fontWeight:500 }}>
             {new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}
           </p>
-          <h1 style={{ fontSize:24, fontWeight:700, letterSpacing:'-0.02em', marginTop:2 }}>
-            {profile?.name ? 'Hey, ' + profile.name.split(' ')[0] + ' 👋' : 'Today'}
+          <h1 style={{ fontSize:24, fontWeight:700, letterSpacing:'-0.02em', marginTop:2, display:'flex', alignItems:'center', gap:8 }}>
+            {profile?.name ? <>Hey, {profile.name.split(' ')[0]} <WaveIcon size={24}/></> : 'Today'}
           </h1>
         </div>
         <button onClick={() => router.push('/profile')} style={{ background:'none', border:'none', cursor:'pointer', padding:0 }}>
@@ -125,7 +152,7 @@ export default function Dashboard() {
       {/* AI tip banner */}
       {suggestions?.tip && (
         <div style={{ margin:'12px 0', padding:'12px 16px', background:'linear-gradient(135deg,var(--primary-bg),#e0e7ff)', borderRadius:16, border:'1.5px solid #c7d2fe', display:'flex', gap:10, alignItems:'center' }}>
-          <span style={{ fontSize:20, flexShrink:0 }}>🤖</span>
+          <RobotIcon size={20} color='var(--primary)' strokeWidth={1.5}/>
           <span style={{ fontSize:13, color:'var(--primary)', fontWeight:500, lineHeight:1.5 }}>{suggestions.tip}</span>
         </div>
       )}
@@ -133,7 +160,7 @@ export default function Dashboard() {
       {/* Status badge */}
       {statusConf && (
         <div style={{ display:'inline-flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:99, background:statusConf.bg, marginBottom:4 }}>
-          <span style={{ fontSize:14 }}>{statusConf.icon}</span>
+          {getIcon(statusConf.iconType)}
           <span style={{ fontSize:12, fontWeight:700, color:statusConf.color }}>{statusConf.label}</span>
         </div>
       )}
@@ -151,7 +178,7 @@ export default function Dashboard() {
       {/* Ring legend */}
       <div style={{ display:'flex', justifyContent:'center', gap:16, marginTop:20, marginBottom:4 }}>
         {[{label:'Calories',color:'#6366f1'},{label:'Protein',color:'#3b82f6'},{label:'Carbs',color:'#f59e0b'}].map(m=>(
-          <div key={m.label} style={{ display:'flex', alignItems:'center', gap:5 }}>
+          <div key={m.label} style={{ display:'flex', alignItems:'center', gap:6 }}>
             <div style={{ width:8, height:8, borderRadius:'50%', background:m.color }}/>
             <span style={{ fontSize:11, color:'var(--muted)', fontWeight:500 }}>{m.label}</span>
           </div>
@@ -183,7 +210,7 @@ export default function Dashboard() {
       {(sugLoading || suggestions?.suggestions?.length > 0) && (
         <div className="card" style={{ marginTop:12 }}>
           <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-            <div style={{ fontWeight:700, fontSize:14 }}>🤖 AI suggestions</div>
+            <div style={{ fontWeight:700, fontSize:14, display:'flex', alignItems:'center', gap:8 }}><RobotIcon size={18} color='var(--text)' strokeWidth={1.5}/> AI suggestions</div>
             <span style={{ fontSize:11, color:'var(--muted)' }}>to complete your macros</span>
           </div>
           {sugLoading ? (
@@ -213,7 +240,7 @@ export default function Dashboard() {
         style={{ marginTop:12, cursor:'pointer', padding:'16px 20px', border:'1.5px solid '+(waterMl>=waterGoal?'#6ee7b7':'var(--border)') }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
           <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-            <div style={{ width:36, height:36, borderRadius:12, background:waterMl>=waterGoal?'#d1fae5':'#dbeafe', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18 }}>💧</div>
+            <div style={{ width:36, height:36, borderRadius:12, background:waterMl>=waterGoal?'#d1fae5':'#dbeafe', display:'flex', alignItems:'center', justifyContent:'center' }}><DropletIcon size={20} color={waterMl>=waterGoal?'#10b981':'#3b82f6'}/></div>
             <div>
               <div style={{ fontWeight:700, fontSize:15 }}>Hydration</div>
               <div style={{ fontSize:12, color:'var(--muted)', marginTop:1 }}>
@@ -222,8 +249,8 @@ export default function Dashboard() {
             </div>
           </div>
           <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-            <div style={{ fontSize:12, fontWeight:700, padding:'4px 10px', borderRadius:99, background:waterMl>=waterGoal?'#d1fae5':'#dbeafe', color:waterMl>=waterGoal?'#059669':'#3b82f6' }}>
-              {waterMl>=waterGoal?'🎉 Done!':waterGoal-waterMl+'ml left'}
+            <div style={{ fontSize:12, fontWeight:700, padding:'4px 10px', borderRadius:99, background:waterMl>=waterGoal?'#d1fae5':'#dbeafe', color:waterMl>=waterGoal?'#059669':'#3b82f6', display:'flex', alignItems:'center', gap:6 }}>
+              {waterMl>=waterGoal?<><PartyIcon size={14}/> Done!</> :(waterGoal-waterMl+'ml left')}
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
           </div>
@@ -238,13 +265,13 @@ export default function Dashboard() {
       <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginTop:12 }}>
         <button onClick={() => router.push('/meal-plan')}
           style={{ padding:'14px', borderRadius:16, background:'linear-gradient(135deg,#10b981,#059669)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
-          <div style={{ fontSize:22, marginBottom:4 }}>🍽️</div>
+          <div style={{ fontSize:22, marginBottom:4 }}><MealPlanIcon size={24} color='#fff'/></div>
           Meal Planner
           <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>AI-generated plan</div>
         </button>
         <button onClick={() => router.push('/insights')}
           style={{ padding:'14px', borderRadius:16, background:'linear-gradient(135deg,var(--primary),#818cf8)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
-          <div style={{ fontSize:22, marginBottom:4 }}>📊</div>
+          <div style={{ fontSize:22, marginBottom:4 }}><ChartBarIcon size={24} color='#fff'/></div>
           Insights
           <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>Weekly AI report</div>
         </button>
@@ -253,7 +280,7 @@ export default function Dashboard() {
       {/* Supplements tracker */}
       <button onClick={() => router.push('/supplements')}
         style={{ width:'100%', marginTop:12, padding:'14px', borderRadius:16, background:'linear-gradient(135deg,#ec4899,#db2777)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
-        <div style={{ fontSize:22, marginBottom:4 }}>💊</div>
+        <div style={{ fontSize:22, marginBottom:4 }}><SupplementIcon size={24} color='#fff'/></div>
         Supplements
         <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>Track daily intake</div>
       </button>
@@ -284,7 +311,7 @@ export default function Dashboard() {
               <div key={meal} style={{ marginBottom:20 }}>
                 <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-                    <span style={{ fontSize:16 }}>{mealIcons[meal]}</span>
+                    {getMealIcon(meal)}
                     <p style={{ fontSize:12, fontWeight:700, letterSpacing:'0.06em', textTransform:'uppercase', color:'var(--muted)' }}>{meal}</p>
                   </div>
                   <span style={{ fontSize:12, fontWeight:600, color:mealColors[meal] }}>{Math.round(mealCal)} kcal</span>

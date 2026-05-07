@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { EXERCISES } from '@/lib/exercises'
@@ -42,7 +42,7 @@ function fmt(s: number) {
   return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
 }
 
-export default function ActiveWorkoutPage() {
+function ActiveWorkoutPageContent() {
   const router = useRouter()
   const params = useSearchParams()
   const [name, setName] = useState('My Workout')
@@ -576,5 +576,13 @@ export default function ActiveWorkoutPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function ActiveWorkoutPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ActiveWorkoutPageContent />
+    </Suspense>
   )
 }

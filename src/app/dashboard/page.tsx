@@ -101,29 +101,40 @@ export default function Dashboard() {
   
   const getIcon = (type) => {
     const iconMap = {
-      check: <CheckIcon size={16} color={statusConf.color}/>,
-      muscle: <MuscleIcon size={16} color={statusConf.color}/>,
-      bolt: <BoltIcon size={16} color={statusConf.color}/>,
-      warning: <WarningIcon size={16} color={statusConf.color}/>,
-      trophy: <TrophyIcon size={16} color={statusConf.color}/>,
-      sunrise: <SunriseIcon size={14}/>,
-      sun: <SunIcon size={14}/>,
-      moon: <MoonIcon size={14}/>,
-      apple: <AppleIcon size={14}/>,
-      food: <FoodIcon size={14}/>,
+      check: 'check',
+      muscle: 'muscle',
+      bolt: 'bolt',
+      warning: 'warning',
+      trophy: 'trophy',
     }
-    return iconMap[type] || null
+    const iconType = iconMap[type]
+    const icons = {
+      check: <CheckIcon size={16} color={statusConf?.color}/>,
+      muscle: <MuscleIcon size={16} color={statusConf?.color}/>,
+      bolt: <BoltIcon size={16} color={statusConf?.color}/>,
+      warning: <WarningIcon size={16} color={statusConf?.color}/>,
+      trophy: <TrophyIcon size={16} color={statusConf?.color}/>,
+    }
+    return icons[iconType] || null
   }
 
   const getMealIcon = (meal) => {
     const iconMap = {
-      breakfast: <SunriseIcon size={18}/>,
-      lunch: <SunIcon size={18}/>,
-      dinner: <MoonIcon size={18}/>,
-      snack: <AppleIcon size={18}/>,
-      other: <FoodIcon size={18}/>,
+      breakfast: 'sunrise',
+      lunch: 'sun',
+      dinner: 'moon',
+      snack: 'apple',
+      other: 'food',
     }
-    return iconMap[meal] || null
+    const iconType = iconMap[meal]
+    const icons = {
+      sunrise: <SunriseIcon size={18}/>,
+      sun: <SunIcon size={18}/>,
+      moon: <MoonIcon size={18}/>,
+      apple: <AppleIcon size={18}/>,
+      food: <FoodIcon size={18}/>,
+    }
+    return icons[iconType] || null
   }
 
   if (loading) return <SkeletonDashboard/>
@@ -269,8 +280,7 @@ export default function Dashboard() {
           Meal Planner
           <div style={{ fontSize:11, opacity:0.8, marginTop:2, fontWeight:400 }}>AI-generated plan</div>
         </button>
-        <button onClick={() => router.push('/insights')
-              router.push('/progress')}
+        <button onClick={() => router.push('/insights')}
           style={{ padding:'14px', borderRadius:16, background:'linear-gradient(135deg,var(--primary),#818cf8)', color:'#fff', border:'none', cursor:'pointer', textAlign:'left', fontWeight:600, fontSize:13 }}>
           <div style={{ fontSize:22, marginBottom:4 }}><ChartBarIcon size={24} color='#fff'/></div>
           Insights

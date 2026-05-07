@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import { ChartBarIcon, TrophyIcon, BoltIcon, MuscleIcon, TimerIcon } from '@/lib/icons'
 
 function fmt(s: number) {
   if (!s) return '—'
@@ -73,9 +74,11 @@ export default function WorkoutHistoryPage() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', background: 'var(--card2)', borderRadius: 14, padding: 3, marginBottom: 16, border: '0.5px solid var(--border)' }}>
-          {[['history','📊 History'],['prs','🏆 PRs']].map(([id,label]) => (
+          {[['history','History'],['prs','PRs']].map(([id,label]) => (
             <button key={id} onClick={() => setTab(id as any)}
-              style={{ flex: 1, padding: '9px', borderRadius: 11, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: tab === id ? 'var(--primary)' : 'transparent', color: tab === id ? '#fff' : 'var(--muted)' }}>
+              style={{ flex: 1, padding: '9px', borderRadius: 11, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: tab === id ? 'var(--primary)' : 'transparent', color: tab === id ? '#fff' : 'var(--muted)', display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+              {id === 'history' && <ChartBarIcon size={16} color={tab === 'history' ? '#fff' : 'var(--muted)'}/>}
+              {id === 'prs' && <TrophyIcon size={16} color={tab === 'prs' ? '#fff' : 'var(--muted)'}/>}
               {label}
             </button>
           ))}
@@ -123,9 +126,9 @@ export default function WorkoutHistoryPage() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 14 }}>
-                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>⏱️ {fmt(log.duration_seconds)}</span>
-                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>⚡ {log.total_volume_kg||0}kg</span>
-                        <span style={{ fontSize: 12, color: 'var(--muted)' }}>💪 {(log.exercises||[]).length} ex</span>
+                        <span style={{ fontSize: 12, color: 'var(--muted)', display:'flex', alignItems:'center', gap:4 }}><TimerIcon size={14} color='var(--muted)'/>{fmt(log.duration_seconds)}</span>
+                        <span style={{ fontSize: 12, color: 'var(--muted)', display:'flex', alignItems:'center', gap:4 }}><BoltIcon size={14} color='var(--muted)'/>{log.total_volume_kg||0}kg</span>
+                        <span style={{ fontSize: 12, color: 'var(--muted)', display:'flex', alignItems:'center', gap:4 }}><MuscleIcon size={14} color='var(--muted)'/>{(log.exercises||[]).length} ex</span>
                       </div>
                     </button>
 
@@ -157,7 +160,7 @@ export default function WorkoutHistoryPage() {
 
             {logs.length === 0 && (
               <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}>📊</div>
+                <div style={{ fontSize: 48, marginBottom: 12, display:'flex', justifyContent:'center' }}><ChartBarIcon size={48} color='var(--muted)'/></div>
                 <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>No workouts yet</div>
                 <button className="btn btn-primary" style={{ width: 'auto', padding: '12px 24px', marginTop: 12 }} onClick={() => router.push('/workout')}>Start first workout</button>
               </div>
@@ -169,7 +172,7 @@ export default function WorkoutHistoryPage() {
           <div>
             {prs.length === 0 ? (
               <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                <div style={{ fontSize: 48, marginBottom: 12 }}>🏆</div>
+                <div style={{ fontSize: 48, marginBottom: 12, display:'flex', justifyContent:'center' }}><TrophyIcon size={48} color='var(--muted)'/></div>
                 <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>No PRs yet</div>
                 <div style={{ fontSize: 13, color: 'var(--muted)' }}>Complete sets to start tracking personal records</div>
               </div>
@@ -183,7 +186,7 @@ export default function WorkoutHistoryPage() {
                   <div key={pr.id} className="card" style={{ marginBottom: 10, padding: '14px 16px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
                       <div style={{ fontWeight: 700, fontSize: 15 }}>{pr.exercise_name}</div>
-                      <div style={{ padding: '3px 10px', background: '#fef3c7', borderRadius: 99, fontSize: 11, fontWeight: 700, color: '#d97706' }}>🏆 PR</div>
+                      <div style={{ padding: '3px 10px', background: '#fef3c7', borderRadius: 99, fontSize: 11, fontWeight: 700, color: '#d97706', display:'flex', alignItems:'center', gap:3 }}><TrophyIcon size={10} color='#d97706'/>PR</div>
                     </div>
                     <div style={{ display: 'flex', gap: 16 }}>
                       <div>

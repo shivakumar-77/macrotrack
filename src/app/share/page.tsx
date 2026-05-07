@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { TrophyIcon, ChartDownIcon, MuscleIcon, ScaleIcon, SaveIcon, ShareIcon } from '@/lib/icons'
 
 export default function SharePage() {
   const router = useRouter()
@@ -71,7 +72,7 @@ export default function SharePage() {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText('I am tracking my nutrition with MacroTrack! 💪 macrotrack-gamma.vercel.app')
+    await navigator.clipboard.writeText('I am tracking my nutrition with MacroTrack! Check it out: macrotrack-gamma.vercel.app')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -115,7 +116,7 @@ export default function SharePage() {
               <div style={{ fontSize: 22, fontWeight: 800, color: t.text }}>{profile?.name ? 'My Progress' : 'Progress Card'}</div>
               {profile?.name && <div style={{ fontSize: 14, color: t.text, opacity: 0.8, marginTop: 2 }}>{profile.name}</div>}
             </div>
-            <div style={{ fontSize: 40 }}>🏆</div>
+            <div style={{ fontSize: 40, display:'flex', alignItems:'center', justifyContent:'center' }}><TrophyIcon size={40} color={t.text}/></div>
           </div>
 
           {/* Stats grid */}
@@ -138,8 +139,10 @@ export default function SharePage() {
           <div style={{ background: t.accent, borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <div style={{ fontSize: 11, color: t.text, opacity: 0.7, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current goal</div>
-              <div style={{ fontSize: 16, fontWeight: 700, color: t.text, marginTop: 2 }}>
-                {profile?.goal === 'lose' ? '📉 Fat Loss' : profile?.goal === 'gain' ? '💪 Muscle Gain' : '⚖️ Maintain Weight'}
+              <div style={{ fontSize: 16, fontWeight: 700, color: t.text, marginTop: 2, display:'flex', alignItems:'center', gap:8 }}>
+                {profile?.goal === 'lose' && <><ChartDownIcon size={18} color={t.text}/>Fat Loss</>}
+                {profile?.goal === 'gain' && <><MuscleIcon size={18} color={t.text}/>Muscle Gain</>}
+                {profile?.goal === 'maintain' && <><ScaleIcon size={18} color={t.text}/>Maintain Weight</>}
               </div>
             </div>
             {stats.avgCal > 0 && <div style={{ textAlign: 'right' }}>
@@ -156,15 +159,15 @@ export default function SharePage() {
 
         {/* Action buttons */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <button className="btn btn-primary" style={{ width: '100%', padding: '15px', fontWeight: 700, fontSize: 15 }} onClick={downloadCard} disabled={downloading}>
-            {downloading ? 'Generating…' : '📥 Download as image'}
+          <button className="btn btn-primary" style={{ width: '100%', padding: '15px', fontWeight: 700, fontSize: 15, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }} onClick={downloadCard} disabled={downloading}>
+            <SaveIcon size={18} color='#fff'/>{downloading ? 'Generating…' : 'Download as image'}
           </button>
           <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600 }} onClick={copyLink}>
-            {copied ? '✓ Copied!' : '🔗 Copy app link'}
+            {copied ? '✓ Copied!' : 'Copy app link'}
           </button>
-          <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600 }}
-            onClick={() => { const t = 'I am tracking my nutrition with MacroTrack! 💪 Check it out: macrotrack-gamma.vercel.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
-            💬 Share on WhatsApp
+          <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}
+            onClick={() => { const t = 'I am tracking my nutrition with MacroTrack! Check it out: macrotrack-gamma.vercel.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
+            <ShareIcon size={18} color='var(--primary)'/>Share on WhatsApp
           </button>
         </div>
 

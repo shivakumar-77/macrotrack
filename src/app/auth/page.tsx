@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { SaladIcon } from '@/lib/icons'
 
 export default function AuthPage() {
   const router = useRouter()
@@ -142,7 +143,7 @@ export default function AuthPage() {
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--surface)' }}>
       {/* Top brand area */}
       <div style={{ padding: '48px 24px 32px', textAlign: 'center' }}>
-        <div style={{ width: 56, height: 56, background: 'var(--primary)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 26, boxShadow: '0 8px 24px rgba(99,102,241,0.3)' }}>🥗</div>
+        <div style={{ width: 56, height: 56, background: 'var(--primary)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 26, boxShadow: '0 8px 24px rgba(99,102,241,0.3)' }}><SaladIcon size={32} color='#fff'/></div>
         <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text)' }}>MacroTrack</h1>
         <p style={{ color: 'var(--muted)', marginTop: 6, fontSize: 14 }}>Smart nutrition, effortless tracking</p>
       </div>

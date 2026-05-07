@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { PartyIcon } from '@/lib/icons'
 
 const PRESETS = [100, 150, 200, 250, 300, 350, 400, 500, 750, 1000]
 
@@ -136,8 +137,9 @@ export default function WaterPage() {
           <path d="M35 20 L28 100" stroke="rgba(255,255,255,0.6)" strokeWidth="5" strokeLinecap="round"/>
         </svg>
 
-        <div style={{ fontSize: 14, color: reached ? '#10b981' : 'var(--muted)', fontWeight: 600, marginTop: 12 }}>
-          {reached ? '🎉 Daily goal reached!' : `${waterGoal - todayMl}ml remaining`}
+        <div style={{ fontSize: 14, color: reached ? '#10b981' : 'var(--muted)', fontWeight: 600, marginTop: 12, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}>
+          {reached && <PartyIcon size={18} color='#10b981'/>}
+          {reached ? 'Daily goal reached!' : `${waterGoal - todayMl}ml remaining`}
         </div>
       </div>
 

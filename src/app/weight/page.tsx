@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import { ChartBarIcon } from '@/lib/icons'
 
 function toISO(d) { return d.toISOString().slice(0, 10) }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r }
@@ -80,7 +81,7 @@ export default function WeightPage() {
   function LineChart({ data }) {
     if (data.length < 2) return (
       <div style={{ height:180, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8, color:'var(--muted)' }}>
-        <div style={{ fontSize:32 }}>📊</div>
+        <div style={{ fontSize:32 }}><ChartBarIcon size={40} color='var(--muted)'/></div>
         <div style={{ fontSize:13 }}>Log at least 2 entries</div>
       </div>
     )

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { PartyIcon } from '@/lib/icons'
 
 const STEPS = ['goal', 'body', 'activity', 'done']
 
@@ -164,7 +165,7 @@ export default function OnboardingPage() {
         {/* Step 3 — Done */}
         {step === 3 && (
           <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', textAlign:'center' }}>
-            <div style={{ fontSize:72, marginBottom:20 }}>🎉</div>
+            <div style={{ fontSize:72, marginBottom:20, display:'flex', justifyContent:'center' }}><PartyIcon size={72}/></div>
             <h1 style={{ fontSize:26, fontWeight:700, marginBottom:12 }}>You're all set, {data.name || 'friend'}!</h1>
             {(() => {
               const t = calcTargets()

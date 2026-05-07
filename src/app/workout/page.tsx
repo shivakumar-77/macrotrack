@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import { TimerIcon, BoltIcon, MuscleIcon, PlayIcon } from '@/lib/icons'
 
 export default function WorkoutPage() {
   const router = useRouter()
@@ -76,7 +77,7 @@ export default function WorkoutPage() {
               <div style={{fontSize:11,color:'rgba(255,255,255,0.8)',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:3}}>Active workout</div>
               <div style={{fontSize:16,fontWeight:700,color:'#fff'}}>{activeWorkout.name} — tap to resume</div>
             </div>
-            <div style={{fontSize:26}}>▶️</div>
+            <div style={{fontSize:26,display:'flex',alignItems:'center',justifyContent:'center'}}><PlayIcon size={24} color='#fff'/></div>
           </button>
         )}
 
@@ -170,9 +171,9 @@ export default function WorkoutPage() {
                     <div style={{fontSize:11,color:'var(--muted)'}}>{fmtDate(log.started_at)}</div>
                   </div>
                   <div style={{display:'flex',gap:14}}>
-                    {log.duration_seconds&&<div style={{fontSize:12,color:'var(--muted)'}}>⏱️ {fmtDur(log.duration_seconds)}</div>}
-                    {log.total_volume_kg&&<div style={{fontSize:12,color:'var(--muted)'}}>⚡ {log.total_volume_kg}kg</div>}
-                    <div style={{fontSize:12,color:'var(--muted)'}}>💪 {(log.exercises||[]).length} exercises</div>
+                    {log.duration_seconds&&<div style={{fontSize:12,color:'var(--muted)',display:'flex',alignItems:'center',gap:4}}><TimerIcon size={14} color='var(--muted)'/> {fmtDur(log.duration_seconds)}</div>}
+                    {log.total_volume_kg&&<div style={{fontSize:12,color:'var(--muted)',display:'flex',alignItems:'center',gap:4}}><BoltIcon size={14} color='var(--muted)'/> {log.total_volume_kg}kg</div>}
+                    <div style={{fontSize:12,color:'var(--muted)',display:'flex',alignItems:'center',gap:4}}><MuscleIcon size={14} color='var(--muted)'/> {(log.exercises||[]).length} exercises</div>
                   </div>
                 </div>
               ))}

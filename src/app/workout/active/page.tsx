@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { EXERCISES } from '@/lib/exercises'
+import { MuscleIcon, TrophyIcon } from '@/lib/icons'
 
 // ── Plate calculator ─────────────────────────────────────
 const PLATES = [25, 20, 15, 10, 5, 2.5, 1.25]
@@ -526,7 +527,7 @@ function ActiveWorkoutPageContent() {
 
         {exercises.length === 0 && (
           <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--muted)' }}>
-            <div style={{ fontSize: 40, marginBottom: 8 }}>💪</div>
+            <div style={{ fontSize: 40, marginBottom: 8, display:'flex', justifyContent:'center' }}><MuscleIcon size={40}/></div>
             <div style={{ fontSize: 13 }}>Add exercises to start your workout</div>
           </div>
         )}
@@ -564,7 +565,7 @@ function ActiveWorkoutPageContent() {
                       <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 1 }}>{ex.category} · {ex.muscle}</div>
                     </div>
                     <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                      {pr && <div style={{ padding: '2px 6px', background: '#fef3c7', borderRadius: 6, fontSize: 9, fontWeight: 700, color: '#d97706' }}>🏆PR</div>}
+                      {pr && <div style={{ padding: '2px 6px', background: '#fef3c7', borderRadius: 6, fontSize: 9, fontWeight: 700, color: '#d97706', display:'flex', alignItems:'center', gap:3 }}><TrophyIcon size={10} color='#d97706'/>PR</div>}
                       {hasPrev && <div style={{ padding: '2px 6px', background: 'var(--primary-bg)', borderRadius: 6, fontSize: 9, fontWeight: 700, color: 'var(--primary)' }}>PREV</div>}
                     </div>
                     <div style={{ color: 'var(--primary)', fontSize: 20 }}>+</div>

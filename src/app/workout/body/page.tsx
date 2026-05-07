@@ -3,9 +3,22 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { EXERCISES } from '@/lib/exercises'
 import BottomNav from '@/components/BottomNav'
+import { MuscleIcon, FireIcon, LegIcon, BoltIcon, PlayIcon, HeartIcon } from '@/lib/icons'
+
+const getIcon = (iconName: string) => {
+  const icons: Record<string, any> = {
+    HeartIcon: <HeartIcon size={20}/>,
+    MuscleIcon: <MuscleIcon size={20}/>,
+    FireIcon: <FireIcon size={20}/>,
+    LegIcon: <LegIcon size={20}/>,
+    BoltIcon: <BoltIcon size={20}/>,
+    PlayIcon: <PlayIcon size={20}/>,
+  }
+  return icons[iconName] || null
+}
 
 const MUSCLE_GROUPS = [
-  { id:'Chest',     label:'Chest',     emoji:'🫁', color:'#6366f1', desc:'Pectoralis major, minor', front:true,
+  { id:'Chest',     label:'Chest',     emoji:'HeartIcon', color:'#6366f1', desc:'Pectoralis major, minor', front:true,
     muscles:['Pectoralis Major','Pectoralis Minor','Serratus Anterior'] },
   { id:'Shoulders', label:'Shoulders', emoji:'MuscleIcon', color:'#3b82f6', desc:'Front, side & rear delts', front:true,
     muscles:['Anterior Deltoid','Lateral Deltoid','Posterior Deltoid'] },
@@ -237,7 +250,7 @@ export default function BodyMapPage() {
           {MUSCLE_GROUPS.filter(g=>view==='front'?g.id!=='Back':g.id!=='Chest'&&g.id!=='Core').map(g=>(
             <button key={g.id} onClick={()=>setSelected(s=>s===g.id?null:g.id)}
               style={{padding:'8px 14px',borderRadius:99,fontSize:12,fontWeight:700,cursor:'pointer',border:'2px solid '+(selected===g.id?g.color:'var(--border)'),background:selected===g.id?g.color:'var(--card)',color:selected===g.id?'#fff':'var(--text)',transition:'all 0.15s',WebkitTapHighlightColor:'transparent'}}>
-              {g.emoji} {g.label}
+              {getIcon(g.emoji)} {g.label}
             </button>
           ))}
         </div>
@@ -249,7 +262,7 @@ export default function BodyMapPage() {
               {/* Gradient header */}
               <div style={{background:`linear-gradient(135deg,${selectedGroup.color},${selectedGroup.color}99)`,padding:'18px 20px',color:'#fff'}}>
                 <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
-                  <div style={{fontSize:32}}>{selectedGroup.emoji}</div>
+                  <div style={{fontSize:32,display:'flex',alignItems:'center',justifyContent:'center'}}>{getIcon(selectedGroup.emoji)}</div>
                   <div>
                     <div style={{fontSize:20,fontWeight:800}}>{selectedGroup.label}</div>
                     <div style={{fontSize:12,opacity:0.85,marginTop:2}}>{selectedGroup.desc}</div>

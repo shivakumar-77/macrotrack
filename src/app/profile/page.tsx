@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
-import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon } from '@/lib/icons'
+import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon, ChartBarIcon, ChartDownIcon, MuscleIcon } from '@/lib/icons'
 import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -356,7 +356,7 @@ export default function ProfilePage() {
       <div style={{padding:'0 20px'}}>
         <MsgBanner/>
         <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
-          <div style={{fontWeight:700,fontSize:17}}>🎯 Goals & targets</div>
+          <div style={{fontWeight:700,fontSize:17,display:'flex',alignItems:'center',gap:8}}><TargetIcon size={20}/>Goals & targets</div>
           <div>
             <L text="My main goal"/>
             <div style={{display:'flex',gap:8}}>
@@ -391,7 +391,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="card">
-          <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>📊 Current plan</div>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:14,display:'flex',alignItems:'center',gap:8}}><ChartBarIcon size={18}/>Current plan</div>
           {[
             {l:'Calories',v:form.cal_target,u:'kcal',c:'#6366f1'},
             {l:'Protein',v:form.protein_target,u:'g',c:'#3b82f6'},

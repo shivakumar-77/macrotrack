@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import { ChartBarIcon } from '@/lib/icons'
 
 export default function InsightsPage() {
   const router = useRouter()
@@ -276,7 +277,7 @@ export default function InsightsPage() {
 
         {!loading&&!insights&&!weekData.some(d=>d.logged)&&(
           <div className="card" style={{textAlign:'center',padding:'32px',marginBottom:16}}>
-            <div style={{fontSize:40,marginBottom:12}}>📊</div>
+            <div style={{fontSize:40,marginBottom:12,display:'flex',justifyContent:'center'}}><ChartBarIcon size={40} color='var(--muted)'/></div>
             <div style={{fontWeight:600,fontSize:15,marginBottom:6}}>No data yet</div>
             <div style={{fontSize:13,color:'var(--muted)',marginBottom:16}}>Start logging meals to get AI-powered insights</div>
             <button className="btn btn-primary" style={{width:'auto',padding:'12px 24px',fontWeight:700}} onClick={()=>router.push('/log')}>

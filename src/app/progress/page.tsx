@@ -6,6 +6,7 @@ import BottomNav from '@/components/BottomNav'
 import { ACHIEVEMENTS, RARITY_COLORS, WEEKLY_CHALLENGES } from '@/lib/achievements'
 import { checkAndAwardAchievements, updateStreak } from '@/lib/gamification'
 import { PageLoader } from '@/components/Skeleton'
+import { TrophyIcon, BoltIcon, ChartUpIcon, ChartDownIcon, FireIcon, PartyIcon, StarIcon, RefreshIcon } from '@/lib/icons'
 
 export default function ProgressPage() {
   const router = useRouter()
@@ -73,7 +74,7 @@ export default function ProgressPage() {
   const pct = Math.round((earnedList.length / ACHIEVEMENTS.filter(a => !a.secret).length) * 100)
 
   const categories = ['nutrition', 'workout', 'weight', 'streak', 'supplement', 'milestone'] as const
-  const catLabels = { nutrition:'🍽️ Nutrition', workout:'🏋️ Workout', weight:'⚖️ Weight', streak:'🔥 Streak', supplement:'💊 Supplement', milestone:'⭐ Milestone' }
+  const catLabels = { nutrition:'Nutrition', workout:'Workout', weight:'Weight', streak:'Streak', supplement:'Supplement', milestone:'Milestone' }
 
   const weightChange = weights.length >= 2 ? weights[weights.length-1].weight_kg - weights[0].weight_kg : 0
 
@@ -86,7 +87,7 @@ export default function ProgressPage() {
       {showNewAch && newAchievements.length > 0 && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
           <div style={{ background: 'var(--card)', borderRadius: 24, padding: 28, textAlign: 'center', maxWidth: 340, width: '100%', animation: 'pop 0.4s cubic-bezier(0.32,0.72,0,1)' }}>
-            <div style={{ fontSize: 64, marginBottom: 8, animation: 'streakFire 1.5s ease infinite' }}>🏆</div>
+            <div style={{ fontSize: 64, marginBottom: 8, animation: 'streakFire 1.5s ease infinite', display:'flex', justifyContent:'center' }}><TrophyIcon size={64}/></div>
             <div style={{ fontWeight: 800, fontSize: 22, marginBottom: 6 }}>Achievement Unlocked!</div>
             {newAchievements.map(id => {
               const ach = ACHIEVEMENTS.find(a => a.id === id)
@@ -102,8 +103,8 @@ export default function ProgressPage() {
               )
             })}
             <button onClick={() => setShowNewAch(false)}
-              style={{ width: '100%', padding: '14px', background: 'var(--primary)', border: 'none', borderRadius: 14, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer', marginTop: 8 }}>
-              Awesome! 🎉
+              style={{ width: '100%', padding: '14px', background: 'var(--primary)', border: 'none', borderRadius: 14, color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer', marginTop: 8, display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
+              <PartyIcon size={18} color='#fff'/>Awesome!
             </button>
           </div>
         </div>
@@ -122,14 +123,14 @@ export default function ProgressPage() {
 
         {/* Streak hero card */}
         <div style={{ background: 'linear-gradient(135deg,#ef4444,#dc2626)', borderRadius: 24, padding: '20px', marginBottom: 16, color: '#fff', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', right: -10, top: -10, fontSize: 100, opacity: 0.1, lineHeight: 1 }}>🔥</div>
+          <div style={{ position: 'absolute', right: -10, top: -10, fontSize: 100, opacity: 0.1, lineHeight: 1, display:'flex', alignItems:'center', justifyContent:'center' }}><FireIcon size={100}/></div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Current streak</div>
               <div style={{ fontSize: 52, fontWeight: 900, lineHeight: 1, animation: streak.current > 0 ? 'streakFire 2s ease infinite' : 'none' }}>
                 {streak.current}
               </div>
-              <div style={{ fontSize: 13, opacity: 0.8, marginTop: 4 }}>days 🔥</div>
+              <div style={{ fontSize: 13, opacity: 0.8, marginTop: 4, display:'flex', alignItems:'center', justifyContent:'center', gap:4 }}>days <FireIcon size={16}/></div>
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -171,15 +172,20 @@ export default function ProgressPage() {
         {/* Stats grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 16 }}>
           {[
-            { icon: '🏋️', label: 'Workouts', val: stats.workouts, color: '#6366f1' },
-            { icon: '🍽️', label: 'Meals logged', val: stats.meals, color: '#10b981' },
-            { icon: '🏆', label: 'PRs set', val: stats.prs, color: '#f59e0b' },
-            { icon: '⚡', label: 'Volume (kg)', val: stats.volume >= 1000 ? Math.round(stats.volume/1000)+'k' : stats.volume, color: '#ef4444' },
-            { icon: '📅', label: 'Days logged', val: stats.daysLogged, color: '#3b82f6' },
-            { icon: weightChange < 0 ? '📉' : '📈', label: 'Weight change', val: (weightChange > 0 ? '+' : '') + weightChange.toFixed(1) + 'kg', color: weightChange < 0 ? '#10b981' : '#ef4444' },
+            { icon: 'workout', label: 'Workouts', val: stats.workouts, color: '#6366f1' },
+            { icon: 'meal', label: 'Meals logged', val: stats.meals, color: '#10b981' },
+            { icon: 'trophy', label: 'PRs set', val: stats.prs, color: '#f59e0b' },
+            { icon: 'bolt', label: 'Volume (kg)', val: stats.volume >= 1000 ? Math.round(stats.volume/1000)+'k' : stats.volume, color: '#ef4444' },
+            { icon: 'calendar', label: 'Days logged', val: stats.daysLogged, color: '#3b82f6' },
+            { icon: weightChange < 0 ? 'down' : 'up', label: 'Weight change', val: (weightChange > 0 ? '+' : '') + weightChange.toFixed(1) + 'kg', color: weightChange < 0 ? '#10b981' : '#ef4444' },
           ].map(s => (
             <div key={s.label} className="card" style={{ padding: '14px 12px', textAlign: 'center' }}>
-              <div style={{ fontSize: 22, marginBottom: 4 }}>{s.icon}</div>
+              <div style={{ fontSize: 22, marginBottom: 4, display:'flex', justifyContent:'center' }}>
+                {s.icon === 'trophy' && <TrophyIcon size={22} color={s.color}/>}
+                {s.icon === 'bolt' && <BoltIcon size={22} color={s.color}/>}
+                {s.icon === 'up' && <ChartUpIcon size={22} color={s.color}/>}
+                {s.icon === 'down' && <ChartDownIcon size={22} color={s.color}/>}
+              </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.val}</div>
               <div style={{ fontSize: 9, color: 'var(--muted)', fontWeight: 600, marginTop: 2, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{s.label}</div>
             </div>
@@ -372,15 +378,15 @@ export default function ProgressPage() {
                   <div style={{ height: 6, background: 'var(--card2)', borderRadius: 3, overflow: 'hidden' }}>
                     <div style={{ height: '100%', background: completed ? '#10b981' : ch.color, borderRadius: 3, width: pct + '%', transition: 'width 0.8s ease' }} />
                   </div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6, textAlign: 'right' }}>
-                    {completed ? 'Completed! 🎉' : `${ch.target - progress} days to go`}
+                  <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 6, textAlign: 'right', display:'flex', alignItems:'center', justifyContent:'flex-end', gap:4 }}>
+                    {completed ? <><PartyIcon size={14} color='#10b981'/>Completed!</> : `${ch.target - progress} days to go`}
                   </div>
                 </div>
               )
             })}
 
             <div style={{ background: 'var(--card2)', borderRadius: 16, padding: '14px 16px', border: '0.5px solid var(--border)', textAlign: 'center' }}>
-              <div style={{ fontSize: 20, marginBottom: 6 }}>🔄</div>
+              <div style={{ fontSize: 20, marginBottom: 6, display:'flex', justifyContent:'center' }}><RefreshIcon size={20} color='var(--muted)'/></div>
               <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 500 }}>
                 Challenges reset every Monday. Progress is tracked automatically as you use the app.
               </div>

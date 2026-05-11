@@ -35,7 +35,7 @@ export default function NotificationsPage() {
     const p = await Notification.requestPermission()
     setPermission(p)
     if (p === 'granted') {
-      new Notification('MacroTrack 🎉', { body: 'Notifications enabled! We will remind you to stay on track.' })
+      new Notification('MacroTrack', { body: 'Notifications enabled! We will remind you to stay on track.' })
       showMsg('Notifications enabled!')
       registerSW()
     } else {
@@ -95,9 +95,9 @@ export default function NotificationsPage() {
         if (r.time === hhmm && !fired.has(key)) {
           fired.add(key)
           new Notification(r.label + ' — MacroTrack', {
-            body: r.id.includes('water') ? 'Time to hydrate! 💧 Stay on track with your water goal.' :
-                  r.id === 'weight' ? 'Log your weight today to track your progress! ⚖️' :
-                  'Time to log your ' + r.label.toLowerCase().replace(' reminder','') + '! 🍽️',
+            body: r.id.includes('water') ? 'Time to hydrate! Stay on track with your water goal.' :
+                  r.id === 'weight' ? 'Log your weight today to track your progress!' :
+                  'Time to log your ' + r.label.toLowerCase().replace(' reminder','') + '!',
             icon: '/icon-192.png',
           })
           // Clean old fired after 2 min

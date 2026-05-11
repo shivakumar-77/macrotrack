@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
-import { SaladIcon, FoodIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, WarningIcon, TimerIcon, PencilIcon, LightbulbIcon, CartIcon } from '@/lib/icons'
+import { SaladIcon, FoodIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, WarningIcon, TimerIcon, PencilIcon, LightbulbIcon, CartIcon, DropletIcon } from '@/lib/icons'
 
 const QUIZ = [
   {
@@ -402,7 +402,7 @@ Create ONLY a JSON response matching this exact structure:
         {/* Hydration */}
         {plan.hydration_tip&&(
           <div style={{background:'#dbeafe',borderRadius:16,padding:'14px 16px',border:'1.5px solid #93c5fd',marginBottom:16}}>
-            <div style={{fontWeight:700,fontSize:13,color:'#2563eb',marginBottom:4}}>💧 Hydration tip</div>
+            <div style={{fontWeight:700,fontSize:13,color:'#2563eb',marginBottom:4,display:'flex',alignItems:'center',gap:6}}><DropletIcon size={16} color='#2563eb'/>Hydration tip</div>
             <div style={{fontSize:13,color:'#1d4ed8',lineHeight:1.6}}>{plan.hydration_tip}</div>
           </div>
         )}

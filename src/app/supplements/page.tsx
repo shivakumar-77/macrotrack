@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import { PartyIcon, MuscleIcon, LeafIcon } from '@/lib/icons'
 
 const CATEGORY_COLORS = {
   'Performance': '#6366f1',
@@ -174,8 +175,8 @@ export default function SupplementsPage() {
                 </svg>
               </div>
               <div style={{flex:1}}>
-                <div style={{fontSize:22,fontWeight:800,marginBottom:4}}>
-                  {pct===100?'🎉 All done!':pct>=50?'💪 Good progress!':'🌱 Keep going!'}
+                <div style={{fontSize:22,fontWeight:800,marginBottom:4,display:'flex',alignItems:'center',gap:6}}>
+                  {pct===100?<><PartyIcon size={24}/>All done!</> : pct>=50 ? <><MuscleIcon size={24}/>Good progress!</> : <><LeafIcon size={24}/>Keep going!</>}
                 </div>
                 <div style={{fontSize:13,opacity:0.85,lineHeight:1.5}}>
                   {todayCount()} of {supplements.length} supplements taken

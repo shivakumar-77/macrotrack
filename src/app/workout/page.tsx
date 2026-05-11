@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
-import { TimerIcon, BoltIcon, MuscleIcon, PlayIcon } from '@/lib/icons'
+import { TimerIcon, BoltIcon, MuscleIcon, PlayIcon, ChartBarIcon, ClipboardIcon, HeartBeatIcon } from '@/lib/icons'
 
 export default function WorkoutPage() {
   const router = useRouter()
@@ -48,6 +48,16 @@ export default function WorkoutPage() {
     if (!s) return ''
     const m=Math.floor(s/60), h=Math.floor(m/60)
     return h>0?`${h}h ${m%60}m`:`${m}m`
+  }
+
+  function getIcon(iconName) {
+    const icons = {
+      MuscleIcon: <MuscleIcon size={18}/>,
+      ClipboardIcon: <ClipboardIcon size={18}/>,
+      ChartBarIcon: <ChartBarIcon size={18}/>,
+      HeartBeatIcon: <HeartBeatIcon size={18}/>,
+    }
+    return icons[iconName] || null
   }
 
   if (loading) return <PageLoader/>
@@ -101,7 +111,7 @@ export default function WorkoutPage() {
             <button key={item.label} onClick={item.action}
               style={{background:'var(--card)',borderRadius:20,padding:'18px 16px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',position:'relative',WebkitTapHighlightColor:'transparent',minHeight:110,display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
               <div style={{width:32,height:32,borderRadius:8,background:'var(--primary-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>
-                {item.icon}
+                {getIcon(item.icon)}
               </div>
               <div>
                 <div style={{fontWeight:700,fontSize:15,color:'var(--text)',marginBottom:2}}>{item.label}</div>

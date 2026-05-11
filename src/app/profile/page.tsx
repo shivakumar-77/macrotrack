@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
-import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon, ChartBarIcon, ChartDownIcon, MuscleIcon } from '@/lib/icons'
+import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon, ChartBarIcon, ChartDownIcon, MuscleIcon, FireIcon, RulerIcon, UploadIcon } from '@/lib/icons'
 import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -126,6 +126,22 @@ export default function ProfilePage() {
     const { error } = await supabase.auth.updateUser({ password:secForm.newPassword })
     if (error) showMsg(error.message)
     else { showMsg('Password updated!'); setSecForm(p=>({...p,newPassword:'',confirmPassword:''})) }
+  }
+
+  function getIcon(iconName) {
+    const icons = {
+      ChartDownIcon: <ChartDownIcon size={22}/>,
+      ScaleIcon: <ScaleIcon size={22}/>,
+      MuscleIcon: <MuscleIcon size={22}/>,
+      BMIIcon: <BMIIcon size={20}/>,
+      CalcIcon: <CalcIcon size={20}/>,
+      MeasureIcon: <MeasureIcon size={20}/>,
+      ShareIcon: <ShareIcon size={20}/>,
+      FireIcon: <FireIcon size={26}/>,
+      RulerIcon: <RulerIcon size={26}/>,
+      UploadIcon: <UploadIcon size={26}/>,
+    }
+    return icons[iconName] || null
   }
 
   async function changeEmail() {
@@ -363,7 +379,7 @@ export default function ProfilePage() {
               {[{key:'lose',label:'Lose fat',icon:'ChartDownIcon',color:'#10b981',bg:'#d1fae5'},{key:'maintain',label:'Maintain',icon:'ScaleIcon',color:'#f59e0b',bg:'#fef3c7'},{key:'gain',label:'Build muscle',icon:'MuscleIcon',color:'#3b82f6',bg:'#dbeafe'}].map(g=>(
                 <button key={g.key} onClick={()=>setForm(p=>({...p,goal:g.key}))}
                   style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
-                  <div style={{fontSize:22,marginBottom:6}}>{g.icon}</div>
+                  <div style={{fontSize:22,marginBottom:6,display:'flex',justifyContent:'center'}}>{getIcon(g.icon)}</div>
                   <div style={{fontSize:11,fontWeight:700,color:form.goal===g.key?g.color:'var(--muted)'}}>{g.label}</div>
                 </button>
               ))}
@@ -565,7 +581,7 @@ export default function ProfilePage() {
           ].map(t=>(
             <button key={t.label} onClick={t.go}
               style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
-              <div style={{fontSize:26,marginBottom:8}}>{t.icon}</div>
+              <div style={{fontSize:26,marginBottom:8,display:'flex'}}>{getIcon(t.icon)}</div>
               <div style={{fontWeight:700,fontSize:13,color:'var(--text)'}}>{t.label}</div>
               <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{t.sub}</div>
             </button>

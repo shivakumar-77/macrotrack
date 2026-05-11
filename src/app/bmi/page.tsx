@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import PageHeader from '@/components/PageHeader'
+import { MaleIcon, FemaleIcon } from '@/lib/icons'
 
 export default function BMIPage() {
   const router = useRouter()
@@ -78,10 +79,12 @@ export default function BMIPage() {
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>Gender</div>
           <div style={{ display: 'flex', gap: 12 }}>
-            {[{ id: 'male', icon: '♂', label: 'Male' }, { id: 'female', icon: '♀', label: 'Female' }].map(g => (
+            {[{ id: 'male', label: 'Male' }, { id: 'female', label: 'Female' }].map(g => (
               <button key={g.id} onClick={() => setGender(g.id)}
                 style={{ flex: 1, padding: '20px', borderRadius: 20, border: '2px solid ' + (gender === g.id ? 'var(--primary)' : 'var(--border)'), background: gender === g.id ? 'var(--primary-bg)' : 'var(--card)', cursor: 'pointer', textAlign: 'center' }}>
-                <div style={{ fontSize: 36, marginBottom: 6, color: gender === g.id ? 'var(--primary)' : 'var(--muted)' }}>{g.icon}</div>
+                <div style={{ fontSize: 32, marginBottom: 6, color: gender === g.id ? 'var(--primary)' : 'var(--muted)', display: 'flex', justifyContent: 'center' }}>
+                  {g.id === 'male' ? <MaleIcon size={32} color={gender === g.id ? 'var(--primary)' : 'var(--muted)'}/> : <FemaleIcon size={32} color={gender === g.id ? 'var(--primary)' : 'var(--muted)'}/>}
+                </div>
                 <div style={{ fontWeight: 700, color: gender === g.id ? 'var(--primary)' : 'var(--muted)' }}>{g.label}</div>
               </button>
             ))}

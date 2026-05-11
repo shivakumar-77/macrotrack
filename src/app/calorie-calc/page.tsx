@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { MaleIcon, FemaleIcon } from '@/lib/icons'
 
 const ACTIVITY = [
   { id: 'sedentary', label: 'Sedentary', desc: 'Little or no exercise', icon: 'CouchIcon', mul: 1.2 },
@@ -74,10 +75,12 @@ export default function CalorieCalcPage() {
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 10 }}>I am</div>
           <div style={{ display: 'flex', gap: 12 }}>
-            {[{ id: 'male', label: 'Male', symbol: '♂', c: 'var(--primary)', bg: 'var(--primary-bg)' }, { id: 'female', label: 'Female', symbol: '♀', c: '#ec4899', bg: '#fdf2f8' }].map(g => (
+            {[{ id: 'male', label: 'Male', c: 'var(--primary)', bg: 'var(--primary-bg)' }, { id: 'female', label: 'Female', c: '#ec4899', bg: '#fdf2f8' }].map(g => (
               <button key={g.id} onClick={() => setGender(g.id)}
                 style={{ flex: 1, padding: '24px 20px', borderRadius: 20, border: '2px solid '+(gender===g.id?g.c:'var(--border)'), background: gender===g.id?g.bg:'var(--card)', cursor: 'pointer', textAlign: 'center' }}>
-                <div style={{ fontSize: 40, color: gender===g.id?g.c:'var(--muted)', marginBottom: 8 }}>{g.symbol}</div>
+                <div style={{ fontSize: 32, color: gender===g.id?g.c:'var(--muted)', marginBottom: 8, display: 'flex', justifyContent: 'center' }}>
+                  {g.id === 'male' ? <MaleIcon size={32} color={gender===g.id?g.c:'var(--muted)'}/> : <FemaleIcon size={32} color={gender===g.id?g.c:'var(--muted)'}/>}
+                </div>
                 <div style={{ fontWeight: 700, color: gender===g.id?g.c:'var(--muted)' }}>{g.label}</div>
               </button>
             ))}

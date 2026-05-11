@@ -171,7 +171,7 @@ function ActiveWorkoutPageContent() {
             weight_kg: w, reps: r, one_rm_estimate: est, achieved_at: new Date().toISOString()
           }, { onConflict: 'user_id,exercise_id' })
           setPRs(p => ({ ...p, [ex.id]: { weight_kg: w, reps: r, one_rm_estimate: est } }))
-          setPrFlash(`🏆 New PR! ${ex.name} — ${est}kg 1RM est.`)
+          setPrFlash(`New PR! ${ex.name} — ${est}kg 1RM est.`)
           setTimeout(() => setPrFlash(null), 3500)
         }
       }
@@ -450,7 +450,7 @@ function ActiveWorkoutPageContent() {
                       {/* Previous */}
                       <div style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.3 }}>
                         {prevSet ? <span style={{ fontWeight: 600 }}>{prevSet.weight}×{prevSet.reps}</span> : '—'}
-                        {isPR && set.done && <div style={{ fontSize: 9, color: '#f59e0b', fontWeight: 700 }}>🏆 PR</div>}
+                        {isPR && set.done && <div style={{ fontSize: 9, color: '#f59e0b', fontWeight: 700 }}>PR</div>}
                       </div>
 
                       {/* Weight */}

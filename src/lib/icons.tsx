@@ -632,3 +632,16 @@ export const CircleIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconPr
     <circle cx="12" cy="12" r="9" fill={color}/>
   </svg>
 )
+export const MaleIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <circle cx="12" cy="6" r="2.5" fill={color}/>
+    <path d="M12 9v8M12 17l3-2M12 17l-3-2"/>
+    <path d="M8 12h8"/>
+  </svg>
+)
+export const FemaleIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <circle cx="12" cy="6" r="2.5" fill={color}/>
+    <path d="M12 9v8M8 17h8"/>
+  </svg>
+)

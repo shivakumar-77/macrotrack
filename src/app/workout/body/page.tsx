@@ -87,7 +87,7 @@ export default function BodyMapPage() {
             {['male','female'].map(g=>(
               <button key={g} onClick={()=>setGender(g)}
                 style={{padding:'5px 10px',borderRadius:8,border:'none',fontSize:11,fontWeight:600,cursor:'pointer',background:gender===g?'var(--primary)':'transparent',color:gender===g?'#fff':'var(--muted)',textTransform:'capitalize',WebkitTapHighlightColor:'transparent'}}>
-                {g==='male'?'♂ M':'♀ F'}
+                {g==='male'?'M':'F'}
               </button>
             ))}
           </div>

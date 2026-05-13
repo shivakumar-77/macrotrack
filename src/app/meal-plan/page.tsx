@@ -305,7 +305,7 @@ Create ONLY a JSON response matching this exact structure:
 
   // ── PLAN ──
   if (step==='plan'&&plan) return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
           <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em'}}>Your Meal Plan</h1>

@@ -80,7 +80,7 @@ export default function InsightsPage() {
   const remainingCal = Math.max(0, target - todayTotals.cal)
 
   return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
 
       {/* Header */}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>

@@ -142,7 +142,7 @@ export default function Dashboard() {
   const statusConf = suggestions ? (STATUS_CONFIG[suggestions.status] || STATUS_CONFIG.on_track) : null
 
   return (
-    <div className="page-root">
+    <div className='page-root'>
       {/* Header with photo */}
       <div style={{ paddingTop: 0, paddingBottom:4, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div>

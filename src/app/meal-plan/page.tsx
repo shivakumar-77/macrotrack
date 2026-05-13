@@ -210,7 +210,7 @@ Create ONLY a JSON response matching this exact structure:
     const progress = ((quizStep)/QUIZ.length)*100
 
     return (
-      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column'}}>
+      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column', paddingBottom: 90}>
         {/* Progress bar */}
         <div style={{height:3,background:'var(--border)'}}>
           <div style={{height:'100%',background:'var(--primary)',width:progress+'%',transition:'width 0.3s ease',borderRadius:2}}/>
@@ -288,7 +288,7 @@ Create ONLY a JSON response matching this exact structure:
 
   // ── LOADING ──
   if (step==='loading') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',textAlign:'center'}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',textAlign:'center', paddingBottom: 90}>
       <div style={{fontSize:64,marginBottom:24}}>🍽️</div>
       <div style={{fontWeight:700,fontSize:20,marginBottom:8}}>Building your plan…</div>
       <div style={{fontSize:14,color:'var(--muted)',marginBottom:32,lineHeight:1.7}}>
@@ -305,7 +305,7 @@ Create ONLY a JSON response matching this exact structure:
 
   // ── PLAN ──
   if (step==='plan'&&plan) return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
           <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em'}}>Your Meal Plan</h1>

@@ -266,7 +266,7 @@ export default function ProfilePage() {
   if (view === 'legal') {
     const page = LEGAL[legalPage]
     return (
-      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
         <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
           <BackBtn label={page.title}/>
         </div>
@@ -288,7 +288,7 @@ export default function ProfilePage() {
 
   // ── EDIT PROFILE ───────────────────────────────────────────
   if (view === 'edit') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
@@ -365,7 +365,7 @@ export default function ProfilePage() {
 
   // ── GOALS ─────────────────────────────────────────────────
   if (view === 'goals') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
@@ -432,7 +432,7 @@ export default function ProfilePage() {
 
   // ── SECURITY ───────────────────────────────────────────────
   if (view === 'security') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
@@ -475,7 +475,7 @@ export default function ProfilePage() {
 
   // ── NOTIFICATIONS ──────────────────────────────────────────
   if (view === 'notifications') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
@@ -537,7 +537,7 @@ export default function ProfilePage() {
 
   // ── MAIN ───────────────────────────────────────────────────
   return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
         <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em',marginBottom:20}}>Account</h1>
 

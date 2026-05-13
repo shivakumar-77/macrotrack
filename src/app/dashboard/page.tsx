@@ -144,7 +144,7 @@ export default function Dashboard() {
   return (
     <div className='page-root'>
       {/* Header with photo */}
-      <div style={{ paddingTop: 0, paddingBottom:4, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div style={{ paddingTop: 0, paddingBottom:90, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <div>
           <p style={{ color:'var(--muted)', fontSize:13, fontWeight:500 }}>
             {new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}
@@ -229,7 +229,7 @@ export default function Dashboard() {
               {[1,2,3].map(i=><div key={i} style={{ flex:1, height:60, background:'var(--card2)', borderRadius:12 }}/>)}
             </div>
           ) : (
-            <div style={{ display:'flex', gap:8, overflowX:'auto', paddingBottom:4 }}>
+            <div style={{ display:'flex', gap:8, overflowX:'auto', paddingBottom:90 }}>
               {suggestions?.suggestions?.map((s,i)=>(
                 <div key={i} style={{ flexShrink:0, background:'var(--card2)', borderRadius:14, padding:'12px', width:130, cursor:'pointer' }}
                   onClick={() => { setExpanded(expanded===i?null:i) }}>

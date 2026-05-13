@@ -116,7 +116,7 @@ function ExercisesContent() {
   }
 
   return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100,position:'relative'}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90,position:'relative'}}>
 
       {/* Sticky header — matches Strong app design */}
       <div style={{position:'sticky',top:0,zIndex:100,background:'var(--surface)',paddingTop:'calc(env(safe-area-inset-top,0px) + 12px)',paddingLeft:'calc(env(safe-area-inset-left,0px) + 20px)',paddingRight:'calc(env(safe-area-inset-right,0px) + 20px)',paddingBottom:10,borderBottom:'1px solid var(--border)',backdropFilter:'blur(12px)'}}>

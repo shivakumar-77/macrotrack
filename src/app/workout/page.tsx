@@ -63,7 +63,7 @@ export default function WorkoutPage() {
   if (loading) return <PageLoader/>
 
   return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
 
         {/* Header */}

@@ -309,7 +309,7 @@ export default function WeightPage() {
   }
 
   return (
-    <div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom: 100 }}>
+    <div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom: 90 }}>
 
       {/* Header */}
       <div style={{ display:'flex', alignItems:'center', gap:12, padding:'52px 20px 16px' }}>

@@ -116,48 +116,38 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
-/* ── Page layouts ── */
-.page-root {
-  max-width: 430px; margin: 0 auto;
+
+/* ── Page layout ── */
+
+.page {
+  max-width: 430px;
+  margin: 0 auto;
   padding-top: calc(var(--sat) + 24px);
   padding-bottom: calc(var(--sab) + 90px);
   padding-left: calc(var(--sal) + 20px);
   padding-right: calc(var(--sar) + 20px);
-  animation: pageIn 0.3s ease both;
-}
-.page { /* legacy alias */
-  max-width: 430px; margin: 0 auto;
-  padding-top: calc(var(--sat) + 24px);
-  padding-bottom: calc(var(--sab) + 90px);
-  padding-left: calc(var(--sal) + 20px);
-  padding-right: calc(var(--sar) + 20px);
-  animation: pageIn 0.3s ease both;
-}
-.page-sub {
-  max-width: 430px; margin: 0 auto;
-  padding-bottom: calc(var(--sab) + 90px);
   min-height: 100dvh;
-  animation: slideInRight 0.28s cubic-bezier(0.25,0.46,0.45,0.94) both;
 }
+
 
 /* ── Bottom nav ── */
 .bottom-nav {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 100% !important;
-  max-width: 430px !important;
-  display: flex !important;
-  align-items: flex-start !important;
-  justify-content: space-around !important;
-  background: var(--nav-bg) !important;
-  backdrop-filter: saturate(180%) blur(20px) !important;
-  -webkit-backdrop-filter: saturate(180%) blur(20px) !important;
-  border-top: 0.5px solid var(--border) !important;
-  padding-top: 10px !important;
-  padding-bottom: calc(var(--sab) + 8px) !important;
-  z-index: 9999 !important;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
+  background: var(--nav-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid var(--border);
+  padding-top: 10px;
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 9999;
 }
 .nav-item {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -387,29 +377,3 @@ input::placeholder { color: var(--muted); }
 /* ── Haptic press effect ── */
 .press-effect { -webkit-tap-highlight-color: transparent; cursor: pointer; }
 .press-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
-
-/* ══ CRITICAL: Bottom nav always fixed, never scrolls away ══ */
-.bottom-nav {
-  position: fixed !important;
-  bottom: 0 !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 100% !important;
-  max-width: 430px !important;
-  z-index: 9999 !important;
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
-}
-
-/* Every page that has BottomNav needs bottom padding so content isn't hidden behind it */
-.page-root,
-.page,
-.page-sub {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px) !important;
-}
-
-/* For pages that use inline style divs instead of className */
-[style*="minHeight: '100dvh'"],
-[style*="minHeight:'100dvh'"],
-[style*="min-height: 100dvh"] {
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 90px);
-}

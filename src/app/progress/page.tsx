@@ -81,7 +81,7 @@ export default function ProgressPage() {
   if (loading) return <PageLoader />
 
   return (
-    <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 100 }}>
+    <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 90 }}>
 
       {/* New achievement celebration */}
       {showNewAch && newAchievements.length > 0 && (

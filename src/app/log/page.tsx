@@ -243,7 +243,7 @@ export default function LogPage() {
 
       <h1 style={{ fontSize:24, fontWeight:700, letterSpacing:'-0.02em', marginBottom:20 }}>Log food</h1>
 
-      <div style={{ display:'flex', gap:8, marginBottom:24, overflowX:'auto', paddingBottom:4 }}>
+      <div style={{ display:'flex', gap:8, marginBottom:24, overflowX:'auto', paddingBottom:90 }}>
         {[{id:'search',i:SearchIcon,l:'Search'},{id:'scan',i:CameraIcon,l:'AI Scan'},{id:'recipe',i:TagIcon,l:'Recipe'},{id:'barcode',i:PackageIcon,l:'Barcode'},{id:'manual',i:EditIcon,l:'Manual'}].map(t=>{
           const Icon = t.i
           return (
@@ -282,7 +282,7 @@ export default function LogPage() {
                   {showFavs?'Show less':'Show all'}
                 </button>
               </div>
-              <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:8 }}>
+              <div style={{ display:'flex', gap:10, overflowX:'auto', paddingBottom:90 }}>
                 {(showFavs?favs:favs.slice(0,6)).map((f,i) => <FavCard key={i} food={f}/>)}
               </div>
             </div>

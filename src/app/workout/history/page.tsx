@@ -62,7 +62,7 @@ export default function WorkoutHistoryPage() {
   if (loading) return <PageLoader />
 
   return (
-    <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 100 }}>
+    <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 90 }}>
       <div style={{ padding: 'calc(env(safe-area-inset-top,0px) + 12px) 20px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <button onClick={() => router.back()} style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--card)', border: '0.5px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>

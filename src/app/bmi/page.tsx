@@ -72,7 +72,7 @@ export default function BMIPage() {
   }
 
   return (
-    <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 100 }}>
+    <div style={{ background: 'var(--surface)', minHeight: '100dvh', maxWidth: 430, margin: '0 auto', paddingBottom: 90 }}>
       <PageHeader title="BMI Calculator" subtitle="Body Mass Index"/>
 
       <div style={{ padding: '0 20px' }}>

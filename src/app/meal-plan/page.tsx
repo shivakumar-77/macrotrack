@@ -235,7 +235,7 @@ Create ONLY a JSON response matching this exact structure:
 
           {/* Question */}
           <div style={{textAlign:'center',marginBottom:32}}>
-            <div style={{fontSize:56,marginBottom:16}}>{q.icon}</div>
+            <div style={{fontSize:56,marginBottom:16}}>{getQuizIcon(q.iconType)}</div>
             <div style={{fontSize:20,fontWeight:700,lineHeight:1.4,color:'var(--text)'}}>{q.question}</div>
           </div>
 
@@ -337,7 +337,7 @@ Create ONLY a JSON response matching this exact structure:
         {/* Meal cards */}
         {plan.meals?.map((meal,i)=>{
           const color  = MEAL_COLORS[meal.type]||'#6366f1'
-          const icon   = meal.emoji||MEAL_ICONS[meal.type]||'FoodIcon'
+          const icon   = getMealIcon(meal.type)
           const logged = loggedMeals.has(meal.type)
           return (
             <div key={i} className="card" style={{marginBottom:14,borderLeft:'4px solid '+color}}>

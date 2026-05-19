@@ -93,7 +93,7 @@ export default function MealPlanPage() {
       const savedPlan = localStorage.getItem('macrotrack_mealplan')
       const today = new Date().toISOString().slice(0,10)
       if (saved===today && savedPlan) {
-        try { setPlan(JSON.parse(savedPlan)); setStep('plan') } catch {}
+        try { setPlan(JSON.parse(savedPlan)); setStep('plan') } catch (e) {}
       }
     }
     load()
@@ -183,7 +183,7 @@ Create ONLY a JSON response matching this exact structure:
         setStep('quiz'); setQuizStep(0)
         alert('Could not generate plan. Please try again.')
       }
-    } catch {
+    } catch (e) {
       setStep('quiz'); setQuizStep(0)
     }
   }
@@ -204,7 +204,7 @@ Create ONLY a JSON response matching this exact structure:
     setLogging(null)
   }
 
-  // ── QUIZ ──
+  // -- QUIZ --
   if (step==='quiz') {
     const q = QUIZ[quizStep]
     const progress = ((quizStep)/QUIZ.length)*100
@@ -286,7 +286,7 @@ Create ONLY a JSON response matching this exact structure:
     )
   }
 
-  // ── LOADING ──
+  // -- LOADING --
   if (step==='loading') return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',textAlign:'center', paddingBottom: 90}>
       <div style={{fontSize:64,marginBottom:24}}>🍽️</div>
@@ -303,7 +303,7 @@ Create ONLY a JSON response matching this exact structure:
     </div>
   )
 
-  // ── PLAN ──
+  // -- PLAN --
   if (step==='plan'&&plan) return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom: 90}}>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>

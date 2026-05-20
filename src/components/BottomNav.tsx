@@ -1,13 +1,13 @@
 'use client'
 import { useRouter, usePathname } from 'next/navigation'
-import { HomeIcon, NutritionIcon, WorkoutIcon, SupplementIcon, ProfileIcon } from '@/lib/icons'
+import { HomeIcon, NutritionIcon, WorkoutIcon, WeightIcon, ProfileIcon } from '@/lib/icons'
 
 const NAV = [
   { href:'/dashboard', label:'Home',      Icon:HomeIcon },
   { href:'/log',       label:'Nutrition', Icon:NutritionIcon },
   { href:'/workout',   label:'Workout',   Icon:WorkoutIcon },
-  { href:'/supplements',label:'Supps',   Icon:SupplementIcon },
-  { href:'/profile',   label:'Account',  Icon:ProfileIcon },
+  { href:'/weight',    label:'Weight',    Icon:WeightIcon },
+  { href:'/profile',   label:'Account',   Icon:ProfileIcon },
 ]
 
 export default function BottomNav() {

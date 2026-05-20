@@ -119,7 +119,8 @@ body {
 
 /* ── Page layout ── */
 
-.page {
+.page,
+.page-root {
   max-width: 430px;
   margin: 0 auto;
   padding-top: calc(var(--sat) + 24px);

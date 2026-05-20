@@ -167,7 +167,7 @@ Create ONLY a JSON response with: summary, meals array (with type, time, items w
     const q = QUIZ[quizStep]
     const progress = ((quizStep)/QUIZ.length)*100
     return (
-      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column', paddingBottom: 90}}>
+      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column', paddingTop:'calc(var(--sat) + 20px)', paddingBottom: 90}}>
         <div style={{height:3,background:'var(--border)'}}><div style={{height:'100%',background:'var(--primary)',width:progress+'%',transition:'width 0.3s ease',borderRadius:2}}/></div>
         <div style={{flex:1,padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 20px',display:'flex',flexDirection:'column'}}>
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:32}}>
@@ -214,7 +214,7 @@ Create ONLY a JSON response with: summary, meals array (with type, time, items w
   }
 
   const renderLoading = () => (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',textAlign:'center', paddingBottom: 90}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',paddingTop:'calc(var(--sat) + 40px)',textAlign:'center', paddingBottom: 90}}>
       <div style={{fontSize:64,marginBottom:24}}>Meal</div>
       <div style={{fontWeight:700,fontSize:20,marginBottom:8}}>Building your plan</div>
       <div style={{fontSize:14,color:'var(--muted)',marginBottom:32,lineHeight:1.7}}>AI is crafting a personalised meal plan based on your preferences and targets</div>
@@ -225,7 +225,7 @@ Create ONLY a JSON response with: summary, meals array (with type, time, items w
   const renderPlan = () => {
     if (!plan) return null
     return (
-      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column', paddingBottom: 90}}>
+      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',display:'flex',flexDirection:'column', paddingTop:'calc(var(--sat) + 20px)', paddingBottom: 90}}>
         <div style={{padding:'20px'}}>
           <h1 style={{fontSize:22,fontWeight:700,marginBottom:6}}>Your meal plan</h1>
           <p style={{fontSize:13,color:'var(--muted)',marginBottom:20}}>{plan.summary}</p>

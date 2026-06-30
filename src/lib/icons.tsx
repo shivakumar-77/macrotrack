@@ -40,6 +40,52 @@ export const WeightIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconPr
     <path d="M9 11h6M9 15h6"/>
   </svg>
 )
+export const CouchIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <rect x="3" y="10" width="18" height="8" rx="2"/>
+    <path d="M5 10V7a2 2 0 012-2h10a2 2 0 012 2v3"/>
+    <path d="M7 18v2M17 18v2"/>
+    <path d="M6 14h12"/>
+  </svg>
+)
+export const WalkIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <circle cx="13" cy="5" r="2"/>
+    <path d="M7 21l3-8 4 3 2-5 4 7"/>
+    <path d="M3 11l4-2 3 3 3-4"/>
+  </svg>
+)
+export const PlayIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <path d="M5 4v16l14-8-14-8z"/>
+  </svg>
+)
+export const SproutIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <path d="M12 2c2 3 2 5 2 8 0 2.7-1.1 4.8-3 6.5"/>
+    <path d="M8 7c-2 2-3 4.3-3 7 0 3.7 2.1 6 5 7"/>
+    <path d="M16 7c2 2 3 4.3 3 7 0 3.7-2.1 6-5 7"/>
+  </svg>
+)
+export const CircleIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <circle cx="12" cy="12" r="8"/>
+    <path d="M12 4v16M4 12h16"/>
+  </svg>
+)
+export const RulerIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <path d="M4 6h16a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z"/>
+    <path d="M7 9h10M7 13h6M7 17h4"/>
+  </svg>
+)
+export const SunriseIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
+  <svg {...d(size,color,strokeWidth)}>
+    <path d="M4 18h16"/>
+    <path d="M6 15a6 6 0 0112 0"/>
+    <path d="M12 3v3M4.5 7.5l2.1 2.1M19.5 7.5l-2.1 2.1M3 13h2M19 13h2M4.2 19.8l1.4-1.4M18.4 19.8l-1.4-1.4"/>
+  </svg>
+)
 
 // ── Feature Icons ────────────────────────────────────────
 export const FireIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
@@ -479,6 +525,99 @@ export const ClipboardIcon = ({size=24,color='currentColor',strokeWidth=1.8}:Ico
     <rect x="8" y="2" width="8" height="4" rx="1"/>
   </svg>
 )
+
+const iconMap = {
+  HomeIcon,
+  NutritionIcon,
+  WorkoutIcon,
+  SupplementIcon,
+  ProfileIcon,
+  WeightIcon,
+  FireIcon,
+  DropletIcon,
+  ChartBarIcon,
+  ChartLineIcon,
+  TargetIcon,
+  BoltIcon,
+  TrophyIcon,
+  CalendarIcon,
+  ClockIcon,
+  BellIcon,
+  SearchIcon,
+  PlusIcon,
+  CheckIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  ChevronDownIcon,
+  CloseIcon,
+  BackIcon,
+  EditIcon,
+  DeleteIcon,
+  SettingsIcon,
+  LockIcon,
+  LogoutIcon,
+  CameraIcon,
+  MuscleIcon,
+  BodyIcon,
+  FoodIcon,
+  ScaleIcon,
+  HeartIcon,
+  AppleIcon,
+  RunIcon,
+  MoonIcon,
+  SunIcon,
+  AutoIcon,
+  ShareIcon,
+  InfoIcon,
+  StarIcon,
+  MeasureIcon,
+  WaterIcon,
+  BMIIcon,
+  CalcIcon,
+  MealPlanIcon,
+  AIIcon,
+  HistoryIcon,
+  TemplateIcon,
+  ExercisesIcon,
+  StreakIcon,
+  ProteinIcon,
+  WaveIcon,
+  PartyIcon,
+  TagIcon,
+  PackageIcon,
+  ReceiptIcon,
+  SaladIcon,
+  LegIcon,
+  ChartUpIcon,
+  ChartDownIcon,
+  MedalIcon,
+  AwardIcon,
+  SparkleIcon,
+  RefreshIcon,
+  PillIcon,
+  GlassIcon,
+  FishIcon,
+  BatteryIcon,
+  LeafIcon,
+  CoffeeIcon,
+  BoneIcon,
+  TimerIcon,
+  HeartBeatIcon,
+  ClipboardIcon,
+  CouchIcon,
+  WalkIcon,
+  PlayIcon,
+  SproutIcon,
+  CircleIcon,
+  RulerIcon,
+  SunriseIcon,
+} as const
+
+export const IconByName = ({ name, ...props }: { name?: string } & IconProps) => {
+  const key = (name || 'HomeIcon') as keyof typeof iconMap
+  const Icon = iconMap[key] || HomeIcon
+  return <Icon {...props} />
+}
 export const PencilIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
   <svg {...d(size,color,strokeWidth)}>
     <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
@@ -530,47 +669,16 @@ export const UploadIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconPr
     <line x1="12" y1="3" x2="12" y2="15"/>
   </svg>
 )
-export const CouchIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <path d="M2 6c0-1 1-2 2-2h16c1 0 2 1 2 2v8c0 1-1 2-2 2H4c-1 0-2-1-2-2V6z"/>
-    <path d="M4 18h16"/>
-    <path d="M6 12v6M18 12v6"/>
-  </svg>
-)
-export const WalkIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <circle cx="5" cy="3" r="1"/>
-    <path d="M9 10l-5 12M5 22v-7m6-11l-4 6 3 7m8-13l-3 5M15 2l-2 5 4 9"/>
-  </svg>
-)
-export const SproutIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <path d="M7 20c-.5-1.5-1-3-1-5 0-6 4-10 8-10s8 4 8 10c0 2-.5 3.5-1 5M12 14v7M5 20a10 10 0 0014 0"/>
-  </svg>
-)
+
+
 export const GearIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
   <svg {...d(size,color,strokeWidth)}>
     <circle cx="12" cy="12" r="3"/>
     <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m5.08 0l4.24-4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m5.08 0l4.24 4.24"/>
   </svg>
 )
-export const RulerIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <path d="M21.5 2H2.5A1.5 1.5 0 001 3.5v17a1.5 1.5 0 001.5 1.5h19a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0021.5 2zM6 8h1M6 14h1M10 8h1M10 14h1M14 8h1M14 14h1M18 8h1M18 14h1"/>
-  </svg>
-)
-export const SunriseIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <path d="M17 18a5 5 0 10-10 0"/>
-    <line x1="12" y1="2" x2="12" y2="9"/>
-    <line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/>
-    <line x1="1" y1="18" x2="3" y2="18"/>
-    <line x1="21" y1="18" x2="23" y2="18"/>
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-    <line x1="23" y1="22" x2="1" y2="22"/>
-    <polyline points="8 6 12 2 16 6"/>
-  </svg>
-)
+
+
 export const RobotIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
   <svg {...d(size,color,strokeWidth)}>
     <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -581,11 +689,7 @@ export const RobotIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconPro
 )
 
 // ── Missing/Additional Icons ────────────────────────────
-export const PlayIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <polygon points="5 3 19 12 5 21 5 3" fill={color} stroke='none'/>
-  </svg>
-)
+
 export const BottleIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
   <svg {...d(size,color,strokeWidth)}>
     <path d="M12 2v3m0 14v3M8 5h8a1 1 0 011 1v8a2 2 0 01-2 2h-6a2 2 0 01-2-2V6a1 1 0 011-1z"/>
@@ -627,8 +731,4 @@ export const DNAIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps
     <path d="M6 10l12 4M18 10l-12 4"/>
   </svg>
 )
-export const CircleIcon = ({size=24,color='currentColor',strokeWidth=1.8}:IconProps) => (
-  <svg {...d(size,color,strokeWidth)}>
-    <circle cx="12" cy="12" r="9" fill={color}/>
-  </svg>
-)
+

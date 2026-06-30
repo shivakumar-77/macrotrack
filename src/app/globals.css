@@ -142,16 +142,22 @@ body {
 
 /* ── Bottom nav ── */
 .bottom-nav {
-  position: fixed; inset: auto 0 0 0;
-  width: 100%; max-width: 430px; margin: 0 auto;
-  display: flex; align-items: flex-start; justify-content: space-around;
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(100%, 430px);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-around;
   background: var(--nav-bg);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-top: 0.5px solid var(--border);
-  padding-top: 10px;
-  padding-bottom: calc(var(--sab) + 8px);
+  padding: 10px 8px calc(10px + env(safe-area-inset-bottom));
   z-index: 999;
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.08);
 }
 .nav-item {
   display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -299,19 +305,19 @@ input::placeholder { color: var(--muted); }
 
 @keyframes pageIn {
   from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: none; }
 }
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(24px); }
-  to   { opacity: 1; transform: translateX(0); }
+  to   { opacity: 1; transform: none; }
 }
 @keyframes slideUp {
   from { transform: translateY(100%); }
-  to   { transform: translateY(0); }
+  to   { transform: none; }
 }
 @keyframes slideDown {
   from { transform: translateY(-16px); opacity: 0; }
-  to   { transform: translateY(0); opacity: 1; }
+  to   { transform: none; opacity: 1; }
 }
 @keyframes fadeIn {
   from { opacity: 0; }
@@ -347,7 +353,7 @@ input::placeholder { color: var(--muted); }
 }
 @keyframes countUp {
   from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: none; }
 }
 @keyframes ringDraw {
   from { stroke-dashoffset: 100%; }

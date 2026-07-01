@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
-import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, FireIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon } from '@/lib/icons'
+import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, FireIcon, ChartDownIcon, MuscleIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon } from '@/lib/icons'
 import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -360,7 +360,11 @@ export default function ProfilePage() {
           <div>
             <L text="My main goal"/>
             <div style={{display:'flex',gap:8}}>
-              {[{key:'lose',label:'Lose fat',icon:'ChartDownIcon',color:'#10b981',bg:'#d1fae5'},{key:'maintain',label:'Maintain',icon:'ScaleIcon',color:'#f59e0b',bg:'#fef3c7'},{key:'gain',label:'Build muscle',icon:'MuscleIcon',color:'#3b82f6',bg:'#dbeafe'}].map(g=>(
+              {[
+                { key:'lose', label:'Lose fat', icon:<ChartDownIcon size={24} color='#10b981'/>, color:'#10b981', bg:'#d1fae5' },
+                { key:'maintain', label:'Maintain', icon:<ScaleIcon size={24} color='#f59e0b'/>, color:'#f59e0b', bg:'#fef3c7' },
+                { key:'gain', label:'Build muscle', icon:<MuscleIcon size={24} color='#3b82f6'/>, color:'#3b82f6', bg:'#dbeafe' }
+              ].map(g=>(
                 <button key={g.key} onClick={()=>setForm(p=>({...p,goal:g.key}))}
                   style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
                   <div style={{fontSize:22,marginBottom:6}}>{g.icon}</div>

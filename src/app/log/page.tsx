@@ -6,7 +6,7 @@ import BottomNav from '@/components/BottomNav'
 import { updateStreak } from '@/lib/gamification'
 import { PageLoader } from '@/components/Skeleton'
 import BarcodeScanner from '@/components/BarcodeScanner'
-import { SearchIcon, CameraIcon, TagIcon, PackageIcon, EditIcon, StarIcon, ClockIcon, SaladIcon } from '@/lib/icons'
+import { SearchIcon, CameraIcon, TagIcon, PackageIcon, EditIcon, StarIcon, ClockIcon, SaladIcon, FoodIcon, ReceiptIcon } from '@/lib/icons'
 
 const MEAL_TYPES = ['breakfast','lunch','dinner','snack','other']
 const todayStr = () => new Date().toISOString().slice(0,10)
@@ -352,9 +352,11 @@ export default function LogPage() {
                 AI reads the nutrition information and automatically fills in all your macros.
               </p>
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:28 }}>
-                {[{icon:'PackageIcon',l:'Food labels'},{icon:'FoodIcon',l:'Recipes'},{icon:'🧾',l:'Menus'}].map(x=>( /* TODO: Replace emoji icons in this section with SVG icons */
+                {[{Icon:PackageIcon,l:'Food labels'},{Icon:FoodIcon,l:'Recipes'},{Icon:ReceiptIcon,l:'Menus'}].map(x=>(
                   <div key={x.l} style={{ background:'var(--card)', borderRadius:16, padding:'16px 10px', border:'1.5px solid var(--border)', textAlign:'center' }}>
-                    <div style={{ fontSize:28, marginBottom:6 }}>{x.icon}</div>
+                    <div style={{ width:44, height:44, margin:'0 auto 6px', borderRadius:14, background:'rgba(99,102,241,0.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <x.Icon size={24} color='#6366f1' />
+                    </div>
                     <div style={{ fontSize:12, fontWeight:600, color:'var(--muted)' }}>{x.l}</div>
                   </div>
                 ))}

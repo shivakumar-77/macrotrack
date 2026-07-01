@@ -583,11 +583,15 @@ export default function ProfilePage() {
         {/* Appearance */}
         <SectionLabel text="Appearance"/>
         <div style={{display:'flex',gap:8,marginBottom:24}}>
-          {[['light','SunIcon','Light'],['auto','⚙️','Auto'],['dark','MoonIcon','Dark']].map(([val,icon,label])=>(
-            <button key={val} onClick={()=>setTheme(val)}
-              style={{flex:1,padding:'13px 8px',borderRadius:16,border:'2px solid '+(theme===val?'var(--primary)':'var(--border)'),background:theme===val?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',transition:'all 0.15s',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
-              <div style={{fontSize:22,marginBottom:5}}>{icon}</div>
-              <div style={{fontSize:12,fontWeight:700,color:theme===val?'var(--primary)':'var(--muted)'}}>{label}</div>
+          {[
+            { value:'light', icon:<SunIcon size={24} color={theme==='light' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Light' },
+            { value:'auto', icon:<AutoIcon size={24} color={theme==='auto' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Auto' },
+            { value:'dark', icon:<MoonIcon size={24} color={theme==='dark' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Dark' }
+          ].map(({ value, icon, label }) => (
+            <button key={value} onClick={() => setTheme(value)}
+              style={{flex:1,padding:'13px 8px',borderRadius:16,border:'2px solid '+(theme===value?'var(--primary)':'var(--border)'),background:theme===value?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+              <div style={{marginBottom:5}}>{icon}</div>
+              <div style={{fontSize:12,fontWeight:700,color:theme===value?'var(--primary)':'var(--muted)'}}>{label}</div>
             </button>
           ))}
         </div>

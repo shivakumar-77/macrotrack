@@ -304,12 +304,12 @@ input::placeholder { color: var(--muted); }
 /* ── ═══════════════ ANIMATIONS ════════════════ ── */
 
 @keyframes pageIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes slideInRight {
-  from { opacity: 0; transform: translateX(24px); }
-  to   { opacity: 1; transform: none; }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 @keyframes slideUp {
   from { transform: translateY(100%); }

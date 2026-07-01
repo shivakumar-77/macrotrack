@@ -558,10 +558,10 @@ export default function ProfilePage() {
         <SectionLabel text="Tools"/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:24}}>
           {[
-            {icon:'ScaleIcon',label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
-            {icon:'FireIcon',label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
-            {icon:'RulerIcon',label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
-            {icon:'UploadIcon',label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
+            {icon:<ScaleIcon size={28} color='var(--primary)'/>,label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
+            {icon:<FireIcon size={28} color='var(--primary)'/>,label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
+            {icon:<MeasureIcon size={28} color='var(--primary)'/>,label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
+            {icon:<ShareIcon size={28} color='var(--primary)'/>,label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
           ].map(t=>(
             <button key={t.label} onClick={t.go}
               style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>

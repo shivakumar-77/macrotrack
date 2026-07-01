@@ -341,9 +341,9 @@ export default function WeightPage() {
           { label:'7d avg', val: weekAvg?`${weekAvg} kg`:'—', color:'#6366f1', Icon: ChartBarIcon },
           { label:'BMI', val: bmiVal?String(bmiVal):'—', color:bmiColor, textIcon:'🧮' },
         ].map(s => (
-          <div key={s.label} style={{ flexShrink:0, background:'var(--card)', borderRadius:16, padding:'12px 14px', border:'1.5px solid var(--border)', textAlign:'center', minWidth:80 }}>
-            <div style={{ fontSize:18, marginBottom:4, display:'flex', alignItems:'center', justifyContent:'center', minHeight:24 }}>
-              {s.Icon ? <s.Icon size={18} color={s.color} /> : s.textIcon}
+          <div key={s.label} style={{ flexShrink:0, background:'var(--card)', borderRadius:16, padding:'12px 14px', border:'1.5px solid var(--border)', textAlign:'center', minWidth:90, width: 'auto' }}>
+            <div style={{ width: 30, height: 30, borderRadius: 10, background:'var(--surface)', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              {s.Icon ? <s.Icon size={18} color={s.color} /> : <span style={{ fontSize:18 }}>{s.textIcon}</span>}
             </div>
             <div style={{ fontSize:14, fontWeight:800, color:s.color }}>{s.val}</div>
             <div style={{ fontSize:10, color:'var(--muted)', fontWeight:600, marginTop:2, textTransform:'uppercase' }}>{s.label}</div>

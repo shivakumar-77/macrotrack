@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
-import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, FireIcon, ChartDownIcon, MuscleIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon } from '@/lib/icons'
+import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, ShareIcon, BMIIcon, CalcIcon, SunIcon, MoonIcon, AutoIcon, FireIcon, ChartDownIcon, MuscleIcon, LogoutIcon, WaterIcon, SaladIcon, TrophyIcon, CheckIcon, SunriseIcon } from '@/lib/icons'
 import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
@@ -21,11 +21,11 @@ export default function ProfilePage() {
   const fileRef = useRef(null)
   const [notifPermission, setNotifPermission] = useState('default')
   const [reminders, setReminders] = useState([
-    { id:'breakfast', label:'Breakfast', icon:'sunrise', time:'08:00', enabled:true },
-    { id:'lunch',     label:'Lunch',     icon:'sun', time:'13:00', enabled:true },
-    { id:'dinner',    label:'Dinner',    icon:'moon', time:'20:00', enabled:true },
-    { id:'water',     label:'Water',     icon:'water', time:'10:00', enabled:false },
-    { id:'weight',    label:'Weight log',icon:'scale', time:'07:30', enabled:false },
+    { id:'breakfast', label:'Breakfast', icon:<SunriseIcon size={18} color='var(--primary)'/>, time:'08:00', enabled:true },
+    { id:'lunch',     label:'Lunch',     icon:<SunIcon size={18} color='var(--primary)'/>, time:'13:00', enabled:true },
+    { id:'dinner',    label:'Dinner',    icon:<MoonIcon size={18} color='var(--primary)'/>, time:'20:00', enabled:true },
+    { id:'water',     label:'Water',     icon:<WaterIcon size={18} color='var(--primary)'/>, time:'10:00', enabled:false },
+    { id:'weight',    label:'Weight log',icon:<ScaleIcon size={18} color='var(--primary)'/>, time:'07:30', enabled:false },
   ])
   const [form, setForm] = useState({
     name:'', dob:'', age:'', height:'', gender:'male', phone:'',
@@ -472,7 +472,7 @@ export default function ProfilePage() {
         <div className="card" style={{marginBottom:14}}>
           <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:16}}>
             <div style={{width:48,height:48,borderRadius:16,background:notifPermission==='granted'?'#d1fae5':'#fef3c7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0}}>
-              {notifPermission==='granted'?'CheckIcon':'BellIcon'}
+              {notifPermission==='granted' ? <CheckIcon size={24} color='var(--primary)'/> : <BellIcon size={24} color='var(--primary)'/>}
             </div>
             <div>
               <div style={{fontWeight:700,fontSize:15}}>{notifPermission==='granted'?'Notifications active':'Enable notifications'}</div>

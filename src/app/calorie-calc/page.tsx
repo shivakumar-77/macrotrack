@@ -1,13 +1,14 @@
 'use client'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { CouchIcon, WalkIcon, PlayIcon, MuscleIcon, BoltIcon, ScaleIcon, SproutIcon, FireIcon, IconByName } from '@/lib/icons'
 
 const ACTIVITY = [
-  { id: 'sedentary', label: 'Sedentary', desc: 'Little or no exercise', icon: 'CouchIcon', mul: 1.2 },
-  { id: 'light', label: 'Lightly active', desc: '1-3 days/week', icon: 'WalkIcon', mul: 1.375 },
-  { id: 'moderate', label: 'Moderately active', desc: '3-5 days/week', icon: 'PlayIcon', mul: 1.55 },
-  { id: 'very', label: 'Very active', desc: '6-7 days/week', icon: 'MuscleIcon', mul: 1.725 },
-  { id: 'extra', label: 'Extra active', desc: 'Athlete / physical job', icon: 'BoltIcon', mul: 1.9 },
+  { id: 'sedentary', label: 'Sedentary', desc: 'Little or no exercise', Icon: CouchIcon, mul: 1.2 },
+  { id: 'light', label: 'Lightly active', desc: '1-3 days/week', Icon: WalkIcon, mul: 1.375 },
+  { id: 'moderate', label: 'Moderately active', desc: '3-5 days/week', Icon: PlayIcon, mul: 1.55 },
+  { id: 'very', label: 'Very active', desc: '6-7 days/week', Icon: MuscleIcon, mul: 1.725 },
+  { id: 'extra', label: 'Extra active', desc: 'Athlete / physical job', Icon: BoltIcon, mul: 1.9 },
 ]
 
 export default function CalorieCalcPage() {
@@ -132,7 +133,9 @@ export default function CalorieCalcPage() {
             {ACTIVITY.map(l => (
               <button key={l.id} onClick={() => setActivity(l.id)}
                 style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderRadius: 16, border: '2px solid '+(activity===l.id?'var(--primary)':'var(--border)'), background: activity===l.id?'var(--primary-bg)':'var(--card)', cursor: 'pointer', textAlign: 'left' }}>
-                <span style={{ fontSize: 22, flexShrink: 0 }}>{l.icon}</span>
+                <span style={{ fontSize: 22, flexShrink: 0, display: 'inline-flex' }}>
+                  <l.Icon size={22} color={activity===l.id ? 'var(--primary)' : 'var(--muted)'} />
+                </span>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontWeight: 700, fontSize: 14, color: activity===l.id?'var(--primary)':'var(--text)' }}>{l.label}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted)' }}>{l.desc}</div>
@@ -174,7 +177,9 @@ export default function CalorieCalcPage() {
             ].map(g => (
               <div key={g.label} style={{ background: g.bg, borderRadius: 20, padding: '18px', border: '1.5px solid '+g.border, marginBottom: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-                  <span style={{ fontSize: 24 }}>{g.icon}</span>
+                  <span style={{ fontSize: 24, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 36, height: 36, borderRadius: 12, background: 'rgba(255,255,255,0.75)' }}>
+                    <IconByName name={g.icon} size={20} color={g.color} />
+                  </span>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 700, fontSize: 15, color: g.color }}>{g.label}</div>
                     <div style={{ fontSize: 12, color: 'var(--muted)' }}>{g.desc}</div>

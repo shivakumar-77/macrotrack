@@ -578,9 +578,8 @@ export default function ProfilePage() {
 
         {/* Settings */}
         <SectionLabel text="Settings"/>
-        <MenuItem icon={<TargetIcon size={20} color='var(--primary)'/>} label="Goals & targets"
-        />
-        <MenuItem icon={<TrophyIcon size={20} color='var(--primary)'/>} label="Progress & Achievements" sub="Streaks, badges, challenges" onClick={()=>router.push('/progress')} sub="Calories, macros, weight goal" onClick={()=>setView('goals')}/>
+        <MenuItem icon={<TargetIcon size={20} color='var(--primary)'/>} label="Goals & targets" sub="Calories, macros, weight goal" onClick={()=>setView('goals')}/>
+        <MenuItem icon={<TrophyIcon size={20} color='var(--primary)'/>} label="Progress & Achievements" sub="Streaks, badges, challenges" onClick={()=>router.push('/progress')}/>
         <MenuItem icon={<BellIcon size={20} color='var(--primary)'/>} label="Notifications" sub={notifPermission==='granted'?`${reminders.filter(r=>r.enabled).length} reminders active`:'Set meal reminders'} onClick={()=>setView('notifications')}/>
         <MenuItem icon={<LockIcon size={20} color='var(--primary)'/>} label="Security" sub="Password, email, account" onClick={()=>setView('security')}/>
 

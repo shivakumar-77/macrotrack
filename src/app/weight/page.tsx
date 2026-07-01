@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import { ScaleIcon, TargetIcon, TrophyIcon, ChartDownIcon, ChartUpIcon, ChartBarIcon } from '@/lib/icons'
 
 function toISO(d) { return d.toISOString().slice(0, 10) }
 function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r }
@@ -333,15 +334,17 @@ export default function WeightPage() {
       {/* Stats strip */}
       <div style={{ display:'flex', gap:10, padding:'0 20px', marginBottom:20, overflowX:'auto', paddingBottom:4 }}>
         {[
-          { label:'Current', val: latest?`${latest.weight_kg} kg`:'—', color:'var(--primary)', icon:'ScaleIcon' },
-          { label:'Goal', val:`${goal} kg`, color:'#10b981', icon:'TargetIcon' },
-          { label:'To go', val: toGoal!==null?`${Math.abs(toGoal).toFixed(1)} kg`:'—', color: toGoal&&toGoal<=0?'#10b981':'#f59e0b', icon: toGoal&&toGoal<=0?'TrophyIcon':'📍' },
-          { label:'Total', val: totalChg!==null?`${totalChg>0?'+':''}${totalChg} kg`:'—', color: isLosing?'#10b981':'#ef4444', icon: isLosing?'ChartDownIcon':'ChartUpIcon' },
-          { label:'7d avg', val: weekAvg?`${weekAvg} kg`:'—', color:'#6366f1', icon:'ChartBarIcon' },
-          { label:'BMI', val: bmiVal?String(bmiVal):'—', color:bmiColor, icon:'🧮' },
+          { label:'Current', val: latest?`${latest.weight_kg} kg`:'—', color:'var(--primary)', Icon: ScaleIcon },
+          { label:'Goal', val:`${goal} kg`, color:'#10b981', Icon: TargetIcon },
+          { label:'To go', val: toGoal!==null?`${Math.abs(toGoal).toFixed(1)} kg`:'—', color: toGoal&&toGoal<=0?'#10b981':'#f59e0b', Icon: toGoal&&toGoal<=0?TrophyIcon:null, textIcon: toGoal&&toGoal>0?'📍':null },
+          { label:'Total', val: totalChg!==null?`${totalChg>0?'+':''}${totalChg} kg`:'—', color: isLosing?'#10b981':'#ef4444', Icon: isLosing?ChartDownIcon:ChartUpIcon },
+          { label:'7d avg', val: weekAvg?`${weekAvg} kg`:'—', color:'#6366f1', Icon: ChartBarIcon },
+          { label:'BMI', val: bmiVal?String(bmiVal):'—', color:bmiColor, textIcon:'🧮' },
         ].map(s => (
           <div key={s.label} style={{ flexShrink:0, background:'var(--card)', borderRadius:16, padding:'12px 14px', border:'1.5px solid var(--border)', textAlign:'center', minWidth:80 }}>
-            <div style={{ fontSize:18, marginBottom:4 }}>{s.icon}</div>
+            <div style={{ fontSize:18, marginBottom:4, display:'flex', alignItems:'center', justifyContent:'center', minHeight:24 }}>
+              {s.Icon ? <s.Icon size={18} color={s.color} /> : s.textIcon}
+            </div>
             <div style={{ fontSize:14, fontWeight:800, color:s.color }}>{s.val}</div>
             <div style={{ fontSize:10, color:'var(--muted)', fontWeight:600, marginTop:2, textTransform:'uppercase' }}>{s.label}</div>
           </div>

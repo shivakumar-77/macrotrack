@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { FireIcon, ChartDownIcon, CalendarIcon, FoodIcon } from '@/lib/icons'
 
 export default function SharePage() {
   const router = useRouter()
@@ -121,13 +122,15 @@ export default function SharePage() {
           {/* Stats grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
             {[
-              { icon: 'FireIcon', label: 'Day streak', val: stats.streak, unit: 'days' },
-              { icon: 'ChartDownIcon', label: 'Weight lost', val: stats.weightLost, unit: 'kg' },
-              { icon: 'CalendarIcon', label: 'Days active', val: stats.daysActive, unit: 'days' },
-              { icon: 'FoodIcon', label: 'Meals logged', val: stats.totalLogs, unit: 'total' },
+              { Icon: FireIcon, label: 'Day streak', val: stats.streak, unit: 'days' },
+              { Icon: ChartDownIcon, label: 'Weight lost', val: stats.weightLost, unit: 'kg' },
+              { Icon: CalendarIcon, label: 'Days active', val: stats.daysActive, unit: 'days' },
+              { Icon: FoodIcon, label: 'Meals logged', val: stats.totalLogs, unit: 'total' },
             ].map(s => (
               <div key={s.label} style={{ background: t.accent, borderRadius: 16, padding: '16px 14px' }}>
-                <div style={{ fontSize: 22, marginBottom: 6 }}>{s.icon}</div>
+                <div style={{ fontSize: 22, marginBottom: 6, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <s.Icon size={22} color={t.text} />
+                </div>
                 <div style={{ fontSize: 26, fontWeight: 800, color: t.text }}>{s.val}</div>
                 <div style={{ fontSize: 11, color: t.text, opacity: 0.75, fontWeight: 500 }}>{s.label}</div>
               </div>

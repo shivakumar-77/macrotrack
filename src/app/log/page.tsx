@@ -296,52 +296,36 @@ export default function LogPage() {
 
           {/* Categories & Diet Filter */}
           {!query && !selected && !selectedCategory && (
-            <div>
-              <div style={{ display:'flex', gap:16, marginBottom:16 }}>
-                {/* Categories */}
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Categories</div>
-                  <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:4 }}>
-                    {mainCategories.map((cat) => (
-                      <button key={cat} onClick={() => selectCategory(cat)}
-                        style={{ padding:'8px 14px', borderRadius:99, background:'var(--primary-bg)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--primary)', whiteSpace:'nowrap', flexShrink:0, transition:'all 0.2s' }}>
-                        {cat.replace(/([A-Z])/g, ' $1').trim()}
-                      </button>
-                    ))}
-                    <button onClick={() => setShowAllCategories(!showAllCategories)}
-                      style={{ padding:'8px 12px', borderRadius:99, background:'transparent', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--muted)', whiteSpace:'nowrap', flexShrink:0 }}>
-                      {showAllCategories ? '↑' : '▼'} More
+            <div style={{ marginBottom:16 }}>
+              {/* Categories Row */}
+              <div style={{ marginBottom:12 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Categories</div>
+                <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:4 }}>
+                  {mainCategories.map((cat) => (
+                    <button key={cat} onClick={() => selectCategory(cat)}
+                      style={{ padding:'8px 14px', borderRadius:99, background:'var(--primary-bg)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--primary)', whiteSpace:'nowrap', flexShrink:0, transition:'all 0.2s' }}>
+                      {cat.replace(/([A-Z])/g, ' $1').trim()}
                     </button>
-                  </div>
-                </div>
-
-                {/* Diet Filter */}
-                <div>
-                  <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Diet</div>
-                  <div style={{ display:'flex', gap:6 }}>
-                    {['Veg', 'Protein', 'Low Cal'].map((diet) => (
-                      <button key={diet} onClick={() => setSelectedDiet(selectedDiet === diet ? null : diet)}
-                        style={{ padding:'8px 12px', borderRadius:99, background:selectedDiet===diet?'var(--primary)':'var(--primary-bg)', border:'1.5px solid '+(selectedDiet===diet?'var(--primary)':'var(--border)'), cursor:'pointer', fontSize:12, fontWeight:600, color:selectedDiet===diet?'#fff':'var(--primary)', whiteSpace:'nowrap' }}>
-                        {diet}
-                      </button>
-                    ))}
-                  </div>
+                  ))}
+                  <button onClick={() => setShowAllCategories(!showAllCategories)}
+                    style={{ padding:'8px 12px', borderRadius:99, background:'transparent', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--muted)', whiteSpace:'nowrap', flexShrink:0 }}>
+                    {showAllCategories ? '↑' : '▼'} More
+                  </button>
                 </div>
               </div>
 
-              {/* Expanded Categories */}
-              {showAllCategories && (
-                <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:12, padding:12, marginBottom:16 }}>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:6 }}>
-                    {remainingCategories.map((cat) => (
-                      <button key={cat} onClick={() => selectCategory(cat)}
-                        style={{ padding:'8px 10px', borderRadius:10, background:'var(--primary-bg)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:11, fontWeight:600, color:'var(--primary)', textTransform:'capitalize', transition:'all 0.2s' }}>
-                        {cat.replace(/([A-Z])/g, ' $1').trim()}
-                      </button>
-                    ))}
-                  </div>
+              {/* Diet Filter Row */}
+              <div>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Diet</div>
+                <div style={{ display:'flex', gap:6 }}>
+                  {['Veg', 'Protein', 'Low Cal'].map((diet) => (
+                    <button key={diet} onClick={() => setSelectedDiet(selectedDiet === diet ? null : diet)}
+                      style={{ padding:'8px 12px', borderRadius:99, background:selectedDiet===diet?'var(--primary)':'var(--primary-bg)', border:'1.5px solid '+(selectedDiet===diet?'var(--primary)':'var(--border)'), cursor:'pointer', fontSize:12, fontWeight:600, color:selectedDiet===diet?'#fff':'var(--primary)', whiteSpace:'nowrap' }}>
+                      {diet}
+                    </button>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
           )}
 

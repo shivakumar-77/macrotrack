@@ -136,7 +136,7 @@ export default function LogPage() {
       const base64 = ev.target.result.split(',')[1]
       setPhotoPreview(ev.target.result)
       try {
-        const res = await fetch('/api/ai-scan', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({image:base64, mimeType:file.type}) })
+        const res = await fetch('/api/ai-scan', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({image:base64, mimeType:file.type, mode:tab==='recipe'?'recipe':'scan'}) })
         const data = await res.json()
         if (data.result) { setSelected({...data.result, baseQty:data.result.qty}); setQty(data.result.qty) }
         else setScanError(data.error||'Could not identify food. Try a clearer photo.')

@@ -32,13 +32,14 @@ Respond ONLY with this JSON, no markdown:
             { type:'text', text:prompt }
           ]
         }]
-      })
+      }),
+      timeout: 60000
     })
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
       console.error('Anthropic API error:', response.status, errorData)
-      return NextResponse.json({ error: 'AI service error' }, { status: 502 })
+      return NextResponse.json({ error: 'AI service error', details: errorData }, { status: 502 })
     }
     const data = await response.json()
     const text = data.content?.[0]?.text ?? ''

@@ -21,7 +21,7 @@ Respond ONLY with this JSON, no markdown:
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key':process.env.ANTHROPIC_API_KEY, 'anthropic-version':'2023-06-01' },
+      headers: { 'Content-Type':'application/json', 'x-api-key':process.env.ANTHROPIC_API_KEY, 'anthropic-version':'2024-06-01' },
       body: JSON.stringify({
         model: 'claude-3-5-sonnet-20241022',
         max_tokens: 512,
@@ -35,7 +35,11 @@ Respond ONLY with this JSON, no markdown:
       })
     })
 
-    if (!response.ok) return NextResponse.json({ error: 'AI service error' }, { status: 502 })
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      console.error('Anthropic API error:', response.status, errorData)
+      return NextResponse.json({ error: 'AI service error' }, { status: 502 })
+    }
     const data = await response.json()
     const text = data.content?.[0]?.text ?? ''
     let result = null

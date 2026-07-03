@@ -7,6 +7,7 @@ import { updateStreak } from '@/lib/gamification'
 import { PageLoader } from '@/components/Skeleton'
 import BarcodeScanner from '@/components/BarcodeScanner'
 import { SearchIcon, CameraIcon, TagIcon, PackageIcon, EditIcon, StarIcon, ClockIcon, SaladIcon, FoodIcon, ReceiptIcon } from '@/lib/icons'
+import { FOOD_DATABASE } from '@/lib/foodDatabase'
 
 const MEAL_TYPES = ['breakfast','lunch','dinner','snack','other']
 const todayStr = () => new Date().toISOString().slice(0,10)
@@ -50,6 +51,8 @@ export default function LogPage() {
   const [scanError, setScanError] = useState('')
   const [manual, setManual] = useState({ name:'', qty:'100', unit:'g', cal:'', protein:'', carb:'', fat:'', fiber:'' })
   const [toastMsg, setToastMsg] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [categoryFoods, setCategoryFoods] = useState([])
   const fileRef = useRef(null)
   const debounceRef = useRef(null)
 
@@ -76,7 +79,18 @@ export default function LogPage() {
     } catch { setResults([]) } finally { setSearching(false) }
   }
 
-  function selectFood(food) { setSelected(food); setQty(food.baseQty||100); setResults([]); setQuery(food.name) }
+  function selectFood(food) { setSelected(food); setQty(food.baseQty||100); setResults([]); setQuery(food.name); setCategoryFoods([]) }
+
+  function selectCategory(catName) {
+    setSelectedCategory(catName)
+    setCategoryFoods(FOOD_DATABASE[catName] || [])
+    setQuery('')
+  }
+
+  function goBackFromCategory() {
+    setSelectedCategory(null)
+    setCategoryFoods([])
+  }
 
   function toggleFav(food) {
     const added = saveFav({ ...food, baseQty: food.baseQty||100 })
@@ -273,8 +287,34 @@ export default function LogPage() {
 
           {searching && <p style={{ color:'var(--muted)', fontSize:13, textAlign:'center', padding:'16px 0' }}>Searching…</p>}
 
+          {/* Categories section */}
+          {!query && !selected && !selectedCategory && (
+            <div style={{ marginBottom:20 }}>
+              <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}>Browse by category</div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:8 }}>
+                {Object.keys(FOOD_DATABASE).map((cat) => (
+                  <button key={cat} onClick={() => selectCategory(cat)}
+                    style={{ padding:'12px 10px', borderRadius:12, background:'var(--primary-bg)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--primary)', textTransform:'capitalize', transition:'all 0.2s' }}>
+                    {cat.replace(/([A-Z])/g, ' $1').trim()}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Category foods view */}
+          {selectedCategory && categoryFoods.length > 0 && !selected && (
+            <div>
+              <button onClick={goBackFromCategory} style={{ marginBottom:12, background:'none', border:'none', color:'var(--primary)', fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>← Back</button>
+              <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:12, textTransform:'capitalize' }}>{selectedCategory.replace(/([A-Z])/g, ' $1').trim()}</div>
+              <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden', boxShadow:'0 4px 16px rgba(0,0,0,0.06)', maxHeight:'400px', overflowY:'auto' }}>
+                {categoryFoods.map((f,i) => <FoodRow key={i} food={f} onSelect={selectFood}/>)}
+              </div>
+            </div>
+          )}
+
           {/* Favourites section */}
-          {!query && !selected && favs.length>0 && (
+          {!query && !selected && !selectedCategory && favs.length>0 && (
             <div style={{ marginBottom:20 }}>
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
                 <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', display:'flex', alignItems:'center', gap:6 }}><StarIcon size={14} color='var(--muted)'/> Favourites</div>
@@ -289,7 +329,7 @@ export default function LogPage() {
           )}
 
           {/* Recent history */}
-          {!query && !selected && history.length>0 && (
+          {!query && !selected && !selectedCategory && history.length>0 && (
             <div style={{ marginBottom:20 }}>
               <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:10, display:'flex', alignItems:'center', gap:6 }}><ClockIcon size={14} color='var(--muted)'/> Recent</div>
               <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden' }}>
@@ -298,10 +338,10 @@ export default function LogPage() {
             </div>
           )}
 
-          {!query && !selected && history.length===0 && favs.length===0 && (
+          {!query && !selected && !selectedCategory && history.length===0 && favs.length===0 && (
             <div style={{ textAlign:'center', padding:'40px 0', color:'var(--muted)' }}>
               <div style={{ width:64, height:64, background:'var(--primary-bg)', borderRadius:'50%', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}><SaladIcon size={32} color='var(--primary)'/></div>
-              <p style={{ fontWeight:600, fontSize:15, marginBottom:6 }}>Search any food</p>
+              <p style={{ fontWeight:600, fontSize:15, marginBottom:6 }}>Browse categories or search</p>
               <p style={{ fontSize:13 }}>egg, chicken, rice, dal, roti, dosa…</p>
               <p style={{ fontSize:12, color:'var(--muted)', marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:6 }}><StarIcon size={14} color='var(--muted)'/> Star foods to add to favourites</p>
             </div>

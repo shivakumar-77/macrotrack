@@ -88,16 +88,28 @@ export default function LogPage() {
     setCategoryFoods(FOOD_DATABASE[catName] || [])
     setQuery('')
     setShowAllCategories(false)
+    setSelectedDiet(null)
   }
 
   function goBackFromCategory() {
     setSelectedCategory(null)
     setCategoryFoods([])
+    setSelectedDiet(null)
   }
 
   const mainCategories = ['fruits', 'vegetables', 'indianCurries', 'chicken', 'eggs', 'dairy']
   const allCategories = Object.keys(FOOD_DATABASE)
   const remainingCategories = allCategories.filter(cat => !mainCategories.includes(cat))
+
+  function filterByDiet(foods) {
+    if (!selectedDiet) return foods
+    return foods.filter(f => {
+      if (selectedDiet === 'Veg') return !['chicken', 'mutton', 'fish', 'seafood'].includes(selectedCategory)
+      if (selectedDiet === 'Protein') return f.protein >= 20
+      if (selectedDiet === 'Low Cal') return f.cal <= 150
+      return true
+    })
+  }
 
   function toggleFav(food) {
     const added = saveFav({ ...food, baseQty: food.baseQty||100 })
@@ -334,8 +346,26 @@ export default function LogPage() {
             <div>
               <button onClick={goBackFromCategory} style={{ marginBottom:12, background:'none', border:'none', color:'var(--primary)', fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>← Back</button>
               <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:12, textTransform:'capitalize' }}>{selectedCategory.replace(/([A-Z])/g, ' $1').trim()}</div>
+              
+              {/* Diet filter when viewing category */}
+              <div style={{ marginBottom:12 }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Filter by diet</div>
+                <div style={{ display:'flex', gap:6 }}>
+                  {['Veg', 'Protein', 'Low Cal'].map((diet) => (
+                    <button key={diet} onClick={() => setSelectedDiet(selectedDiet === diet ? null : diet)}
+                      style={{ padding:'8px 12px', borderRadius:99, background:selectedDiet===diet?'var(--primary)':'var(--primary-bg)', border:'1.5px solid '+(selectedDiet===diet?'var(--primary)':'var(--border)'), cursor:'pointer', fontSize:12, fontWeight:600, color:selectedDiet===diet?'#fff':'var(--primary)', whiteSpace:'nowrap' }}>
+                      {diet}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden', boxShadow:'0 4px 16px rgba(0,0,0,0.06)', maxHeight:'400px', overflowY:'auto' }}>
-                {categoryFoods.map((f,i) => <FoodRow key={i} food={f} onSelect={selectFood}/>)}
+                {filterByDiet(categoryFoods).length > 0 ? (
+                  filterByDiet(categoryFoods).map((f,i) => <FoodRow key={i} food={f} onSelect={selectFood}/>)
+                ) : (
+                  <div style={{ padding:'20px', textAlign:'center', color:'var(--muted)', fontSize:13 }}>No foods match your diet filter</div>
+                )}
               </div>
             </div>
           )}

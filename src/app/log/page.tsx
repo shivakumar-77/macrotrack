@@ -88,7 +88,6 @@ export default function LogPage() {
     setCategoryFoods(FOOD_DATABASE[catName] || [])
     setQuery('')
     setShowAllCategories(false)
-    setSelectedDiet(null)
   }
 
   function goBackFromCategory() {
@@ -323,19 +322,6 @@ export default function LogPage() {
                     style={{ padding:'8px 12px', borderRadius:99, background:'transparent', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--muted)', whiteSpace:'nowrap', flexShrink:0 }}>
                     {showAllCategories ? '↑' : '▼'} More
                   </button>
-                </div>
-              </div>
-
-              {/* Diet Filter Row */}
-              <div>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Diet</div>
-                <div style={{ display:'flex', gap:6 }}>
-                  {['Veg', 'Protein', 'Low Cal'].map((diet) => (
-                    <button key={diet} onClick={() => setSelectedDiet(selectedDiet === diet ? null : diet)}
-                      style={{ padding:'8px 12px', borderRadius:99, background:selectedDiet===diet?'var(--primary)':'var(--primary-bg)', border:'1.5px solid '+(selectedDiet===diet?'var(--primary)':'var(--border)'), cursor:'pointer', fontSize:12, fontWeight:600, color:selectedDiet===diet?'#fff':'var(--primary)', whiteSpace:'nowrap' }}>
-                      {diet}
-                    </button>
-                  ))}
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { IconByName } from '@/lib/icons'
 
 export default function CaloriesPage() {
   const router = useRouter()
@@ -114,7 +115,9 @@ export default function CaloriesPage() {
             { label: 'On target', val: daysOnTarget, color: '#f59e0b', icon: 'TargetIcon' },
           ].map(s => (
             <div key={s.label} className="card" style={{ padding: '12px 10px', textAlign: 'center' }}>
-              <div style={{ fontSize: 20, marginBottom: 4 }}>{s.icon}</div>
+              <div style={{ fontSize: 20, marginBottom: 4, display: 'flex', justifyContent: 'center' }}>
+                <IconByName name={s.icon} size={20} color={s.color} />
+              </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: s.color }}>{s.val}</div>
               <div style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>{s.label}</div>
             </div>

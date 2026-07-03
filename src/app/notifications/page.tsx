@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { IconByName } from '@/lib/icons'
 
 const DEFAULT_REMINDERS = [
   { id: 'breakfast', label: 'Breakfast reminder', icon: 'SunriseIcon', time: '08:00', enabled: true, url: '/log' },
@@ -136,8 +137,8 @@ export default function NotificationsPage() {
         {/* Permission card */}
         <div className="card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 16, background: permission === 'granted' ? '#d1fae5' : '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>
-              {permission === 'granted' ? 'CheckIcon' : 'BellIcon'}
+            <div style={{ width: 48, height: 48, borderRadius: 16, background: permission === 'granted' ? '#d1fae5' : '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {permission === 'granted' ? <IconByName name="CheckIcon" size={22} color="#059669" /> : <IconByName name="BellIcon" size={22} color="#d97706" />}
             </div>
             <div>
               <div style={{ fontWeight: 700, fontSize: 15 }}>
@@ -166,8 +167,8 @@ export default function NotificationsPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {reminders.map((r, i) => (
               <div key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 0', borderBottom: i < reminders.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: r.enabled ? 'var(--primary-bg)' : 'var(--card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0, transition: 'background 0.2s' }}>
-                  {r.icon}
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: r.enabled ? 'var(--primary-bg)' : 'var(--card2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'background 0.2s' }}>
+                  <IconByName name={r.icon} size={20} color={r.enabled ? 'var(--primary)' : 'var(--muted)'} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 600, fontSize: 14, color: r.enabled ? 'var(--text)' : 'var(--muted)' }}>{r.label}</div>

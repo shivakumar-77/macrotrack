@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import { IconByName } from '@/lib/icons'
 
 const MEASUREMENTS = [
   { key: 'waist', label: 'Waist', icon: 'RulerIcon', color: '#6366f1' },
@@ -131,7 +132,10 @@ export default function MeasurementsPage() {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
             {MEASUREMENTS.map(m => (
               <div key={m.key}>
-                <div style={{ fontSize:11, fontWeight:700, color:m.color, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:6 }}>{m.icon} {m.label}</div>
+                <div style={{ fontSize:11, fontWeight:700, color:m.color, textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:6, display:'flex', alignItems:'center', gap:6 }}>
+                  <IconByName name={m.icon} size={14} color={m.color} />
+                  <span>{m.label}</span>
+                </div>
                 <input type="text" inputMode="decimal" placeholder="cm" value={form[m.key]}
                   onChange={e => setForm(p => ({ ...p, [m.key]: e.target.value }))}/>
               </div>

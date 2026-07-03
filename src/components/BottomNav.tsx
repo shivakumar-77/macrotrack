@@ -12,18 +12,22 @@ const NAV = [
 
 export default function BottomNav() {
   const router = useRouter()
-  const path = usePathname()
+  const path = usePathname() || '/'
 
   return (
-    <nav className="bottom-nav">
+    <nav className="bottom-nav" aria-label="Bottom navigation">
       {NAV.map(({ href, label, Icon }) => {
-        const active = path === href || (href !== '/dashboard' && path?.startsWith(href))
+        const active = href === '/dashboard'
+          ? path === '/' || path === '/dashboard' || path.startsWith('/dashboard')
+          : path === href || path.startsWith(href)
+
         return (
           <button
             key={href}
             className={`nav-item press-effect${active ? ' active' : ''}`}
             onClick={() => router.push(href)}
             aria-label={label}
+            aria-current={active ? 'page' : undefined}
           >
             <Icon size={24} strokeWidth={active ? 2.2 : 1.8}/>
             <span style={{ fontSize: 9.5, fontWeight: active ? 600 : 400, marginTop: 1, letterSpacing: '0.02em' }}>

@@ -201,16 +201,16 @@ export default function LogPage() {
     const starred = favNames.has(food.name)
     return (
       <div style={{ display:'flex', alignItems:'center', borderBottom:'1px solid var(--border)' }}>
-        <button onClick={() => onSelect(food)} style={{ flex:1, padding:'14px 16px', textAlign:'left', background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <button onClick={() => onSelect(food)} style={{ flex:1, padding:'12px 14px', textAlign:'left', background:'none', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
           <div>
             <div style={{ fontWeight:600, fontSize:14 }}>{food.name}</div>
-            <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>per {food.baseQty||100}{food.unit} · <strong style={{ color:'var(--primary)' }}>{food.cal} kcal</strong> · {food.protein}g P</div>
+            <div style={{ fontSize:11, color:'var(--muted)', marginTop:2 }}>per {food.baseQty||100}{food.unit} · <strong style={{ color:'var(--primary)' }}>{food.cal} kcal</strong> · {food.protein}g P</div>
           </div>
         </button>
         {showStar && (
           <button onClick={() => toggleFav(food)}
-            style={{ padding:'14px 16px 14px 0', background:'none', border:'none', cursor:'pointer', width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-            <StarIcon size={20} color={starred?'#f59e0b':'var(--muted)'} strokeWidth={starred?2.5:1.8}/>
+            style={{ padding:'12px 14px 12px 0', background:'none', border:'none', cursor:'pointer', width:32, height:32, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <StarIcon size={18} color={starred?'#f59e0b':'var(--muted)'} strokeWidth={starred?2.5:1.8}/>
           </button>
         )}
       </div>
@@ -258,16 +258,16 @@ export default function LogPage() {
       {/* SEARCH TAB */}
       {tab==='search' && (
         <div>
-          <div style={{ position:'relative', marginBottom:14 }}>
-            <input type="text" placeholder="Search food — egg, chicken, dosa, dal…" value={query} onChange={e => onQueryChange(e.target.value)} autoFocus/>
+          <div style={{ position:'relative', marginBottom:16 }}>
+            <input type="text" placeholder="Search food — egg, chicken, dosa, dal…" value={query} onChange={e => onQueryChange(e.target.value)} autoFocus style={{ padding:'16px 18px', fontSize:16, fontWeight:500 }}/>
             {query && <button onClick={() => { setQuery(''); setResults([]); setSelected(null) }}
-              style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'var(--muted)', cursor:'pointer', fontSize:18 }}>×</button>}
+              style={{ position:'absolute', right:16, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', color:'var(--muted)', cursor:'pointer', fontSize:20, padding:0, width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center' }}>×</button>}
           </div>
 
           {/* Search results */}
           {results.length>0 && !selected && (
-            <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 16px rgba(0,0,0,0.06)' }}>
-              {results.map((r,i) => <FoodRow key={i} food={r} onSelect={selectFood}/>)}
+            <div style={{ background:'var(--card)', border:'1.5px solid var(--border)', borderRadius:16, overflow:'hidden', marginBottom:16, boxShadow:'0 4px 16px rgba(0,0,0,0.06)', maxHeight:'320px', overflowY:'auto' }}>
+              {results.slice(0, 6).map((r,i) => <FoodRow key={i} food={r} onSelect={selectFood}/>)}
             </div>
           )}
 
@@ -482,10 +482,10 @@ export default function LogPage() {
         <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
           <div>
             <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.05em' }}>Food name</div>
-            <div style={{ display:'flex', gap:8 }}>
+            <div style={{ display:'flex', gap:8, alignItems:'flex-end' }}>
               <input type="text" placeholder="e.g. Chicken tikka…" value={manual.name} onChange={e => setManual(p=>({...p,name:e.target.value}))} style={{ flex:1 }}/>
-              <button className="btn btn-ghost" style={{ flexShrink:0, padding:'12px 16px', fontSize:13 }} disabled={!manual.name||searching} onClick={autoFill}>
-                {searching?'…':'Auto-fill'}
+              <button style={{ flexShrink:0, padding:'11px 12px', fontSize:12, fontWeight:600, borderRadius:10, background:'var(--primary)', color:'#fff', border:'none', cursor:'pointer', height:44, display:'flex', alignItems:'center', justifyContent:'center', transition:'opacity 0.2s' }} disabled={!manual.name||searching} onClick={autoFill} title="Auto-fill nutrients from food database">
+                {searching?'…':'Fill'}
               </button>
             </div>
           </div>

@@ -43,6 +43,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   else if(t==='light')d.setAttribute('data-theme','light');
   else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)d.setAttribute('data-theme','dark');
 })();`}}/>
+        {/* Inject public env into window for client-side libs */}
+        <script dangerouslySetInnerHTML={{ __html: `
+window.__env = {
+  NEXT_PUBLIC_SUPABASE_URL: "${process.env.NEXT_PUBLIC_SUPABASE_URL || ''}",
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: "${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}"
+};
+`}}/>
       </head>
       <body>
         <ThemeProvider>

@@ -15,8 +15,13 @@ const getClient = () => {
   }
   
   try {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+    // Read from build-time env; fall back to window.__env injected by root layout
+    let url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+    let key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+    if ((!url || !key) && typeof window !== 'undefined' && (window as any).__env) {
+      url = url || (window as any).__env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+      key = key || (window as any).__env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim()
+    }
     
     // Debug logging
     console.log('[Supabase] Init attempt', {

@@ -32,6 +32,15 @@ function scale(food, qty) {
   return { ...food, qty, cal:Math.round(food.cal*r), protein:Math.round(food.protein*r*10)/10, carb:Math.round(food.carb*r*10)/10, fat:Math.round(food.fat*r*10)/10, fiber:Math.round((food.fiber||0)*r*10)/10 }
 }
 
+
+const FOOD_CATS = [
+  'All','Fruits','Vegetables','Leafy Vegetables','Indian Curries',
+  'Dal & Legumes','Rice Dishes','Breads','Breakfast','Snacks',
+  'Fast Food','South Indian','North Indian','Chinese','Desserts',
+  'Beverages','Protein Powders','Dairy','Eggs','Chicken','Mutton',
+  'Fish','Seafood','Nuts','Seeds','Oils','Bakery','Packaged Foods'
+]
+
 export default function LogPage() {
   const router = useRouter()
   const [tab, setTab] = useState('search')

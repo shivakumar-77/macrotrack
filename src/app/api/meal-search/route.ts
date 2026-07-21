@@ -1,43 +1,74 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 
-import { ALL_FOODS } from '@/lib/foodDatabase'
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+)
 
-const FOODS = ALL_FOODS
+export async function GET(req: NextRequest) {
+  const q = req.nextUrl.searchParams.get('q') || ''
+  const cat = req.nextUrl.searchParams.get('cat') || ''
+  const page = parseInt(req.nextUrl.searchParams.get('page') || '0')
+  const limit = 20
 
-function findMatches(query) {
-  const q = query.toLowerCase().trim()
-  if (q.length < 2) return []
-  return FOODS.map(f => {
-    const name = f.name.toLowerCase(); let score = 0
-    if (name === q) score = 10
-    else if (name.startsWith(q)) score = 8
-    else if (name.includes(q)) score = 5
-    else {
-      const qw = q.split(' '), nw = name.split(' ')
-      const m = qw.filter(w => nw.some(n => n.startsWith(w)))
-      if (m.length === qw.length) score = 6
-      else if (m.length > 0) score = m.length * 2
-    }
-    return { ...f, score }
-  }).filter(f => f.score > 0).sort((a, b) => b.score - a.score).slice(0, 8)
-}
+  if (!q && !cat) return NextResponse.json({ results: [] })
 
-export async function POST(req) {
   try {
-    const { query } = await req.json()
-    if (!query) return NextResponse.json({ results: [] })
-    const matches = findMatches(query)
-    if (matches.length > 0) return NextResponse.json({ results: matches })
-    const res = await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=5`)
-    const data = await res.json()
-    const products = (data.products ?? []).filter(p => p.nutriments && p.product_name).slice(0, 5).map(p => ({
-      name: p.product_name, cal: Math.round(p.nutriments['energy-kcal_100g'] ?? 0),
-      protein: Math.round((p.nutriments.proteins_100g ?? 0) * 10) / 10,
-      carb: Math.round((p.nutriments.carbohydrates_100g ?? 0) * 10) / 10,
-      fat: Math.round((p.nutriments.fat_100g ?? 0) * 10) / 10,
-      fiber: Math.round((p.nutriments.fiber_100g ?? 0) * 10) / 10,
-      unit: 'g', baseQty: 100
-    }))
-    return NextResponse.json({ results: products })
-  } catch (e) { return NextResponse.json({ error: e.message }, { status: 500 }) }
+    let query = supabase
+      .from('foods')
+      .select('id,name,name_local,category,cal,protein,carb,fat,fiber,serving_size,serving_unit,brand,is_indian')
+      .range(page * limit, (page + 1) * limit - 1)
+
+    if (q) {
+      // Full text search + name_local for Indian names
+      query = query.or(`name.ilike.%${q}%,name_local.ilike.%${q}%`)
+    }
+    if (cat) {
+      query = query.eq('category', cat)
+    }
+
+    query = query.order('is_indian', { ascending: false }).order('name')
+
+    const { data: localResults, error } = await query
+
+    let combined: any[] = localResults || []
+
+    // If fewer than 10 local results and has query, also fetch OpenFoodFacts
+    if (q && combined.length < 10) {
+      try {
+        const offRes = await fetch(
+          `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(q)}&search_simple=1&action=process&json=1&page_size=10&fields=product_name,nutriments,serving_size,brands`,
+          { signal: AbortSignal.timeout(3000) }
+        )
+        if (offRes.ok) {
+          const offData = await offRes.json()
+          const offFoods = (offData.products || [])
+            .filter((p: any) => p.product_name && p.nutriments?.['energy-kcal_100g'])
+            .slice(0, 10)
+            .map((p: any) => ({
+              id: 'off_' + p.code,
+              name: p.product_name,
+              name_local: null,
+              category: 'Packaged Foods',
+              brand: p.brands || null,
+              cal: Math.round(p.nutriments['energy-kcal_100g'] || 0),
+              protein: Math.round((p.nutriments['proteins_100g'] || 0) * 10) / 10,
+              carb: Math.round((p.nutriments['carbohydrates_100g'] || 0) * 10) / 10,
+              fat: Math.round((p.nutriments['fat_100g'] || 0) * 10) / 10,
+              fiber: Math.round((p.nutriments['fiber_100g'] || 0) * 10) / 10,
+              serving_size: 100,
+              serving_unit: 'g',
+              is_indian: false,
+              source: 'openfoodfacts'
+            }))
+          combined = [...combined, ...offFoods]
+        }
+      } catch {}
+    }
+
+    return NextResponse.json({ results: combined, page, hasMore: (localResults?.length || 0) === limit })
+  } catch (err) {
+    return NextResponse.json({ results: [], error: 'Search failed' }, { status: 500 })
+  }
 }

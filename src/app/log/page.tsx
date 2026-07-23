@@ -32,6 +32,13 @@ function scale(food, qty) {
   return { ...food, qty, cal:Math.round(food.cal*r), protein:Math.round(food.protein*r*10)/10, carb:Math.round(food.carb*r*10)/10, fat:Math.round(food.fat*r*10)/10, fiber:Math.round((food.fiber||0)*r*10)/10 }
 }
 
+// The /api/meal-search route returns serving_size/serving_unit (Supabase + OpenFoodFacts field names);
+// the rest of this file expects baseQty/unit. This normalizes API results to match, without touching
+// food objects that already come from FOOD_DATABASE/history/favourites (which already use baseQty/unit).
+function normalizeFood(f) {
+  return { ...f, baseQty: f.serving_size ?? f.baseQty ?? 100, unit: f.serving_unit ?? f.unit ?? 'g' }
+}
+
 
 const FOOD_CATS = [
   'All','Fruits','Vegetables','Leafy Vegetables','Indian Curries',
@@ -84,9 +91,9 @@ export default function LogPage() {
   async function searchFood(q) {
     setSearching(true)
     try {
-      const res = await fetch('/api/meal-search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query:q}) })
+      const res = await fetch('/api/meal-search?q=' + encodeURIComponent(q))
       const data = await res.json()
-      setResults(data.results ?? [])
+      setResults((data.results ?? []).map(normalizeFood))
     } catch { setResults([]) } finally { setSearching(false) }
   }
 
@@ -160,10 +167,10 @@ export default function LogPage() {
   async function autoFill() {
     if (!manual.name) return; setSearching(true)
     try {
-      const res = await fetch('/api/meal-search', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({query:manual.name}) })
+      const res = await fetch('/api/meal-search?q=' + encodeURIComponent(manual.name))
       const data = await res.json()
       if (data.results?.[0]) {
-        const f = data.results[0]
+        const f = normalizeFood(data.results[0])
         setManual(p => ({ ...p, cal:String(f.cal), protein:String(f.protein), carb:String(f.carb), fat:String(f.fat), fiber:String(f.fiber||0), unit:f.unit, qty:String(f.baseQty) }))
       }
     } catch {} finally { setSearching(false) }

@@ -39,6 +39,15 @@ function normalizeFood(f) {
   return { ...f, baseQty: f.serving_size ?? f.baseQty ?? 100, unit: f.serving_unit ?? f.unit ?? 'g' }
 }
 
+// Searches your local 500+ item FOOD_DATABASE directly (categories -> arrays of foods).
+// No network/Supabase dependency, so it works even if the API route or its table is broken.
+function searchLocalDatabase(q) {
+  const needle = q.trim().toLowerCase()
+  if (!needle) return []
+  const all = Object.values(FOOD_DATABASE).flat()
+  return all.filter(f => f && f.name && f.name.toLowerCase().includes(needle)).slice(0, 20)
+}
+
 
 const FOOD_CATS = [
   'All','Fruits','Vegetables','Leafy Vegetables','Indian Curries',
@@ -90,11 +99,17 @@ export default function LogPage() {
 
   async function searchFood(q) {
     setSearching(true)
+    const local = searchLocalDatabase(q)
+    setResults(local) // show instantly — no network wait, no dependency on the API/Supabase working
     try {
       const res = await fetch('/api/meal-search?q=' + encodeURIComponent(q))
       const data = await res.json()
-      setResults((data.results ?? []).map(normalizeFood))
-    } catch { setResults([]) } finally { setSearching(false) }
+      const apiResults = (data.results ?? []).map(normalizeFood)
+      const localNames = new Set(local.map(f => (f.name||'').toLowerCase()))
+      setResults([...local, ...apiResults.filter(f => !localNames.has((f.name||'').toLowerCase()))])
+    } catch {
+      // API failed — local results (already shown above) stay visible instead of being wiped to []
+    } finally { setSearching(false) }
   }
 
   function selectFood(food) { setSelected(food); setQty(food.baseQty||100); setResults([]); setQuery(food.name); setCategoryFoods([]) }
@@ -167,10 +182,13 @@ export default function LogPage() {
   async function autoFill() {
     if (!manual.name) return; setSearching(true)
     try {
-      const res = await fetch('/api/meal-search?q=' + encodeURIComponent(manual.name))
-      const data = await res.json()
-      if (data.results?.[0]) {
-        const f = normalizeFood(data.results[0])
+      let f = searchLocalDatabase(manual.name)[0]
+      if (!f) {
+        const res = await fetch('/api/meal-search?q=' + encodeURIComponent(manual.name))
+        const data = await res.json()
+        if (data.results?.[0]) f = normalizeFood(data.results[0])
+      }
+      if (f) {
         setManual(p => ({ ...p, cal:String(f.cal), protein:String(f.protein), carb:String(f.carb), fat:String(f.fat), fiber:String(f.fiber||0), unit:f.unit, qty:String(f.baseQty) }))
       }
     } catch {} finally { setSearching(false) }

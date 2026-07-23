@@ -99,12 +99,17 @@ export default function LogPage() {
 
   async function searchFood(q) {
     setSearching(true)
+    const needle = q.trim().toLowerCase()
     const local = searchLocalDatabase(q)
     setResults(local) // show instantly — no network wait, no dependency on the API/Supabase working
     try {
       const res = await fetch('/api/meal-search?q=' + encodeURIComponent(q))
       const data = await res.json()
-      const apiResults = (data.results ?? []).map(normalizeFood)
+      const apiResults = (data.results ?? [])
+        .map(normalizeFood)
+        // OpenFoodFacts (the API's fallback source) does a fuzzy/tag search and can return items
+        // that don't actually contain the search term in their name — filter those out.
+        .filter(f => f.name && f.name.toLowerCase().includes(needle))
       const localNames = new Set(local.map(f => (f.name||'').toLowerCase()))
       setResults([...local, ...apiResults.filter(f => !localNames.has((f.name||'').toLowerCase()))])
     } catch {
@@ -182,11 +187,14 @@ export default function LogPage() {
   async function autoFill() {
     if (!manual.name) return; setSearching(true)
     try {
+      const needle = manual.name.trim().toLowerCase()
       let f = searchLocalDatabase(manual.name)[0]
       if (!f) {
         const res = await fetch('/api/meal-search?q=' + encodeURIComponent(manual.name))
         const data = await res.json()
-        if (data.results?.[0]) f = normalizeFood(data.results[0])
+        const candidate = data.results?.[0] ? normalizeFood(data.results[0]) : null
+        // Same relevance guard as search — don't silently fill in a loosely-matched food's macros
+        if (candidate && candidate.name && candidate.name.toLowerCase().includes(needle)) f = candidate
       }
       if (f) {
         setManual(p => ({ ...p, cal:String(f.cal), protein:String(f.protein), carb:String(f.carb), fat:String(f.fat), fiber:String(f.fiber||0), unit:f.unit, qty:String(f.baseQty) }))

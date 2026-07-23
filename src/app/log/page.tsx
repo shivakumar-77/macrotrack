@@ -22,6 +22,10 @@ function saveFav(item) {
   favs.unshift(item); localStorage.setItem(FAVS_KEY, JSON.stringify(favs.slice(0,30))); return true
 }
 function isFav(name) { return getFavs().some(f => f.name === name) }
+function formatCatName(cat) {
+  const spaced = cat.replace(/([A-Z])/g, ' $1').trim()
+  return spaced.charAt(0).toUpperCase() + spaced.slice(1)
+}
 function getHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]') } catch { return [] } }
 function saveHistory(item) {
   const h = getHistory().filter(i => i.name !== item.name)
@@ -132,7 +136,7 @@ export default function LogPage() {
     setSelectedDiet(null)
   }
 
-  const mainCategories = ['fruits', 'vegetables', 'indianCurries', 'chicken', 'eggs', 'dairy']
+  const mainCategories = ['fruits', 'vegetables', 'indianCurries', 'breads', 'chicken']
   const allCategories = Object.keys(FOOD_DATABASE)
   const remainingCategories = allCategories.filter(cat => !mainCategories.includes(cat))
 
@@ -347,23 +351,48 @@ export default function LogPage() {
 
           {searching && <p style={{ color:'var(--muted)', fontSize:13, textAlign:'center', padding:'16px 0' }}>Searching…</p>}
 
-          {/* Categories & Diet Filter */}
+          {/* Categories quick row */}
           {!query && !selected && !selectedCategory && (
             <div style={{ marginBottom:16 }}>
-              {/* Categories Row */}
               <div style={{ marginBottom:12 }}>
                 <div style={{ fontSize:11, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.06em', marginBottom:8 }}>Categories</div>
                 <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:4 }}>
                   {mainCategories.map((cat) => (
                     <button key={cat} onClick={() => selectCategory(cat)}
                       style={{ padding:'8px 14px', borderRadius:99, background:'var(--primary-bg)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--primary)', whiteSpace:'nowrap', flexShrink:0, transition:'all 0.2s' }}>
-                      {cat.replace(/([A-Z])/g, ' $1').trim()}
+                      {formatCatName(cat)}
                     </button>
                   ))}
-                  <button onClick={() => setShowAllCategories(!showAllCategories)}
-                    style={{ padding:'8px 12px', borderRadius:99, background:'transparent', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:12, fontWeight:600, color:'var(--muted)', whiteSpace:'nowrap', flexShrink:0 }}>
-                    {showAllCategories ? '↑' : '▼'} More
+                  <button onClick={() => setShowAllCategories(true)}
+                    style={{ padding:'8px 14px', borderRadius:99, background:'var(--primary)', border:'none', cursor:'pointer', fontSize:12, fontWeight:700, color:'#fff', whiteSpace:'nowrap', flexShrink:0, display:'flex', alignItems:'center', gap:5 }}>
+                    All categories
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
                   </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Categories overlay — lists all 26 categories, tap one to browse its foods */}
+          {showAllCategories && (
+            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:200, display:'flex', alignItems:'flex-end' }}>
+              <div style={{ background:'var(--surface)', width:'100%', maxWidth:430, margin:'0 auto', borderRadius:'26px 26px 0 0', maxHeight:'80dvh', display:'flex', flexDirection:'column' }}>
+                <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
+                  <div style={{ fontWeight:800, fontSize:18, color:'var(--text)' }}>All categories</div>
+                  <button onClick={() => setShowAllCategories(false)}
+                    style={{ background:'var(--card2)', border:'none', borderRadius:10, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                  </button>
+                </div>
+                <div style={{ padding:'16px 20px', overflowY:'auto', flex:1 }}>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+                    {allCategories.map(cat => (
+                      <button key={cat} onClick={() => { selectCategory(cat); setShowAllCategories(false) }}
+                        style={{ padding:'14px 12px', borderRadius:14, background:'var(--card)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:13, fontWeight:600, color:'var(--text)', textAlign:'left' }}>
+                        {formatCatName(cat)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -373,7 +402,7 @@ export default function LogPage() {
           {selectedCategory && categoryFoods.length > 0 && !selected && (
             <div>
               <button onClick={goBackFromCategory} style={{ marginBottom:12, background:'none', border:'none', color:'var(--primary)', fontSize:13, fontWeight:600, cursor:'pointer', display:'flex', alignItems:'center', gap:4 }}>← Back</button>
-              <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:12, textTransform:'capitalize' }}>{selectedCategory.replace(/([A-Z])/g, ' $1').trim()}</div>
+              <div style={{ fontSize:14, fontWeight:700, color:'var(--text)', marginBottom:12 }}>{formatCatName(selectedCategory)}</div>
               
               {/* Diet filter when viewing category */}
               <div style={{ marginBottom:12 }}>

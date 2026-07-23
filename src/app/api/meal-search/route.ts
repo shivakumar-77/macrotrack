@@ -32,6 +32,12 @@ export async function GET(req: NextRequest) {
 
     const { data: localResults, error } = await query
 
+    // TEMP DEBUG: surface the real Supabase error instead of silently swallowing it.
+    // Remove the debug_supabase_error field once search is confirmed working.
+    if (error) {
+      console.error('meal-search: Supabase query error:', error)
+    }
+
     let combined: any[] = localResults || []
 
     // If fewer than 10 local results and has query, also fetch OpenFoodFacts
@@ -67,8 +73,14 @@ export async function GET(req: NextRequest) {
       } catch {}
     }
 
-    return NextResponse.json({ results: combined, page, hasMore: (localResults?.length || 0) === limit })
+    return NextResponse.json({
+      results: combined,
+      page,
+      hasMore: (localResults?.length || 0) === limit,
+      ...(error ? { debug_supabase_error: error.message, debug_supabase_code: error.code } : {})
+    })
   } catch (err) {
-    return NextResponse.json({ results: [], error: 'Search failed' }, { status: 500 })
+    console.error('meal-search: unexpected error:', err)
+    return NextResponse.json({ results: [], error: 'Search failed', debug: String(err) }, { status: 500 })
   }
 }

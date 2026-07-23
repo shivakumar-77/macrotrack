@@ -25,7 +25,13 @@ export default function BottomNav() {
   const [ripples, setRipples] = useState({})
 
   useEffect(() => {
-    const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+    if (typeof navigator === 'undefined') return
+    // Prefer the structured Client Hints API when the browser exposes it (most current Android Chrome) —
+    // more robust than string-sniffing since UA strings are increasingly frozen/reduced by browsers.
+    const uaDataPlatform = navigator.userAgentData?.platform || ''
+    if (/android/i.test(uaDataPlatform)) { setPlatform('android'); return }
+    if (/ios|iphone|ipad/i.test(uaDataPlatform)) { setPlatform('ios'); return }
+    const ua = navigator.userAgent || ''
     if (/Android/i.test(ua)) setPlatform('android')
     else if (/iPhone|iPad|iPod/i.test(ua)) setPlatform('ios')
   }, [])

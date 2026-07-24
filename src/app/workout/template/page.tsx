@@ -183,7 +183,7 @@ export default function TemplatePage() {
       </div>
 
       {showPicker&&(
-        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:200, display:'flex', alignItems:'flex-end' }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:2000, display:'flex', alignItems:'flex-end' }}>
           <div className="t-sheet-up" style={{ background:'var(--surface)', width:'100%', maxWidth:430, margin:'0 auto', borderRadius:'26px 26px 0 0', maxHeight:'80dvh', display:'flex', flexDirection:'column' }}>
             <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
               <div style={{ fontWeight:800, fontSize:18, color:'var(--text)' }}>Add Exercise</div>

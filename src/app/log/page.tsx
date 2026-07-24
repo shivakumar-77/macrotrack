@@ -373,9 +373,9 @@ export default function LogPage() {
             </div>
           )}
 
-          {/* Categories overlay — lists all 26 categories, tap one to browse its foods */}
+          {/* Categories overlay — dropdown-style list of all 26 categories */}
           {showAllCategories && (
-            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:200, display:'flex', alignItems:'flex-end' }}>
+            <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:2000, display:'flex', alignItems:'flex-end' }}>
               <div style={{ background:'var(--surface)', width:'100%', maxWidth:430, margin:'0 auto', borderRadius:'26px 26px 0 0', maxHeight:'80dvh', display:'flex', flexDirection:'column' }}>
                 <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
                   <div style={{ fontWeight:800, fontSize:18, color:'var(--text)' }}>All categories</div>
@@ -384,15 +384,14 @@ export default function LogPage() {
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
                   </button>
                 </div>
-                <div style={{ padding:'16px 20px', overflowY:'auto', flex:1 }}>
-                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-                    {allCategories.map(cat => (
-                      <button key={cat} onClick={() => { selectCategory(cat); setShowAllCategories(false) }}
-                        style={{ padding:'14px 12px', borderRadius:14, background:'var(--card)', border:'1.5px solid var(--border)', cursor:'pointer', fontSize:13, fontWeight:600, color:'var(--text)', textAlign:'left' }}>
-                        {formatCatName(cat)}
-                      </button>
-                    ))}
-                  </div>
+                <div style={{ overflowY:'auto', flex:1, paddingBottom:'calc(env(safe-area-inset-bottom,0px) + 8px)' }}>
+                  {allCategories.map((cat, i) => (
+                    <button key={cat} onClick={() => { selectCategory(cat); setShowAllCategories(false) }}
+                      style={{ width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between', padding:'15px 20px', background:'none', border:'none', borderBottom: i < allCategories.length - 1 ? '1px solid var(--border)' : 'none', cursor:'pointer', textAlign:'left' }}>
+                      <span style={{ fontSize:14, fontWeight:600, color:'var(--text)' }}>{formatCatName(cat)}</span>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>

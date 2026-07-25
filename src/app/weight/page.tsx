@@ -11,6 +11,32 @@ function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); retu
 function startOfWeek(d) { const r = new Date(d); r.setDate(r.getDate() - r.getDay()); return r }
 function fmtDate(d, opts) { return new Date(d + 'T12:00:00').toLocaleDateString('en-IN', opts) }
 
+// ── small inline icons (kept local — no new icon-library dependency) ────────
+const IconX = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
+)
+const IconPlus = ({ size = 22, color = '#fff' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+)
+const IconCheck = ({ size = 22 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+)
+const IconDroplet = ({ size = 20, color = 'var(--primary)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2.5s6.5 7.4 6.5 12A6.5 6.5 0 1 1 5.5 14.5C5.5 9.9 12 2.5 12 2.5Z" /></svg>
+)
+const IconMuscle = ({ size = 20, color = 'var(--primary)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M6.5 12h11" /><rect x="4" y="8" width="3" height="8" rx="1" /><rect x="17" y="8" width="3" height="8" rx="1" /></svg>
+)
+const IconCamera = ({ size = 20, color = 'var(--primary)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" /><circle cx="12" cy="13" r="4" /></svg>
+)
+const IconRuler = ({ size = 20, color = 'var(--primary)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="8" width="20" height="8" rx="1.5" /><path d="M6 8v3M10 8v3M14 8v3M18 8v3" /></svg>
+)
+const IconChevronRight = ({ size = 16, color = 'var(--muted)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+)
+
 export default function WeightPage() {
   const router = useRouter()
   const [logs, setLogs]           = useState([])
@@ -18,13 +44,24 @@ export default function WeightPage() {
   const [input, setInput]         = useState('')
   const [saving, setSaving]       = useState(false)
   const [msg, setMsg]             = useState('')
-  const [tab, setTab]             = useState('overview')
   const [chartView, setChartView] = useState('month')
   const [calMonth, setCalMonth]   = useState(new Date())
   const [selectedDay, setSelectedDay] = useState(null)
+  const [showLogSheet, setShowLogSheet] = useState(false)
+  const [platform, setPlatform]   = useState('ios')
   const today = toISO(new Date())
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return
+    const uaDataPlatform = navigator.userAgentData?.platform || ''
+    if (/android/i.test(uaDataPlatform)) { setPlatform('android'); return }
+    if (/ios|iphone|ipad/i.test(uaDataPlatform)) { setPlatform('ios'); return }
+    const ua = navigator.userAgent || ''
+    if (/Android/i.test(ua)) setPlatform('android')
+    else if (/iPhone|iPad|iPod/i.test(ua)) setPlatform('ios')
+  }, [])
 
   async function load() {
     const { data: { user } } = await supabase.auth.getUser()
@@ -70,10 +107,12 @@ export default function WeightPage() {
   const bmiVal   = latest && height ? parseFloat((latest.weight_kg/((height/100)**2)).toFixed(1)) : null
   const bmiCat   = bmiVal ? bmiVal < 18.5 ? 'Underweight' : bmiVal < 25 ? 'Normal' : bmiVal < 30 ? 'Overweight' : 'Obese' : null
   const bmiColor = bmiVal ? bmiVal < 18.5 ? '#3b82f6' : bmiVal < 25 ? '#10b981' : bmiVal < 30 ? '#f59e0b' : '#ef4444' : '#6366f1'
+  const isAndroid = platform === 'android'
 
   function getChartData() {
     if (chartView === 'week')  return sorted.filter(l => l.logged_at >= toISO(addDays(new Date(), -6)))
     if (chartView === 'month') return sorted.filter(l => l.logged_at >= toISO(addDays(new Date(), -29)))
+    if (chartView === 'year')  return sorted.filter(l => l.logged_at >= toISO(addDays(new Date(), -364)))
     return sorted
   }
   const chartData = getChartData()
@@ -81,7 +120,7 @@ export default function WeightPage() {
   function LineChart({ data }) {
     if (data.length < 2) return (
       <div style={{ height:180, display:'flex', alignItems:'center', justifyContent:'center', flexDirection:'column', gap:8, color:'var(--muted)' }}>
-        <div style={{ fontSize:32 }}>📊</div>
+        <ChartBarIcon size={28} color="var(--muted)"/>
         <div style={{ fontSize:13 }}>Log at least 2 entries</div>
       </div>
     )
@@ -297,65 +336,84 @@ export default function WeightPage() {
   }
 
   return (
-    <div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:100 }}>
+    <div style={{ background:'var(--surface)', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:120 }}>
+      <style jsx>{`
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+        @keyframes wSheetUp { from { transform:translateY(100%);} to { transform:translateY(0);} }
+        .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(.4,0,.2,1) both; }
+        .tap-scale { transition: transform 0.15s ease; }
+        .tap-scale:active { transform: scale(0.96); }
+        .w-sheet-up { animation: wSheetUp 0.3s cubic-bezier(.4,0,.2,1); }
+      `}</style>
+
+      {/* Toast — high z-index so it's visible even when the log sheet is open */}
+      {msg && (
+        <div style={{ position:'fixed', top:'calc(env(safe-area-inset-top,0px) + 16px)', left:'50%', transform:'translateX(-50%)', zIndex:3000, background: msg==='Logged!' ? '#1e293b' : '#dc2626', color:'#fff', padding:'10px 20px', borderRadius:99, fontSize:13, fontWeight:600, boxShadow:'0 4px 20px rgba(0,0,0,0.3)', whiteSpace:'nowrap' }}>
+          {msg==='Logged!' ? '✓ ' : '⚠ '}{msg}
+        </div>
+      )}
 
       {/* Header */}
-      <div style={{ display:'flex', alignItems:'center', gap:12, padding:'52px 20px 16px' }}>
-        <button onClick={() => router.back()}
-          style={{ width:38, height:38, borderRadius:12, background:'var(--card)', border:'1.5px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+      <div className="fade-in-up" style={{ display:'flex', alignItems:'center', gap:12, padding:'calc(env(safe-area-inset-top,0px) + 16px) 20px 16px' }}>
+        <button onClick={() => router.back()} className="tap-scale"
+          style={{ width:38, height:38, borderRadius:12, background:'var(--card)', border:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div>
-          <h1 style={{ fontSize:22, fontWeight:700 }}>Weight Tracker</h1>
-          <p style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>{sorted.length} entries · goal {goal} kg</p>
+          <h1 style={{ fontSize:26, fontWeight:800, letterSpacing:'-0.02em', color:'var(--text)' }}>Weight</h1>
+          <p style={{ fontSize:12, color:'var(--muted)', marginTop:2, fontWeight:500 }}>{sorted.length} entries · goal {goal} kg</p>
         </div>
       </div>
 
-      {msg && <div style={{ margin:'0 20px 12px', background:'#d1fae5', border:'1.5px solid #6ee7b7', borderRadius:12, padding:'10px 16px', fontSize:13, fontWeight:600, color:'#059669' }}>✓ {msg}</div>}
-
-      {/* Log input */}
-      <div style={{ margin:'0 20px 20px', background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)' }}>
-        <div style={{ fontSize:12, fontWeight:700, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'0.05em', marginBottom:10 }}>Log today's weight</div>
-        <div style={{ display:'flex', gap:10, alignItems:'center' }}>
-          <div style={{ flex:1, position:'relative' }}>
-            <input type="text" inputMode="decimal" placeholder="e.g. 75.5" value={input}
-              onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==='Enter' && logWeight()}
-              style={{ width:'100%', fontSize:26, fontWeight:800, color:'var(--primary)', textAlign:'center', background:'var(--primary-bg)', border:'1.5px solid var(--primary)', borderRadius:14, padding:'12px 40px 12px 12px', outline:'none' }}/>
-            <div style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', fontSize:14, color:'var(--primary)', fontWeight:700 }}>kg</div>
-          </div>
-          <button onClick={logWeight} disabled={saving}
-            style={{ width:54, height:54, borderRadius:14, background:'var(--primary)', border:'none', color:'#fff', fontSize:26, cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', opacity:saving?0.7:1 }}>
-            +
-          </button>
-        </div>
-        {latest && <div style={{ marginTop:10, fontSize:12, color:'var(--muted)', textAlign:'center' }}>Last: <strong style={{ color:'var(--text)' }}>{latest.weight_kg} kg</strong> · {fmtDate(latest.logged_at,{weekday:'short',day:'numeric',month:'short'})}</div>}
-      </div>
-
-      {/* Stats strip */}
-      <div style={{ display:'flex', gap:10, padding:'0 20px', marginBottom:20, overflowX:'auto', paddingBottom:4 }}>
+      {/* Top trio: Current / Goal / Difference */}
+      <div className="fade-in-up" style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, padding:'0 20px', marginBottom:16 }}>
         {[
-          { label:'Current', val: latest?`${latest.weight_kg} kg`:'—', color:'var(--primary)', Icon: ScaleIcon },
-          { label:'Goal', val:`${goal} kg`, color:'#10b981', Icon: TargetIcon },
-          { label:'To go', val: toGoal!==null?`${Math.abs(toGoal).toFixed(1)} kg`:'—', color: toGoal&&toGoal<=0?'#10b981':'#f59e0b', Icon: toGoal&&toGoal<=0?TrophyIcon:null, textIcon: toGoal&&toGoal>0?'📍':null },
-          { label:'Total', val: totalChg!==null?`${totalChg>0?'+':''}${totalChg} kg`:'—', color: isLosing?'#10b981':'#ef4444', Icon: isLosing?ChartDownIcon:ChartUpIcon },
-          { label:'7d avg', val: weekAvg?`${weekAvg} kg`:'—', color:'#6366f1', Icon: ChartBarIcon },
-          { label:'BMI', val: bmiVal?String(bmiVal):'—', color:bmiColor, textIcon:'🧮' },
+          { label:'Current', val: latest ? `${latest.weight_kg}` : '—', color:'var(--primary)' },
+          { label:'Goal', val: `${goal}`, color:'#10b981' },
+          { label:'Difference', val: toGoal!==null ? `${toGoal>0?'+':''}${toGoal}` : '—', color: toGoal!==null && toGoal<=0 ? '#10b981' : '#f59e0b' },
         ].map(s => (
-          <div key={s.label} style={{ flexShrink:0, background:'var(--card)', borderRadius:16, padding:'12px 14px', border:'1.5px solid var(--border)', textAlign:'center', minWidth:90, width: 'auto' }}>
-            <div style={{ width: 30, height: 30, borderRadius: 10, background:'var(--surface)', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              {s.Icon ? <s.Icon size={18} color={s.color} /> : <span style={{ fontSize:18 }}>{s.textIcon}</span>}
-            </div>
-            <div style={{ fontSize:14, fontWeight:800, color:s.color }}>{s.val}</div>
-            <div style={{ fontSize:10, color:'var(--muted)', fontWeight:600, marginTop:2, textTransform:'uppercase' }}>{s.label}</div>
+          <div key={s.label} style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:18, padding:'16px 10px', textAlign:'center', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+            <div style={{ fontSize:19, fontWeight:800, color:s.color }}>{s.val}<span style={{ fontSize:11, fontWeight:600, marginLeft:2 }}>kg</span></div>
+            <div style={{ fontSize:10, color:'var(--muted)', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.04em', marginTop:5 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* BMI bar */}
+      {/* Interactive graph — Weekly / Monthly / Yearly */}
+      <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:22, padding:'18px 16px', margin:'0 20px 14px', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:16, flexWrap:'wrap', gap:8 }}>
+          <div style={{ fontWeight:700, fontSize:16, color:'var(--text)' }}>Weight trend</div>
+          <div style={{ display:'flex', gap:2, background:'var(--card2)', borderRadius:99, padding:3 }}>
+            {[['week','Weekly'],['month','Monthly'],['year','Yearly']].map(([v,l]) => (
+              <button key={v} onClick={() => setChartView(v)} className="tap-scale"
+                style={{ padding:'6px 11px', borderRadius:99, fontSize:11, fontWeight:700, cursor:'pointer', border:'none', background:chartView===v?'var(--primary)':'transparent', color:chartView===v?'#fff':'var(--muted)', transition:'background 0.2s' }}>
+                {l}
+              </button>
+            ))}
+          </div>
+        </div>
+        <LineChart data={chartData}/>
+        {chartData.length>=2 && (
+          <div style={{ display:'flex', gap:8, marginTop:14 }}>
+            {[
+              { l:'Start', v:chartData[0].weight_kg+' kg', c:'var(--muted)' },
+              { l:'Change', v:(parseFloat((chartData[chartData.length-1].weight_kg-chartData[0].weight_kg).toFixed(1))>0?'+':'')+parseFloat((chartData[chartData.length-1].weight_kg-chartData[0].weight_kg).toFixed(1))+' kg', c:chartData[chartData.length-1].weight_kg<chartData[0].weight_kg?'#10b981':'#ef4444' },
+              { l:'Now', v:chartData[chartData.length-1].weight_kg+' kg', c:'var(--primary)' },
+            ].map(s=>(
+              <div key={s.l} style={{ flex:1, textAlign:'center', background:'var(--surface)', borderRadius:12, padding:'10px 8px', border:'1px solid var(--border)' }}>
+                <div style={{ fontSize:14, fontWeight:800, color:s.c }}>{s.v}</div>
+                <div style={{ fontSize:10, color:'var(--muted)', marginTop:2 }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* BMI card */}
       {bmiVal && (
-        <div style={{ margin:'0 20px 20px', background:'var(--card)', borderRadius:16, padding:'14px 16px', border:'1.5px solid var(--border)' }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-            <div style={{ fontWeight:700, fontSize:14 }}>BMI</div>
+        <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'16px', margin:'0 20px 14px', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:12 }}>
+            <div style={{ fontWeight:700, fontSize:15, color:'var(--text)' }}>BMI</div>
             <div style={{ fontSize:14, fontWeight:800, color:bmiColor }}>{bmiVal} — {bmiCat}</div>
           </div>
           <div style={{ height:8, background:'var(--card2)', borderRadius:4, overflow:'hidden', position:'relative' }}>
@@ -374,230 +432,269 @@ export default function WeightPage() {
         </div>
       )}
 
-      {/* Tabs */}
-      <div style={{ display:'flex', background:'var(--card2)', borderRadius:16, padding:4, margin:'0 20px 16px', border:'1.5px solid var(--border)' }}>
-        {[['overview','Overview'],['chart','Charts'],['calendar','Calendar']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)}
-            style={{ flex:1, padding:'10px', borderRadius:12, border:'none', fontSize:13, fontWeight:600, cursor:'pointer', transition:'all 0.15s', background:tab===id?'var(--primary)':'transparent', color:tab===id?'#fff':'var(--muted)', boxShadow:tab===id?'0 2px 8px rgba(99,102,241,0.3)':'none' }}>
-            {label}
-          </button>
-        ))}
+      {/* Body Fat card — not tracked yet, clearly labeled rather than faked */}
+      <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'16px', margin:'0 20px 14px', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+          <div style={{ width:34, height:34, borderRadius:10, background:'var(--primary-bg)', display:'flex', alignItems:'center', justifyContent:'center' }}><IconDroplet size={18}/></div>
+          <div style={{ fontWeight:700, fontSize:15, color:'var(--text)', flex:1 }}>Body Fat</div>
+          <div style={{ fontSize:10, fontWeight:700, color:'var(--muted)', background:'var(--card2)', padding:'3px 9px', borderRadius:99, textTransform:'uppercase', letterSpacing:'0.04em' }}>Not tracked</div>
+        </div>
+        <div style={{ fontSize:12.5, color:'var(--muted)', lineHeight:1.6 }}>Body fat % isn't logged anywhere in your data yet — needs a body-fat entry (manual or scale) to show real numbers here.</div>
       </div>
 
+      {/* Lean Mass card — depends on Body Fat, so also not available */}
+      <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'16px', margin:'0 20px 14px', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+          <div style={{ width:34, height:34, borderRadius:10, background:'var(--primary-bg)', display:'flex', alignItems:'center', justifyContent:'center' }}><IconMuscle size={18}/></div>
+          <div style={{ fontWeight:700, fontSize:15, color:'var(--text)', flex:1 }}>Lean Mass</div>
+          <div style={{ fontSize:10, fontWeight:700, color:'var(--muted)', background:'var(--card2)', padding:'3px 9px', borderRadius:99, textTransform:'uppercase', letterSpacing:'0.04em' }}>Not tracked</div>
+        </div>
+        <div style={{ fontSize:12.5, color:'var(--muted)', lineHeight:1.6 }}>Calculated from weight × (1 − body fat%) — blocked on Body Fat above being tracked first.</div>
+      </div>
+
+      {/* Progress Photos card — feature doesn't exist yet */}
+      <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'16px', margin:'0 20px 14px', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+          <div style={{ width:34, height:34, borderRadius:10, background:'var(--primary-bg)', display:'flex', alignItems:'center', justifyContent:'center' }}><IconCamera size={18}/></div>
+          <div style={{ fontWeight:700, fontSize:15, color:'var(--text)', flex:1 }}>Progress Photos</div>
+          <div style={{ fontSize:10, fontWeight:700, color:'var(--muted)', background:'var(--card2)', padding:'3px 9px', borderRadius:99, textTransform:'uppercase', letterSpacing:'0.04em' }}>Coming soon</div>
+        </div>
+        <div style={{ fontSize:12.5, color:'var(--muted)', lineHeight:1.6 }}>Photo upload and storage aren't wired up in the app yet — no table or upload flow exists for this today.</div>
+      </div>
+
+      {/* Measurements — real link to your existing /measurements page */}
+      <button onClick={() => router.push('/measurements')} className="fade-in-up tap-scale"
+        style={{ width:'100%', display:'flex', alignItems:'center', gap:14, background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'16px', margin:'0 20px 20px', cursor:'pointer', textAlign:'left', boxShadow:'0 2px 10px rgba(0,0,0,0.03)' }}>
+        <div style={{ width:44, height:44, borderRadius:13, background:'var(--primary-bg)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}><IconRuler size={20}/></div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontWeight:700, fontSize:15, color:'var(--text)' }}>Measurements</div>
+          <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Chest, waist, arms & more</div>
+        </div>
+        <IconChevronRight/>
+      </button>
+
+      {/* ── Everything below preserves your existing Overview/Charts/Calendar content, now inline ── */}
       <div style={{ padding:'0 20px' }}>
 
-        {/* OVERVIEW */}
-        {tab==='overview' && (
-          <div>
-            {/* Week mini bar view */}
-            {last7.length>0 && (
-              <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)', marginBottom:14 }}>
-                <div style={{ fontWeight:700, fontSize:15, marginBottom:14 }}>This week</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:16 }}>
-                  {[
-                    { l:'Entries', v:last7.length, c:'var(--primary)' },
-                    { l:'Average', v:weekAvg?weekAvg+' kg':'—', c:'#10b981' },
-                    { l:'Change', v:weekChg!==null?(weekChg>0?'+':'')+weekChg+' kg':'—', c:weekChg&&weekChg<0?'#10b981':'#ef4444' },
-                  ].map(s=>(
-                    <div key={s.l} style={{ textAlign:'center', background:'var(--surface)', borderRadius:12, padding:'12px 6px', border:'1.5px solid var(--border)' }}>
-                      <div style={{ fontSize:15, fontWeight:800, color:s.c }}>{s.v}</div>
-                      <div style={{ fontSize:10, color:'var(--muted)', fontWeight:600, marginTop:2 }}>{s.l}</div>
-                    </div>
-                  ))}
+        {/* This week */}
+        {last7.length>0 && (
+          <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)', marginBottom:14 }}>
+            <div style={{ fontWeight:700, fontSize:15, marginBottom:14, color:'var(--text)' }}>This week</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10, marginBottom:16 }}>
+              {[
+                { l:'Entries', v:last7.length, c:'var(--primary)' },
+                { l:'Average', v:weekAvg?weekAvg+' kg':'—', c:'#10b981' },
+                { l:'Change', v:weekChg!==null?(weekChg>0?'+':'')+weekChg+' kg':'—', c:weekChg&&weekChg<0?'#10b981':'#ef4444' },
+              ].map(s=>(
+                <div key={s.l} style={{ textAlign:'center', background:'var(--surface)', borderRadius:12, padding:'12px 6px', border:'1px solid var(--border)' }}>
+                  <div style={{ fontSize:15, fontWeight:800, color:s.c }}>{s.v}</div>
+                  <div style={{ fontSize:10, color:'var(--muted)', fontWeight:600, marginTop:2 }}>{s.l}</div>
                 </div>
-                {/* Day bars */}
-                {(() => {
-                  const days = Array.from({length:7}, (_,i) => {
-                    const d = addDays(new Date(), i-6)
-                    const ds = toISO(d)
-                    const log = logs.find(l => l.logged_at===ds)
-                    return { ds, day:d.toLocaleDateString('en-IN',{weekday:'short'}).slice(0,1), log }
-                  })
-                  const vals = days.filter(d=>d.log).map(d=>d.log.weight_kg)
-                  const minV = vals.length?Math.min(...vals):0, maxV=vals.length?Math.max(...vals):0
-                  return (
-                    <div style={{ display:'flex', gap:4, alignItems:'flex-end', height:64 }}>
-                      {days.map((d,i) => {
-                        const h = d.log&&maxV>minV ? Math.max(8,((d.log.weight_kg-minV)/(maxV-minV+0.01))*48+12) : d.log?28:4
-                        const isT = d.ds===today
-                        return (
-                          <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
-                            {d.log && <div style={{ fontSize:8, color:'var(--primary)', fontWeight:700 }}>{d.log.weight_kg}</div>}
-                            <div style={{ width:'100%', height:h, borderRadius:5, background:d.log?'var(--primary)':'var(--border)', opacity:isT?1:0.55, transition:'height 0.4s' }}/>
-                            <div style={{ fontSize:9, color:isT?'var(--primary)':'var(--muted)', fontWeight:isT?700:400 }}>{d.day}</div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )
-                })()}
-              </div>
-            )}
-
-            {/* Progress to goal */}
-            {latest && (
-              <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)', marginBottom:14 }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
-                  <div style={{ fontWeight:700, fontSize:15 }}>Progress to goal</div>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#10b981' }}>{goal} kg</div>
-                </div>
-                {(() => {
-                  const start   = first?.weight_kg ?? latest.weight_kg
-                  const curr    = latest.weight_kg
-                  const dir     = start > goal ? 'lose' : 'gain'
-                  const total   = Math.abs(start - goal)
-                  const done    = dir==='lose' ? Math.max(0,start-curr) : Math.max(0,curr-start)
-                  const pct     = total>0 ? Math.min(100,Math.round((done/total)*100)) : 100
-                  const weeksLeft = total>0 ? Math.round(Math.abs(curr-goal)/0.5) : 0
-                  return (
-                    <div>
-                      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
-                        <span style={{ fontSize:12, color:'var(--muted)' }}>Start: {start} kg</span>
-                        <span style={{ fontSize:15, fontWeight:800, color:'var(--primary)' }}>{pct}%</span>
-                        <span style={{ fontSize:12, color:'var(--muted)' }}>Goal: {goal} kg</span>
-                      </div>
-                      <div style={{ height:14, background:'var(--card2)', borderRadius:7, overflow:'hidden' }}>
-                        <div style={{ height:'100%', borderRadius:7, background:'linear-gradient(90deg,#6366f1,#10b981)', width:pct+'%', transition:'width 1s ease' }}/>
-                      </div>
-                      <div style={{ fontSize:12, color:'var(--muted)', marginTop:10, textAlign:'center', lineHeight:1.6 }}>
-                        {Math.abs(curr-goal).toFixed(1)} kg to go · at 0.5 kg/week ≈ <strong style={{ color:'var(--text)' }}>{weeksLeft} weeks</strong>
-                      </div>
-                    </div>
-                  )
-                })()}
-              </div>
-            )}
-
-            {/* Log history */}
-            <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)' }}>
-              <div style={{ fontWeight:700, fontSize:15, marginBottom:14 }}>All entries</div>
-              {sorted.length===0 ? (
-                <div style={{ textAlign:'center', padding:'20px 0', color:'var(--muted)', fontSize:13 }}>No entries yet. Log your first weight above.</div>
-              ) : (
-                <div style={{ maxHeight:320, overflowY:'auto' }}>
-                  {[...sorted].reverse().map((log,i,arr) => {
-                    const prev = arr[i+1]
-                    const diff = prev ? parseFloat((log.weight_kg-prev.weight_kg).toFixed(1)) : null
+              ))}
+            </div>
+            {(() => {
+              const days = Array.from({length:7}, (_,i) => {
+                const d = addDays(new Date(), i-6)
+                const ds = toISO(d)
+                const log = logs.find(l => l.logged_at===ds)
+                return { ds, day:d.toLocaleDateString('en-IN',{weekday:'short'}).slice(0,1), log }
+              })
+              const vals = days.filter(d=>d.log).map(d=>d.log.weight_kg)
+              const minV = vals.length?Math.min(...vals):0, maxV=vals.length?Math.max(...vals):0
+              return (
+                <div style={{ display:'flex', gap:4, alignItems:'flex-end', height:64 }}>
+                  {days.map((d,i) => {
+                    const h = d.log&&maxV>minV ? Math.max(8,((d.log.weight_kg-minV)/(maxV-minV+0.01))*48+12) : d.log?28:4
+                    const isT = d.ds===today
                     return (
-                      <div key={log.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 0', borderBottom:i<arr.length-1?'1px solid var(--border)':'none' }}>
-                        <div>
-                          <div style={{ fontWeight:600, fontSize:14 }}>{fmtDate(log.logged_at,{weekday:'short',day:'numeric',month:'short'})}</div>
-                          {diff!==null && <div style={{ fontSize:11, color:diff<0?'#10b981':diff>0?'#ef4444':'var(--muted)', marginTop:2 }}>{diff>0?'+':''}{diff} kg</div>}
-                        </div>
-                        <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-                          <div style={{ fontSize:18, fontWeight:800, color:diff!==null&&diff<0?'#10b981':diff!==null&&diff>0?'#ef4444':'var(--text)' }}>{log.weight_kg} kg</div>
-                          <button onClick={() => deleteLog(log.id)} style={{ background:'none', border:'none', cursor:'pointer', color:'var(--muted)', fontSize:18, padding:4 }}>×</button>
-                        </div>
+                      <div key={i} style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', gap:3 }}>
+                        {d.log && <div style={{ fontSize:8, color:'var(--primary)', fontWeight:700 }}>{d.log.weight_kg}</div>}
+                        <div style={{ width:'100%', height:h, borderRadius:5, background:d.log?'var(--primary)':'var(--border)', opacity:isT?1:0.55, transition:'height 0.4s' }}/>
+                        <div style={{ fontSize:9, color:isT?'var(--primary)':'var(--muted)', fontWeight:isT?700:400 }}>{d.day}</div>
                       </div>
                     )
                   })}
                 </div>
-              )}
-            </div>
+              )
+            })()}
           </div>
         )}
 
-        {/* CHARTS */}
-        {tab==='chart' && (
-          <div>
-            <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)', marginBottom:14 }}>
-              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:14 }}>
-                <div style={{ fontWeight:700, fontSize:15 }}>Weight trend</div>
-                <div style={{ display:'flex', gap:4 }}>
-                  {[['week','7d'],['month','30d'],['all','All']].map(([v,l]) => (
-                    <button key={v} onClick={() => setChartView(v)}
-                      style={{ padding:'5px 10px', borderRadius:99, fontSize:11, fontWeight:600, cursor:'pointer', border:'1.5px solid '+(chartView===v?'var(--primary)':'var(--border)'), background:chartView===v?'var(--primary)':'transparent', color:chartView===v?'#fff':'var(--muted)' }}>
-                      {l}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <LineChart data={chartData}/>
-              {chartData.length>=2 && (
-                <div style={{ display:'flex', gap:10, marginTop:12 }}>
-                  {[
-                    { l:'Start', v:chartData[0].weight_kg+' kg', c:'var(--muted)' },
-                    { l:'Change', v:(parseFloat((chartData[chartData.length-1].weight_kg-chartData[0].weight_kg).toFixed(1))>0?'+':'')+parseFloat((chartData[chartData.length-1].weight_kg-chartData[0].weight_kg).toFixed(1))+' kg', c:chartData[chartData.length-1].weight_kg<chartData[0].weight_kg?'#10b981':'#ef4444' },
-                    { l:'Now', v:chartData[chartData.length-1].weight_kg+' kg', c:'var(--primary)' },
-                  ].map(s=>(
-                    <div key={s.l} style={{ flex:1, textAlign:'center', background:'var(--surface)', borderRadius:10, padding:'10px 8px', border:'1.5px solid var(--border)' }}>
-                      <div style={{ fontSize:14, fontWeight:800, color:s.c }}>{s.v}</div>
-                      <div style={{ fontSize:10, color:'var(--muted)', marginTop:2 }}>{s.l}</div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)', marginBottom:14 }}>
-              <div style={{ fontWeight:700, fontSize:15, marginBottom:4 }}>Weekly averages</div>
-              <div style={{ fontSize:12, color:'var(--muted)', marginBottom:14 }}>Green = losing · Red = gaining · Purple = stable</div>
-              <BarChart/>
-            </div>
-
-            {sorted.length>=7 && (
-              <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)' }}>
-                <div style={{ fontWeight:700, fontSize:15, marginBottom:14 }}>Rate of change</div>
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
-                  {(() => {
-                    const rw = sorted.slice(-7)
-                    const rateW = rw.length>=2 ? parseFloat(((rw[rw.length-1].weight_kg-rw[0].weight_kg)/(rw.length/7)).toFixed(2)) : null
-                    const rm = sorted.slice(Math.max(0,sorted.length-30))
-                    const rateM = rm.length>=2 ? parseFloat(((rm[rm.length-1].weight_kg-rm[0].weight_kg)/4).toFixed(2)) : null
-                    return [
-                      { l:'Per week (recent)', v:rateW!==null?(rateW>0?'+':'')+rateW+' kg':'—', c:rateW!==null&&rateW<0?'#10b981':'#ef4444' },
-                      { l:'Per month (est)', v:rateM!==null?(rateM>0?'+':'')+rateM+' kg':'—', c:rateM!==null&&rateM<0?'#10b981':'#ef4444' },
-                    ].map(s=>(
-                      <div key={s.l} style={{ background:'var(--surface)', borderRadius:14, padding:'16px', border:'1.5px solid var(--border)', textAlign:'center' }}>
-                        <div style={{ fontSize:20, fontWeight:800, color:s.c }}>{s.v}</div>
-                        <div style={{ fontSize:11, color:'var(--muted)', marginTop:6 }}>{s.l}</div>
-                      </div>
-                    ))
-                  })()}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* CALENDAR */}
-        {tab==='calendar' && (
-          <div>
-            <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)', marginBottom:14 }}>
-              <Calendar/>
+        {/* Progress to goal */}
+        {latest && (
+          <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)', marginBottom:14 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:14 }}>
+              <div style={{ fontWeight:700, fontSize:15, color:'var(--text)' }}>Progress to goal</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#10b981' }}>{goal} kg</div>
             </div>
             {(() => {
-              const ms = `${calMonth.getFullYear()}-${String(calMonth.getMonth()+1).padStart(2,'0')}-01`
-              const me = `${calMonth.getFullYear()}-${String(calMonth.getMonth()+1).padStart(2,'0')}-31`
-              const ml = sorted.filter(l => l.logged_at>=ms && l.logged_at<=me)
-              if (!ml.length) return null
-              const mAvg = (ml.reduce((s,l)=>s+l.weight_kg,0)/ml.length).toFixed(1)
-              const mMin = Math.min(...ml.map(l=>l.weight_kg))
-              const mMax = Math.max(...ml.map(l=>l.weight_kg))
+              const start   = first?.weight_kg ?? latest.weight_kg
+              const curr    = latest.weight_kg
+              const dir     = start > goal ? 'lose' : 'gain'
+              const total   = Math.abs(start - goal)
+              const done    = dir==='lose' ? Math.max(0,start-curr) : Math.max(0,curr-start)
+              const pct     = total>0 ? Math.min(100,Math.round((done/total)*100)) : 100
+              const weeksLeft = total>0 ? Math.round(Math.abs(curr-goal)/0.5) : 0
               return (
-                <div style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1.5px solid var(--border)' }}>
-                  <div style={{ fontWeight:700, fontSize:15, marginBottom:14 }}>
-                    {calMonth.toLocaleDateString('en-IN',{month:'long'})} summary
+                <div>
+                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:8 }}>
+                    <span style={{ fontSize:12, color:'var(--muted)' }}>Start: {start} kg</span>
+                    <span style={{ fontSize:15, fontWeight:800, color:'var(--primary)' }}>{pct}%</span>
+                    <span style={{ fontSize:12, color:'var(--muted)' }}>Goal: {goal} kg</span>
                   </div>
-                  <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
-                    {[
-                      { l:'Entries', v:String(ml.length), c:'var(--primary)' },
-                      { l:'Average', v:mAvg+' kg', c:'#6366f1' },
-                      { l:'Lowest', v:mMin+' kg', c:'#10b981' },
-                      { l:'Highest', v:mMax+' kg', c:'#ef4444' },
-                    ].map(s=>(
-                      <div key={s.l} style={{ textAlign:'center', background:'var(--surface)', borderRadius:12, padding:'12px 6px', border:'1.5px solid var(--border)' }}>
-                        <div style={{ fontSize:14, fontWeight:800, color:s.c }}>{s.v}</div>
-                        <div style={{ fontSize:9, color:'var(--muted)', fontWeight:600, marginTop:3, textTransform:'uppercase' }}>{s.l}</div>
-                      </div>
-                    ))}
+                  <div style={{ height:14, background:'var(--card2)', borderRadius:7, overflow:'hidden' }}>
+                    <div style={{ height:'100%', borderRadius:7, background:'linear-gradient(90deg,#6366f1,#10b981)', width:pct+'%', transition:'width 1s ease' }}/>
+                  </div>
+                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:10, textAlign:'center', lineHeight:1.6 }}>
+                    {Math.abs(curr-goal).toFixed(1)} kg to go · at 0.5 kg/week ≈ <strong style={{ color:'var(--text)' }}>{weeksLeft} weeks</strong>
                   </div>
                 </div>
               )
             })()}
           </div>
         )}
+
+        {/* Weekly averages */}
+        <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)', marginBottom:14 }}>
+          <div style={{ fontWeight:700, fontSize:15, marginBottom:4, color:'var(--text)' }}>Weekly averages</div>
+          <div style={{ fontSize:12, color:'var(--muted)', marginBottom:14 }}>Green = losing · Red = gaining · Purple = stable</div>
+          <BarChart/>
+        </div>
+
+        {/* Rate of change */}
+        {sorted.length>=7 && (
+          <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)', marginBottom:14 }}>
+            <div style={{ fontWeight:700, fontSize:15, marginBottom:14, color:'var(--text)' }}>Rate of change</div>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+              {(() => {
+                const rw = sorted.slice(-7)
+                const rateW = rw.length>=2 ? parseFloat(((rw[rw.length-1].weight_kg-rw[0].weight_kg)/(rw.length/7)).toFixed(2)) : null
+                const rm = sorted.slice(Math.max(0,sorted.length-30))
+                const rateM = rm.length>=2 ? parseFloat(((rm[rm.length-1].weight_kg-rm[0].weight_kg)/4).toFixed(2)) : null
+                return [
+                  { l:'Per week (recent)', v:rateW!==null?(rateW>0?'+':'')+rateW+' kg':'—', c:rateW!==null&&rateW<0?'#10b981':'#ef4444' },
+                  { l:'Per month (est)', v:rateM!==null?(rateM>0?'+':'')+rateM+' kg':'—', c:rateM!==null&&rateM<0?'#10b981':'#ef4444' },
+                ].map(s=>(
+                  <div key={s.l} style={{ background:'var(--surface)', borderRadius:14, padding:'16px', border:'1px solid var(--border)', textAlign:'center' }}>
+                    <div style={{ fontSize:20, fontWeight:800, color:s.c }}>{s.v}</div>
+                    <div style={{ fontSize:11, color:'var(--muted)', marginTop:6 }}>{s.l}</div>
+                  </div>
+                ))
+              })()}
+            </div>
+          </div>
+        )}
+
+        {/* Calendar */}
+        <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)', marginBottom:14 }}>
+          <Calendar/>
+        </div>
+        {(() => {
+          const ms = `${calMonth.getFullYear()}-${String(calMonth.getMonth()+1).padStart(2,'0')}-01`
+          const me = `${calMonth.getFullYear()}-${String(calMonth.getMonth()+1).padStart(2,'0')}-31`
+          const ml = sorted.filter(l => l.logged_at>=ms && l.logged_at<=me)
+          if (!ml.length) return null
+          const mAvg = (ml.reduce((s,l)=>s+l.weight_kg,0)/ml.length).toFixed(1)
+          const mMin = Math.min(...ml.map(l=>l.weight_kg))
+          const mMax = Math.max(...ml.map(l=>l.weight_kg))
+          return (
+            <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)', marginBottom:14 }}>
+              <div style={{ fontWeight:700, fontSize:15, marginBottom:14, color:'var(--text)' }}>
+                {calMonth.toLocaleDateString('en-IN',{month:'long'})} summary
+              </div>
+              <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:8 }}>
+                {[
+                  { l:'Entries', v:String(ml.length), c:'var(--primary)' },
+                  { l:'Average', v:mAvg+' kg', c:'#6366f1' },
+                  { l:'Lowest', v:mMin+' kg', c:'#10b981' },
+                  { l:'Highest', v:mMax+' kg', c:'#ef4444' },
+                ].map(s=>(
+                  <div key={s.l} style={{ textAlign:'center', background:'var(--surface)', borderRadius:12, padding:'12px 6px', border:'1px solid var(--border)' }}>
+                    <div style={{ fontSize:14, fontWeight:800, color:s.c }}>{s.v}</div>
+                    <div style={{ fontSize:9, color:'var(--muted)', fontWeight:600, marginTop:3, textTransform:'uppercase' }}>{s.l}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* All entries */}
+        <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:20, padding:'16px', border:'1px solid var(--border)' }}>
+          <div style={{ fontWeight:700, fontSize:15, marginBottom:14, color:'var(--text)' }}>All entries</div>
+          {sorted.length===0 ? (
+            <div style={{ textAlign:'center', padding:'20px 0', color:'var(--muted)', fontSize:13 }}>No entries yet. Tap the + button to log your first weight.</div>
+          ) : (
+            <div style={{ maxHeight:320, overflowY:'auto' }}>
+              {[...sorted].reverse().map((log,i,arr) => {
+                const prev = arr[i+1]
+                const diff = prev ? parseFloat((log.weight_kg-prev.weight_kg).toFixed(1)) : null
+                return (
+                  <div key={log.id} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'11px 0', borderBottom:i<arr.length-1?'1px solid var(--border)':'none' }}>
+                    <div>
+                      <div style={{ fontWeight:600, fontSize:14, color:'var(--text)' }}>{fmtDate(log.logged_at,{weekday:'short',day:'numeric',month:'short'})}</div>
+                      {diff!==null && <div style={{ fontSize:11, color:diff<0?'#10b981':diff>0?'#ef4444':'var(--muted)', marginTop:2 }}>{diff>0?'+':''}{diff} kg</div>}
+                    </div>
+                    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                      <div style={{ fontSize:18, fontWeight:800, color:diff!==null&&diff<0?'#10b981':diff!==null&&diff>0?'#ef4444':'var(--text)' }}>{log.weight_kg} kg</div>
+                      <button onClick={() => deleteLog(log.id)} className="tap-scale" style={{ background:'none', border:'none', cursor:'pointer', color:'var(--muted)', display:'flex', alignItems:'center', justifyContent:'center', padding:4 }}>
+                        <IconX size={16}/>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Floating Add Weight button — iOS glass circle vs Android Material square */}
+      <button onClick={() => setShowLogSheet(true)} className="tap-scale"
+        style={isAndroid ? {
+          position:'fixed', right:20, bottom:'calc(env(safe-area-inset-bottom,0px) + 96px)', zIndex:1500,
+          width:56, height:56, borderRadius:16, background:'var(--primary)', border:'none', cursor:'pointer',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          boxShadow:'0 6px 16px -4px rgba(0,0,0,0.35)'
+        } : {
+          position:'fixed', right:20, bottom:'calc(env(safe-area-inset-bottom,0px) + 96px)', zIndex:1500,
+          width:58, height:58, borderRadius:'50%', cursor:'pointer',
+          background:'color-mix(in srgb, var(--primary) 88%, transparent)',
+          backdropFilter:'blur(16px) saturate(180%)', WebkitBackdropFilter:'blur(16px) saturate(180%)',
+          border:'1px solid color-mix(in srgb, #fff 25%, transparent)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+          boxShadow:'0 8px 24px -6px rgba(0,0,0,0.3)'
+        }}>
+        <IconPlus size={24}/>
+      </button>
+
+      {/* Log weight sheet — same input + logWeight() call as before, just triggered from the FAB now */}
+      {showLogSheet && (
+        <div onClick={() => setShowLogSheet(false)} style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.6)', zIndex:2000, display:'flex', alignItems:'flex-end' }}>
+          <div onClick={e => e.stopPropagation()} className="w-sheet-up" style={{ background:'var(--surface)', width:'100%', maxWidth:430, margin:'0 auto', borderRadius:'26px 26px 0 0', padding:'20px 20px calc(env(safe-area-inset-bottom,0px) + 20px)' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:18 }}>
+              <div style={{ fontWeight:800, fontSize:18, color:'var(--text)' }}>Log today's weight</div>
+              <button onClick={() => setShowLogSheet(false)} className="tap-scale" style={{ background:'var(--card2)', border:'none', borderRadius:10, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>
+                <IconX size={14}/>
+              </button>
+            </div>
+            <div style={{ display:'flex', gap:10, alignItems:'center' }}>
+              <div style={{ flex:1, position:'relative' }}>
+                <input type="text" inputMode="decimal" placeholder="e.g. 75.5" value={input} autoFocus
+                  onChange={e => setInput(e.target.value)} onKeyDown={e => e.key==='Enter' && logWeight()}
+                  style={{ width:'100%', fontSize:26, fontWeight:800, color:'var(--primary)', textAlign:'center', background:'var(--primary-bg)', border:'1.5px solid var(--primary)', borderRadius:14, padding:'14px 44px 14px 14px', outline:'none' }}/>
+                <div style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', fontSize:14, color:'var(--primary)', fontWeight:700 }}>kg</div>
+              </div>
+              <button onClick={logWeight} disabled={saving} className="tap-scale"
+                style={{ width:56, height:56, borderRadius:14, background:'var(--primary)', border:'none', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center', opacity:saving?0.7:1 }}>
+                <IconCheck/>
+              </button>
+            </div>
+            {latest && <div style={{ marginTop:12, fontSize:12, color:'var(--muted)', textAlign:'center' }}>Last: <strong style={{ color:'var(--text)' }}>{latest.weight_kg} kg</strong> · {fmtDate(latest.logged_at,{weekday:'short',day:'numeric',month:'short'})}</div>}
+          </div>
+        </div>
+      )}
+
       <BottomNav/>
     </div>
   )

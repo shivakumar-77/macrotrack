@@ -387,3 +387,74 @@ input::placeholder { color: var(--muted); }
 /* ── Haptic press effect ── */
 .press-effect { -webkit-tap-highlight-color: transparent; cursor: pointer; }
 .press-effect:active { transform: scale(0.97); transition: transform 0.1s ease; }
+
+/* ══════════════════════════════════════════════════════════
+   ADDITIONS — type scale, Switch, Checkbox, Dropdown polish.
+   Append this block to the end of the existing globals.css.
+   Nothing above this line is touched.
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Type scale — was missing; font sizes across pages have been ad-hoc until now */
+  --text-2xs:  10px;
+  --text-xs:   11px;
+  --text-sm:   13px;
+  --text-base: 15px;
+  --text-md:   17px;
+  --text-lg:   20px;
+  --text-xl:   24px;
+  --text-2xl:  28px;
+  --text-3xl:  34px;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-heavy:    800;
+}
+
+/* ── Switch ── */
+.switch {
+  width: 48px; height: 28px; border-radius: 99px;
+  border: none; cursor: pointer; position: relative;
+  background: var(--border);
+  transition: background 0.2s ease, transform 0.15s ease;
+  padding: 0; flex-shrink: 0; display: inline-flex; align-items: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.switch[data-checked="true"] { background: var(--primary); }
+.switch:active { transform: scale(0.95); }
+.switch:disabled { cursor: not-allowed; }
+.switch-thumb {
+  position: absolute; top: 4px; left: 4px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: left 0.2s cubic-bezier(0.4,0,0.2,1);
+}
+.switch[data-checked="true"] .switch-thumb { left: 26px; }
+
+/* ── Checkbox ── */
+.checkbox {
+  width: 24px; height: 24px; border-radius: 8px;
+  border: 2px solid var(--border);
+  background: var(--card2);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  flex-shrink: 0; padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.checkbox[data-checked="true"] { background: var(--primary); border-color: var(--primary); }
+.checkbox:active { transform: scale(0.9); }
+.checkbox:disabled { cursor: not-allowed; }
+
+/* ── Dropdown polish — custom chevron on native <select>, no browser-default arrow ── */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 18px;
+  padding-right: 42px;
+  cursor: pointer;
+}
+select::-ms-expand { display: none; }

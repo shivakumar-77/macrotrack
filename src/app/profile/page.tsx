@@ -7,6 +7,26 @@ import { SettingsIcon, BellIcon, LockIcon, TargetIcon, ScaleIcon, MeasureIcon, S
 import { PageLoader } from '@/components/Skeleton'
 import { useTheme } from '@/components/ThemeProvider'
 
+// ── small inline icons (kept local — not all of these exist in the shared icon set) ──
+const IconPerson = ({ size = 18, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4" /><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" /></svg>
+)
+const IconCrown = ({ size = 18, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M3 8l4 3 5-6 5 6 4-3-2 10H5L3 8Z" /></svg>
+)
+const IconDownloadTray = ({ size = 18, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4" /><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" /></svg>
+)
+const IconLifeBuoy = ({ size = 18, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3.5" /><path d="m6.5 6.5 3 3M17.5 6.5l-3 3M6.5 17.5l3-3M17.5 17.5l-3-3" /></svg>
+)
+const IconInfo = ({ size = 18, color = 'currentColor' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 8h.01M11 12h1v5h1" /></svg>
+)
+const IconChevron = ({ size = 16, color = 'var(--muted)' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+)
+
 export default function ProfilePage() {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
@@ -35,6 +55,11 @@ export default function ProfilePage() {
   })
   const [secForm, setSecForm] = useState({ newEmail:'', newPassword:'', confirmPassword:'' })
 
+  // ── new, purely presentational state ──────────────────────
+  const [memberSince, setMemberSince] = useState(null)
+  const [platform, setPlatform] = useState('ios')
+  const [ripples, setRipples] = useState({})
+
   useEffect(() => {
     setNotifPermission(Notification.permission)
     const saved = localStorage.getItem('macrotrack_reminders')
@@ -42,10 +67,32 @@ export default function ProfilePage() {
     load()
   }, [])
 
+  useEffect(() => {
+    if (typeof navigator === 'undefined') return
+    const uaDataPlatform = navigator.userAgentData?.platform || ''
+    if (/android/i.test(uaDataPlatform)) { setPlatform('android'); return }
+    if (/ios|iphone|ipad/i.test(uaDataPlatform)) { setPlatform('ios'); return }
+    const ua = navigator.userAgent || ''
+    if (/Android/i.test(ua)) setPlatform('android')
+    else if (/iPhone|iPad|iPod/i.test(ua)) setPlatform('ios')
+  }, [])
+
+  function addRipple(e, id) {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const rid = Date.now() + Math.random()
+    setRipples(r => ({ ...r, [id]: [...(r[id] || []), { id: rid, x, y }] }))
+    setTimeout(() => {
+      setRipples(r => ({ ...r, [id]: (r[id] || []).filter(rp => rp.id !== rid) }))
+    }, 500)
+  }
+
   async function load() {
     const { data:{ user } } = await supabase.auth.getUser()
     if (!user) { router.replace('/auth'); return }
     setUserEmail(user.email || '')
+    if (user.created_at) setMemberSince(user.created_at)
     const [{ data:prof }, { data:wlogs }] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).single(),
       supabase.from('weight_logs').select('*').eq('user_id', user.id).order('logged_at',{ascending:true}).limit(30)
@@ -155,6 +202,8 @@ export default function ProfilePage() {
   const latest = weights[weights.length-1]
   const profileFields = [form.name, form.dob, form.height, form.gender, form.phone]
   const profilePct = Math.round((profileFields.filter(Boolean).length / profileFields.length) * 100)
+  const isAndroid = platform === 'android'
+  const memberSinceLabel = memberSince ? new Date(memberSince).toLocaleDateString('en-IN', { month:'long', year:'numeric' }) : null
 
   const L = ({text}) => (
     <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.05em'}}>{text}</div>
@@ -165,8 +214,8 @@ export default function ProfilePage() {
   )
 
   const MenuItem = ({icon, label, sub, onClick, danger=false}) => (
-    <button onClick={onClick}
-      style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'15px 16px',background:'var(--card)',borderRadius:16,border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',marginBottom:8,WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+    <button onClick={onClick} className="tap-scale"
+      style={{width:'100%',display:'flex',alignItems:'center',gap:14,padding:'15px 16px',background:'var(--card)',borderRadius:16,border:'1px solid var(--border)',cursor:'pointer',textAlign:'left',marginBottom:8,WebkitTapHighlightColor:'transparent'}}>
       <div style={{width:42,height:42,borderRadius:13,background:danger?'#fef2f2':'var(--card2)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,flexShrink:0}}>
         {icon}
       </div>
@@ -174,21 +223,75 @@ export default function ProfilePage() {
         <div style={{fontWeight:600,fontSize:14,color:danger?'#dc2626':'var(--text)'}}>{label}</div>
         {sub && <div style={{fontSize:12,color:'var(--muted)',marginTop:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{sub}</div>}
       </div>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <IconChevron/>
     </button>
   )
 
   const BackBtn = ({label='Back'}) => (
-    <button onClick={()=>setView('main')}
-      style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'var(--primary)',fontSize:15,fontWeight:600,padding:'0 0 16px 0',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+    <button onClick={()=>setView('main')} className="tap-scale"
+      style={{display:'flex',alignItems:'center',gap:6,background:'none',border:'none',cursor:'pointer',color:'var(--primary)',fontSize:15,fontWeight:600,padding:'0 0 16px 0',WebkitTapHighlightColor:'transparent'}}>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="15 18 9 12 15 6"/></svg>
       {label}
     </button>
   )
 
   const MsgBanner = () => msg ? (
-    <div style={{background:'#d1fae5',border:'1.5px solid #6ee7b7',borderRadius:12,padding:'10px 16px',marginBottom:16,fontSize:13,fontWeight:600,color:'#059669'}}>✓ {msg}</div>
+    <div style={{position:'fixed',top:'calc(env(safe-area-inset-top,0px) + 16px)',left:'50%',transform:'translateX(-50%)',zIndex:3000,background:'#1e293b',color:'#fff',borderRadius:99,padding:'10px 20px',fontSize:13,fontWeight:600,boxShadow:'0 4px 20px rgba(0,0,0,0.3)',whiteSpace:'nowrap'}}>✓ {msg}</div>
   ) : null
+
+  // ── Apple HIG grouped-list helpers ──────────────────────────
+  const AppleGroup = ({ title, children }) => (
+    <div style={{ marginBottom:22 }}>
+      {title && <SectionLabel text={title}/>}
+      <div className="fade-in-up" style={{ background:'var(--card)', borderRadius:16, border:'1px solid var(--border)', overflow:'hidden' }}>
+        {children}
+      </div>
+    </div>
+  )
+  const AppleRow = ({ icon, iconBg, label, sub, onClick, last, danger }) => (
+    <button onClick={onClick} className="tap-scale"
+      style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'13px 16px', background:'none', border:'none', borderBottom: last?'none':'1px solid var(--border)', cursor:'pointer', textAlign:'left' }}>
+      <div style={{ width:32, height:32, borderRadius:9, background:iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#fff' }}>{icon}</div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontWeight:500, fontSize:15, color: danger?'#ef4444':'var(--text)' }}>{label}</div>
+        {sub && <div style={{ fontSize:12, color:'var(--muted)', marginTop:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{sub}</div>}
+      </div>
+      {!danger && <IconChevron/>}
+    </button>
+  )
+
+  // ── Material You tonal-card row ─────────────────────────────
+  const MaterialRow = ({ id, icon, iconBg, label, sub, onClick, danger }) => {
+    const itemRipples = ripples[id] || []
+    return (
+      <button onClick={onClick} onPointerDown={e => addRipple(e, id)} className="md-tap"
+        style={{ position:'relative', overflow:'hidden', width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'var(--card)', borderRadius:20, border:'none', cursor:'pointer', textAlign:'left', marginBottom:10 }}>
+        {itemRipples.map(rp => (
+          <span key={rp.id} style={{ position:'absolute', left:rp.x, top:rp.y, width:10, height:10, marginLeft:-5, marginTop:-5, borderRadius:'50%', background:'var(--primary)', opacity:0.25, animation:'mdRipple 0.5s ease-out forwards', pointerEvents:'none' }}/>
+        ))}
+        <div style={{ width:44, height:44, borderRadius:14, background:iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, color:'#fff' }}>{icon}</div>
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontWeight:600, fontSize:15, color: danger?'#ef4444':'var(--text)' }}>{label}</div>
+          {sub && <div style={{ fontSize:12, color:'var(--muted)', marginTop:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{sub}</div>}
+        </div>
+        {!danger && <IconChevron/>}
+      </button>
+    )
+  }
+
+  // The 10 requested cards + 2 preserved real features (Progress&Achievements has no home in
+  // the requested list, and Subscription/Support/About are new — see notes in chat).
+  const ACCOUNT_ITEMS = [
+    { id:'profile', icon:<IconPerson size={18} color="#fff"/>, iconBg:'var(--primary)', label:'Profile', sub:`${profilePct}% complete`, action:()=>setView('edit') },
+    { id:'goals', icon:<TargetIcon size={18} color="#fff"/>, iconBg:'#10b981', label:'Goals', sub:'Calories, macros, weight goal', action:()=>setView('goals') },
+    { id:'progress', icon:<TrophyIcon size={18} color="#fff"/>, iconBg:'#f59e0b', label:'Progress & Achievements', sub:'Streaks, badges, challenges', action:()=>router.push('/progress') },
+    { id:'subscription', icon:<IconCrown size={18} color="#fff"/>, iconBg:'#8b5cf6', label:'Subscription', sub:'Free plan', action:()=>setView('subscription') },
+    { id:'privacy', icon:<LockIcon size={18} color="#fff"/>, iconBg:'#3b82f6', label:'Privacy', sub:'How your data is handled', action:()=>{ setLegalPage('privacy'); setView('legal') } },
+    { id:'notifications', icon:<BellIcon size={18} color="#fff"/>, iconBg:'#f97316', label:'Notifications', sub: notifPermission==='granted' ? `${reminders.filter(r=>r.enabled).length} reminders active` : 'Set meal reminders', action:()=>setView('notifications') },
+    { id:'dataExport', icon:<IconDownloadTray size={18} color="#fff"/>, iconBg:'#0ea5e9', label:'Data Export', sub:'Request a copy of your data', action:()=>{ setLegalPage('data'); setView('legal') } },
+    { id:'support', icon:<IconLifeBuoy size={18} color="#fff"/>, iconBg:'#ec4899', label:'Support', sub:'support@macrotrack.app', action:()=>{ window.location.href = 'mailto:support@macrotrack.app' } },
+    { id:'about', icon:<IconInfo size={18} color="#fff"/>, iconBg:'#64748b', label:'About', sub:'MacroTrack', action:()=>setView('about') },
+  ]
 
   // ── LEGAL ──────────────────────────────────────────────────
   const LEGAL = {
@@ -247,20 +350,33 @@ export default function ProfilePage() {
     }
   }
 
+  const sharedStyles = (
+    <style jsx>{`
+      @keyframes fadeInUp { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
+      @keyframes mdRipple { from { transform: scale(0); opacity: 0.35; } to { transform: scale(26); opacity: 0; } }
+      .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(.4,0,.2,1) both; }
+      .tap-scale { transition: transform 0.15s ease; }
+      .tap-scale:active { transform: scale(0.97); }
+      .md-tap { transition: transform 0.12s ease; }
+      .md-tap:active { transform: scale(0.97); }
+    `}</style>
+  )
+
   if (view === 'legal') {
     const page = LEGAL[legalPage]
     return (
       <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:60}}>
+        {sharedStyles}
         <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
           <BackBtn label={page.title}/>
         </div>
         <div style={{padding:'0 20px 40px'}}>
           <div style={{fontSize:12,color:'var(--muted)',marginBottom:20}}>Last updated: {page.updated}</div>
-          <div style={{background:'var(--primary-bg)',borderRadius:16,padding:'14px 16px',border:'1.5px solid #c7d2fe',marginBottom:20}}>
+          <div style={{background:'var(--primary-bg)',borderRadius:16,padding:'14px 16px',border:'1px solid #c7d2fe',marginBottom:20}}>
             <p style={{fontSize:13,color:'var(--primary)',lineHeight:1.7}}>{page.intro}</p>
           </div>
           {page.sections.map((s,i) => (
-            <div key={i} style={{marginBottom:20,background:'var(--card)',borderRadius:16,padding:'16px',border:'1.5px solid var(--border)'}}>
+            <div key={i} className="fade-in-up" style={{marginBottom:16,background:'var(--card)',borderRadius:16,padding:'16px',border:'1px solid var(--border)'}}>
               <div style={{fontWeight:700,color:'var(--text)',fontSize:14,marginBottom:8}}>{s.t}</div>
               <div style={{fontSize:13,color:'var(--muted)',lineHeight:1.8,whiteSpace:'pre-line'}}>{s.b}</div>
             </div>
@@ -270,16 +386,67 @@ export default function ProfilePage() {
     )
   }
 
-  // ── EDIT PROFILE ───────────────────────────────────────────
+  // ── ABOUT (new — minimal, factual only, no invented version number) ──
+  if (view === 'about') return (
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:60}}>
+      {sharedStyles}
+      <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
+        <BackBtn label="About"/>
+      </div>
+      <div style={{padding:'0 20px'}}>
+        <div className="fade-in-up" style={{ textAlign:'center', padding:'20px 0 28px' }}>
+          <div style={{ width:72, height:72, borderRadius:20, background:'linear-gradient(135deg,var(--primary),#818cf8)', margin:'0 auto 14px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:30, fontWeight:800, color:'#fff' }}>M</div>
+          <div style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>MacroTrack</div>
+          <div style={{ fontSize:13, color:'var(--muted)', marginTop:4 }}>Nutrition & fitness tracking</div>
+        </div>
+        <AppleGroup>
+          <AppleRow icon={<IconLifeBuoy size={16} color="#fff"/>} iconBg="#ec4899" label="Contact support" sub="support@macrotrack.app" onClick={()=>{ window.location.href = 'mailto:support@macrotrack.app' }}/>
+          <AppleRow icon={<IconPerson size={16} color="#fff"/>} iconBg="var(--primary)" label="Terms & Conditions" onClick={()=>{ setLegalPage('terms'); setView('legal') }}/>
+          <AppleRow icon={<LockIcon size={16} color="#fff"/>} iconBg="#3b82f6" label="Privacy Policy" onClick={()=>{ setLegalPage('privacy'); setView('legal') }}/>
+          <AppleRow icon={<IconDownloadTray size={16} color="#fff"/>} iconBg="#0ea5e9" label="Data & Privacy Controls" last onClick={()=>{ setLegalPage('data'); setView('legal') }}/>
+        </AppleGroup>
+        <div style={{ textAlign:'center', fontSize:11, color:'var(--muted)', marginTop:8 }}>© {new Date().getFullYear()} MacroTrack</div>
+      </div>
+      <BottomNav/>
+    </div>
+  )
+
+  // ── SUBSCRIPTION (new — honest placeholder, no fake plan/payment logic) ──
+  if (view === 'subscription') return (
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:60}}>
+      {sharedStyles}
+      <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
+        <BackBtn label="Subscription"/>
+      </div>
+      <div style={{padding:'0 20px'}}>
+        <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'20px 18px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
+            <div style={{ width:44, height:44, borderRadius:14, background:'#8b5cf6', display:'flex', alignItems:'center', justifyContent:'center' }}><IconCrown size={20} color="#fff"/></div>
+            <div>
+              <div style={{ fontWeight:700, fontSize:16, color:'var(--text)' }}>Free plan</div>
+              <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>No subscription tiers yet</div>
+            </div>
+          </div>
+          <div style={{ fontSize:13, color:'var(--muted)', lineHeight:1.7 }}>
+            MacroTrack doesn't have a paid subscription system built yet — everything in the app is available to every account right now. This screen is here so the card has an honest destination instead of doing nothing when tapped.
+          </div>
+        </div>
+      </div>
+      <BottomNav/>
+    </div>
+  )
+
+  // ── EDIT PROFILE (now includes Security — email, password, delete account) ──
   if (view === 'edit') return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+      {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
       <div style={{padding:'0 20px'}}>
         <MsgBanner/>
-        <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
-          <div style={{fontWeight:700,fontSize:17,marginBottom:4}}>Personal details</div>
+        <div className="card fade-in-up" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:17}}>Personal details</div>
           <div>
             <L text="Profile photo"/>
             <input ref={fileRef} type="file" accept="image/*" style={{display:'none'}} onChange={handlePhoto}/>
@@ -288,7 +455,7 @@ export default function ProfilePage() {
                 {photoUrl ? <img src={photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : (form.name?form.name[0].toUpperCase():'?')}
               </div>
               <div style={{flex:1}}>
-                <button onClick={()=>fileRef.current?.click()} className="btn btn-ghost" style={{fontSize:13,padding:'9px 14px',fontWeight:600,width:'auto'}}>
+                <button onClick={()=>fileRef.current?.click()} className="btn btn-ghost tap-scale" style={{fontSize:13,padding:'9px 14px',fontWeight:600,width:'auto'}}>
                   {photoUrl?'Change photo':'Upload photo'}
                 </button>
                 {photoUrl && <button onClick={()=>setPhotoUrl(null)} style={{background:'none',border:'none',color:'#ef4444',fontSize:12,cursor:'pointer',marginLeft:10}}>Remove</button>}
@@ -313,34 +480,66 @@ export default function ProfilePage() {
             <L text="Gender"/>
             <div style={{display:'flex',gap:8}}>
               {['male','female','other'].map(g=>(
-                <button key={g} onClick={()=>setForm(p=>({...p,gender:g}))}
-                  style={{flex:1,padding:'11px',borderRadius:12,border:'2px solid '+(form.gender===g?'var(--primary)':'var(--border)'),background:form.gender===g?'var(--primary-bg)':'transparent',color:form.gender===g?'var(--primary)':'var(--muted)',fontWeight:700,fontSize:13,cursor:'pointer',textTransform:'capitalize',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+                <button key={g} onClick={()=>setForm(p=>({...p,gender:g}))} className="tap-scale"
+                  style={{flex:1,padding:'11px',borderRadius:12,border:'2px solid '+(form.gender===g?'var(--primary)':'var(--border)'),background:form.gender===g?'var(--primary-bg)':'transparent',color:form.gender===g?'var(--primary)':'var(--muted)',fontWeight:700,fontSize:13,cursor:'pointer',textTransform:'capitalize',WebkitTapHighlightColor:'transparent'}}>
                   {g}
                 </button>
               ))}
             </div>
           </div>
-          <button className="btn btn-primary" style={{padding:'15px',fontWeight:700,fontSize:15}} onClick={saveProfile} disabled={saving}>
+          <button className="btn btn-primary tap-scale" style={{padding:'15px',fontWeight:700,fontSize:15}} onClick={saveProfile} disabled={saving}>
             {saving?'Saving…':'Save profile'}
           </button>
         </div>
 
-        <div className="card">
-          <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>⚖️ Quick weight log</div>
+        <div className="card fade-in-up">
+          <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Quick weight log</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:14}}>
-            <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+            <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1px solid var(--border)'}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:6}}>Current</div>
               <div style={{fontSize:24,fontWeight:800}}>{latest?latest.weight_kg:'—'}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> kg</span></div>
             </div>
-            <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1.5px solid var(--border)'}}>
+            <div style={{background:'var(--surface)',borderRadius:14,padding:'14px',border:'1px solid var(--border)'}}>
               <div style={{fontSize:11,fontWeight:700,color:'var(--muted)',textTransform:'uppercase',marginBottom:6}}>Goal</div>
               <div style={{fontSize:24,fontWeight:800}}>{form.weight_goal}<span style={{fontSize:13,color:'var(--muted)',fontWeight:400}}> kg</span></div>
             </div>
           </div>
           <div style={{display:'flex',gap:8}}>
             <input type="text" inputMode="decimal" placeholder="e.g. 75.5 kg" value={weightVal} onChange={e=>setWeightVal(e.target.value)} style={{flex:1}} onKeyDown={e=>e.key==='Enter'&&logWeight()}/>
-            <button className="btn btn-primary" onClick={logWeight} style={{flexShrink:0,padding:'12px 20px',fontWeight:700,width:'auto'}}>Log</button>
+            <button className="btn btn-primary tap-scale" onClick={logWeight} style={{flexShrink:0,padding:'12px 20px',fontWeight:700,width:'auto'}}>Log</button>
           </div>
+        </div>
+
+        {/* Security — moved here from the old standalone Security view; logic 100% unchanged */}
+        <div className="card fade-in-up" style={{display:'flex',flexDirection:'column',gap:14,marginTop:14,marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:17}}>Change email</div>
+          <div style={{padding:'10px 14px',borderRadius:12,background:'var(--card2)',fontSize:13,color:'var(--muted)'}}>
+            Current: <strong style={{color:'var(--text)'}}>{userEmail}</strong>
+          </div>
+          <div><L text="New email address"/><input type="email" placeholder="new@email.com" value={secForm.newEmail} onChange={e=>setSecForm(p=>({...p,newEmail:e.target.value}))}/></div>
+          <button className="btn btn-primary tap-scale" style={{padding:'14px',fontWeight:700}} onClick={changeEmail}>Update email</button>
+        </div>
+
+        <div className="card fade-in-up" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:17}}>Change password</div>
+          <div><L text="New password"/><input type="password" placeholder="Minimum 6 characters" value={secForm.newPassword} onChange={e=>setSecForm(p=>({...p,newPassword:e.target.value}))}/></div>
+          <div><L text="Confirm new password"/><input type="password" placeholder="Repeat your new password" value={secForm.confirmPassword} onChange={e=>setSecForm(p=>({...p,confirmPassword:e.target.value}))}/></div>
+          <button className="btn btn-primary tap-scale" style={{padding:'14px',fontWeight:700}} onClick={changePassword}>Update password</button>
+          <button className="btn btn-ghost tap-scale" style={{padding:'13px',fontSize:13,fontWeight:600}}
+            onClick={async()=>{const{data:{user}}=await supabase.auth.getUser();if(user?.email){await supabase.auth.resetPasswordForEmail(user.email);showMsg('Reset link sent to your email!')}}}>
+            Send password reset link via email
+          </button>
+        </div>
+
+        <div className="card fade-in-up" style={{border:'1px solid #fecaca'}}>
+          <div style={{fontWeight:700,fontSize:15,marginBottom:8,color:'#dc2626'}}>Danger zone</div>
+          <p style={{fontSize:13,color:'var(--muted)',marginBottom:16,lineHeight:1.7}}>
+            Permanently delete your MacroTrack account and all associated data. This action <strong>cannot be undone</strong>. All food logs, weight history, and profile data will be permanently removed.
+          </p>
+          <button className="tap-scale" style={{width:'100%',padding:'14px',borderRadius:14,background:'#fef2f2',border:'1px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:14,cursor:'pointer',WebkitTapHighlightColor:'transparent'}}
+            onClick={async()=>{if(confirm('This will permanently delete your account and all data. Are you sure?')){await supabase.auth.signOut();router.replace('/auth')}}}>
+            Delete my account permanently
+          </button>
         </div>
       </div>
       <BottomNav/>
@@ -350,13 +549,14 @@ export default function ProfilePage() {
   // ── GOALS ─────────────────────────────────────────────────
   if (view === 'goals') return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+      {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
       <div style={{padding:'0 20px'}}>
         <MsgBanner/>
-        <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
-          <div style={{fontWeight:700,fontSize:17}}>🎯 Goals & targets</div>
+        <div className="card fade-in-up" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
+          <div style={{fontWeight:700,fontSize:17}}>Goals & targets</div>
           <div>
             <L text="My main goal"/>
             <div style={{display:'flex',gap:8}}>
@@ -365,8 +565,8 @@ export default function ProfilePage() {
                 { key:'maintain', label:'Maintain', icon:<ScaleIcon size={24} color='#f59e0b'/>, color:'#f59e0b', bg:'#fef3c7' },
                 { key:'gain', label:'Build muscle', icon:<MuscleIcon size={24} color='#3b82f6'/>, color:'#3b82f6', bg:'#dbeafe' }
               ].map(g=>(
-                <button key={g.key} onClick={()=>setForm(p=>({...p,goal:g.key}))}
-                  style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+                <button key={g.key} onClick={()=>setForm(p=>({...p,goal:g.key}))} className="tap-scale"
+                  style={{flex:1,padding:'14px 6px',borderRadius:16,border:'2px solid '+(form.goal===g.key?g.color:'var(--border)'),background:form.goal===g.key?g.bg:'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent'}}>
                   <div style={{fontSize:22,marginBottom:6}}>{g.icon}</div>
                   <div style={{fontSize:11,fontWeight:700,color:form.goal===g.key?g.color:'var(--muted)'}}>{g.label}</div>
                 </button>
@@ -386,16 +586,16 @@ export default function ProfilePage() {
               <div key={f.k}><L text={f.l}/><input type="text" inputMode={f.m} value={form[f.k]} onChange={e=>setForm(p=>({...p,[f.k]:e.target.value}))}/></div>
             ))}
           </div>
-          <div style={{background:'var(--primary-bg)',borderRadius:12,padding:'12px 14px',border:'1.5px solid #c7d2fe',fontSize:12,color:'var(--primary)',lineHeight:1.6}}>
-            💡 Not sure about your targets? Use the <strong>Calorie Calculator</strong> in Tools to get exact numbers based on your body and activity level.
+          <div style={{background:'var(--primary-bg)',borderRadius:12,padding:'12px 14px',border:'1px solid #c7d2fe',fontSize:12,color:'var(--primary)',lineHeight:1.6}}>
+            Not sure about your targets? Use the <strong>Calorie Calculator</strong> in Tools to get exact numbers based on your body and activity level.
           </div>
-          <button className="btn btn-primary" style={{padding:'15px',fontWeight:700,fontSize:15}} onClick={saveProfile} disabled={saving}>
+          <button className="btn btn-primary tap-scale" style={{padding:'15px',fontWeight:700,fontSize:15}} onClick={saveProfile} disabled={saving}>
             {saving?'Saving…':'Save goals'}
           </button>
         </div>
 
-        <div className="card">
-          <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>📊 Current plan</div>
+        <div className="card fade-in-up">
+          <div style={{fontWeight:700,fontSize:15,marginBottom:14}}>Current plan</div>
           {[
             {l:'Calories',v:form.cal_target,u:'kcal',c:'#6366f1'},
             {l:'Protein',v:form.protein_target,u:'g',c:'#3b82f6'},
@@ -418,58 +618,16 @@ export default function ProfilePage() {
     </div>
   )
 
-  // ── SECURITY ───────────────────────────────────────────────
-  if (view === 'security') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
-      <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
-        <BackBtn/>
-      </div>
-      <div style={{padding:'0 20px'}}>
-        <MsgBanner/>
-        <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
-          <div style={{fontWeight:700,fontSize:17}}>📧 Change email</div>
-          <div style={{padding:'10px 14px',borderRadius:12,background:'var(--card2)',fontSize:13,color:'var(--muted)'}}>
-            Current: <strong style={{color:'var(--text)'}}>{userEmail}</strong>
-          </div>
-          <div><L text="New email address"/><input type="email" placeholder="new@email.com" value={secForm.newEmail} onChange={e=>setSecForm(p=>({...p,newEmail:e.target.value}))}/></div>
-          <button className="btn btn-primary" style={{padding:'14px',fontWeight:700}} onClick={changeEmail}>Update email</button>
-        </div>
-
-        <div className="card" style={{display:'flex',flexDirection:'column',gap:14,marginBottom:14}}>
-          <div style={{fontWeight:700,fontSize:17}}>🔑 Change password</div>
-          <div><L text="New password"/><input type="password" placeholder="Minimum 6 characters" value={secForm.newPassword} onChange={e=>setSecForm(p=>({...p,newPassword:e.target.value}))}/></div>
-          <div><L text="Confirm new password"/><input type="password" placeholder="Repeat your new password" value={secForm.confirmPassword} onChange={e=>setSecForm(p=>({...p,confirmPassword:e.target.value}))}/></div>
-          <button className="btn btn-primary" style={{padding:'14px',fontWeight:700}} onClick={changePassword}>Update password</button>
-          <button className="btn btn-ghost" style={{padding:'13px',fontSize:13,fontWeight:600}}
-            onClick={async()=>{const{data:{user}}=await supabase.auth.getUser();if(user?.email){await supabase.auth.resetPasswordForEmail(user.email);showMsg('Reset link sent to your email!')}}}>
-            Send password reset link via email
-          </button>
-        </div>
-
-        <div className="card" style={{border:'1.5px solid #fecaca'}}>
-          <div style={{fontWeight:700,fontSize:15,marginBottom:8,color:'#dc2626'}}>⚠️ Danger zone</div>
-          <p style={{fontSize:13,color:'var(--muted)',marginBottom:16,lineHeight:1.7}}>
-            Permanently delete your MacroTrack account and all associated data. This action <strong>cannot be undone</strong>. All food logs, weight history, and profile data will be permanently removed.
-          </p>
-          <button style={{width:'100%',padding:'14px',borderRadius:14,background:'#fef2f2',border:'1.5px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:14,cursor:'pointer',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}
-            onClick={async()=>{if(confirm('This will permanently delete your account and all data. Are you sure?')){await supabase.auth.signOut();router.replace('/auth')}}}>
-            Delete my account permanently
-          </button>
-        </div>
-      </div>
-      <BottomNav/>
-    </div>
-  )
-
   // ── NOTIFICATIONS ──────────────────────────────────────────
   if (view === 'notifications') return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+      {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
       </div>
       <div style={{padding:'0 20px'}}>
         <MsgBanner/>
-        <div className="card" style={{marginBottom:14}}>
+        <div className="card fade-in-up" style={{marginBottom:14}}>
           <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:16}}>
             <div style={{width:48,height:48,borderRadius:16,background:notifPermission==='granted'?'#d1fae5':'#fef3c7',display:'flex',alignItems:'center',justifyContent:'center',fontSize:24,flexShrink:0}}>
               {notifPermission==='granted' ? <CheckIcon size={24} color='var(--primary)'/> : <BellIcon size={24} color='var(--primary)'/>}
@@ -484,15 +642,15 @@ export default function ProfilePage() {
             </div>
           </div>
           {notifPermission!=='granted'
-            ? <button className="btn btn-primary" style={{padding:'13px',fontWeight:700}} onClick={enableNotifications}>Enable notifications</button>
-            : <button className="btn btn-ghost" style={{padding:'12px',fontSize:13,fontWeight:600}}
-                onClick={()=>new Notification('MacroTrack 🔔',{body:'Notifications are working perfectly!'})}>
+            ? <button className="btn btn-primary tap-scale" style={{padding:'13px',fontWeight:700}} onClick={enableNotifications}>Enable notifications</button>
+            : <button className="btn btn-ghost tap-scale" style={{padding:'12px',fontSize:13,fontWeight:600}}
+                onClick={()=>new Notification('MacroTrack',{body:'Notifications are working perfectly!'})}>
                 Send test notification
               </button>
           }
         </div>
 
-        <div className="card" style={{marginBottom:14}}>
+        <div className="card fade-in-up" style={{marginBottom:14}}>
           <div style={{fontWeight:700,fontSize:15,marginBottom:16}}>Reminder schedule</div>
           {reminders.map((r,i)=>(
             <div key={r.id} style={{display:'flex',alignItems:'center',gap:12,padding:'14px 0',borderBottom:i<reminders.length-1?'1px solid var(--border)':'none'}}>
@@ -505,18 +663,18 @@ export default function ProfilePage() {
                   onChange={e=>setReminders(p=>p.map(x=>x.id===r.id?{...x,time:e.target.value}:x))}
                   style={{fontSize:12,color:r.enabled?'var(--primary)':'var(--muted)',fontWeight:700,background:'none',border:'none',padding:0,marginTop:2,outline:'none',width:'auto'}}/>
               </div>
-              <button onClick={()=>setReminders(p=>p.map(x=>x.id===r.id?{...x,enabled:!x.enabled}:x))}
-                style={{width:48,height:28,borderRadius:99,background:r.enabled?'var(--primary)':'var(--border)',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0,WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+              <button onClick={()=>setReminders(p=>p.map(x=>x.id===r.id?{...x,enabled:!x.enabled}:x))} className="tap-scale"
+                style={{width:48,height:28,borderRadius:99,background:r.enabled?'var(--primary)':'var(--border)',border:'none',cursor:'pointer',position:'relative',transition:'background 0.2s',flexShrink:0,WebkitTapHighlightColor:'transparent'}}>
                 <div style={{position:'absolute',top:4,left:r.enabled?26:4,width:20,height:20,borderRadius:'50%',background:'#fff',transition:'left 0.2s',boxShadow:'0 1px 3px rgba(0,0,0,0.2)'}}/>
               </button>
             </div>
           ))}
         </div>
-        <button className="btn btn-primary" style={{padding:'15px',fontWeight:700,fontSize:15}} onClick={saveReminders}>
-          💾 Save reminders
+        <button className="btn btn-primary tap-scale" style={{padding:'15px',fontWeight:700,fontSize:15}} onClick={saveReminders}>
+          Save reminders
         </button>
-        <div style={{background:'#fef3c7',borderRadius:14,padding:'12px 14px',border:'1.5px solid #fde68a',marginTop:14,fontSize:12,color:'#92400e',lineHeight:1.7}}>
-          ⚠️ Reminders work while the app is open or installed as a PWA on your home screen. For best results, keep the app running in the background.
+        <div style={{background:'#fef3c7',borderRadius:14,padding:'12px 14px',border:'1px solid #fde68a',marginTop:14,fontSize:12,color:'#92400e',lineHeight:1.7}}>
+          Reminders work while the app is open or installed as a PWA on your home screen. For best results, keep the app running in the background.
         </div>
       </div>
       <BottomNav/>
@@ -526,93 +684,103 @@ export default function ProfilePage() {
   // ── MAIN ───────────────────────────────────────────────────
   return (
     <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+      {sharedStyles}
+      <MsgBanner/>
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
-        <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em',marginBottom:20}}>Account</h1>
 
-        {msg && <MsgBanner/>}
-
-        {/* Profile card */}
-        <button onClick={()=>setView('edit')}
-          style={{width:'100%',background:'var(--card)',borderRadius:20,padding:'16px 18px',border:'1.5px solid var(--border)',marginBottom:24,display:'flex',alignItems:'center',gap:14,cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
-          <div style={{position:'relative',flexShrink:0}}>
-            <div style={{width:56,height:56,borderRadius:'50%',overflow:'hidden',background:'linear-gradient(135deg,var(--primary),#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,fontWeight:800,color:'#fff'}}>
-              {photoUrl ? <img src={photoUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/> : (form.name?form.name[0].toUpperCase():'?')}
+        {/* Hero header — large photo, name, email, "membership" badge (real created_at, not a fabricated tier) */}
+        <div className="fade-in-up" style={{ textAlign:'center', marginBottom:28 }}>
+          <button onClick={()=>setView('edit')} className="tap-scale" style={{ position:'relative', width:108, height:108, margin:'0 auto 14px', cursor:'pointer', border:'none', background:'none', padding:0 }}>
+            <div style={{ width:108, height:108, borderRadius:'50%', overflow:'hidden', background:'linear-gradient(135deg,var(--primary),#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:40, fontWeight:800, color:'#fff' }}>
+              {photoUrl ? <img src={photoUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : (form.name ? form.name[0].toUpperCase() : '?')}
             </div>
-            <svg style={{position:'absolute',top:-3,left:-3}} width="62" height="62" viewBox="0 0 62 62">
-              <circle cx="31" cy="31" r="28" fill="none" stroke="var(--border)" strokeWidth="2.5"/>
-              <circle cx="31" cy="31" r="28" fill="none" stroke="var(--primary)" strokeWidth="2.5" strokeLinecap="round"
-                strokeDasharray={String(2*Math.PI*28)}
-                strokeDashoffset={String(2*Math.PI*28*(1-profilePct/100))}
-                style={{transformOrigin:'31px 31px',transform:'rotate(-90deg)'}}/>
+            <svg style={{ position:'absolute', top:-4, left:-4 }} width="116" height="116" viewBox="0 0 116 116">
+              <circle cx="58" cy="58" r="54" fill="none" stroke="var(--border)" strokeWidth="3"/>
+              <circle cx="58" cy="58" r="54" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round"
+                strokeDasharray={String(2*Math.PI*54)}
+                strokeDashoffset={String(2*Math.PI*54*(1-profilePct/100))}
+                style={{ transformOrigin:'58px 58px', transform:'rotate(-90deg)', transition:'stroke-dashoffset 0.6s ease' }}/>
             </svg>
-          </div>
-          <div style={{flex:1,minWidth:0}}>
-            <div style={{fontWeight:700,fontSize:16,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',color:'var(--text)'}}>
-              {form.name || 'Set your name'}
+          </button>
+          <h1 style={{ fontSize:23, fontWeight:800, letterSpacing:'-0.02em', color:'var(--text)' }}>{form.name || 'Set your name'}</h1>
+          <p style={{ fontSize:13, color:'var(--muted)', marginTop:3 }}>{userEmail}</p>
+          {memberSinceLabel && (
+            <div style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:10, padding:'5px 14px', borderRadius:99, background:'var(--primary-bg)' }}>
+              <IconCrown size={12} color="var(--primary)"/>
+              <span style={{ fontSize:11, fontWeight:700, color:'var(--primary)' }}>Member since {memberSinceLabel}</span>
             </div>
-            <div style={{fontSize:12,color:'var(--muted)',marginTop:2,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{userEmail}</div>
-            <div style={{fontSize:11,color:'var(--primary)',marginTop:4,fontWeight:600}}>
-              {profilePct}% complete · tap to edit
-            </div>
-          </div>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+          )}
+          <div style={{ fontSize:11, color:'var(--primary)', marginTop:8, fontWeight:600 }}>{profilePct}% profile complete · tap photo to edit</div>
+        </div>
 
-        {/* Tools */}
+        {/* Tools — kept, real routes, lightly restyled */}
         <SectionLabel text="Tools"/>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:24}}>
           {[
-            {icon:<ScaleIcon size={28} color='var(--primary)'/>,label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
-            {icon:<FireIcon size={28} color='var(--primary)'/>,label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
-            {icon:<MeasureIcon size={28} color='var(--primary)'/>,label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
-            {icon:<ShareIcon size={28} color='var(--primary)'/>,label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
+            {icon:<ScaleIcon size={26} color='var(--primary)'/>,label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
+            {icon:<FireIcon size={26} color='var(--primary)'/>,label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
+            {icon:<MeasureIcon size={26} color='var(--primary)'/>,label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
+            {icon:<ShareIcon size={26} color='var(--primary)'/>,label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
           ].map(t=>(
-            <button key={t.label} onClick={t.go}
-              style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
-              <div style={{fontSize:26,marginBottom:8}}>{t.icon}</div>
+            <button key={t.label} onClick={t.go} className="tap-scale"
+              style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+              <div style={{marginBottom:8}}>{t.icon}</div>
               <div style={{fontWeight:700,fontSize:13,color:'var(--text)'}}>{t.label}</div>
               <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{t.sub}</div>
             </button>
           ))}
         </div>
 
-        {/* Settings */}
-        <SectionLabel text="Settings"/>
-        <MenuItem icon={<TargetIcon size={20} color='var(--primary)'/>} label="Goals & targets" sub="Calories, macros, weight goal" onClick={()=>setView('goals')}/>
-        <MenuItem icon={<TrophyIcon size={20} color='var(--primary)'/>} label="Progress & Achievements" sub="Streaks, badges, challenges" onClick={()=>router.push('/progress')}/>
-        <MenuItem icon={<BellIcon size={20} color='var(--primary)'/>} label="Notifications" sub={notifPermission==='granted'?`${reminders.filter(r=>r.enabled).length} reminders active`:'Set meal reminders'} onClick={()=>setView('notifications')}/>
-        <MenuItem icon={<LockIcon size={20} color='var(--primary)'/>} label="Security" sub="Password, email, account" onClick={()=>setView('security')}/>
+        {/* Settings — the 10 requested cards, platform-adaptive */}
+        {isAndroid ? (
+          <>
+            <SectionLabel text="Settings"/>
+            {ACCOUNT_ITEMS.map(item => (
+              <MaterialRow key={item.id} id={item.id} icon={item.icon} iconBg={item.iconBg} label={item.label} sub={item.sub} onClick={item.action}/>
+            ))}
+          </>
+        ) : (
+          <>
+            <AppleGroup title="Account">
+              <AppleRow icon={ACCOUNT_ITEMS[0].icon} iconBg={ACCOUNT_ITEMS[0].iconBg} label={ACCOUNT_ITEMS[0].label} sub={ACCOUNT_ITEMS[0].sub} onClick={ACCOUNT_ITEMS[0].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[1].icon} iconBg={ACCOUNT_ITEMS[1].iconBg} label={ACCOUNT_ITEMS[1].label} sub={ACCOUNT_ITEMS[1].sub} onClick={ACCOUNT_ITEMS[1].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[2].icon} iconBg={ACCOUNT_ITEMS[2].iconBg} label={ACCOUNT_ITEMS[2].label} sub={ACCOUNT_ITEMS[2].sub} onClick={ACCOUNT_ITEMS[2].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[3].icon} iconBg={ACCOUNT_ITEMS[3].iconBg} label={ACCOUNT_ITEMS[3].label} sub={ACCOUNT_ITEMS[3].sub} onClick={ACCOUNT_ITEMS[3].action} last/>
+            </AppleGroup>
+            <AppleGroup title="Privacy & Data">
+              <AppleRow icon={ACCOUNT_ITEMS[4].icon} iconBg={ACCOUNT_ITEMS[4].iconBg} label={ACCOUNT_ITEMS[4].label} sub={ACCOUNT_ITEMS[4].sub} onClick={ACCOUNT_ITEMS[4].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[6].icon} iconBg={ACCOUNT_ITEMS[6].iconBg} label={ACCOUNT_ITEMS[6].label} sub={ACCOUNT_ITEMS[6].sub} onClick={ACCOUNT_ITEMS[6].action} last/>
+            </AppleGroup>
+            <AppleGroup title="Preferences">
+              <AppleRow icon={ACCOUNT_ITEMS[5].icon} iconBg={ACCOUNT_ITEMS[5].iconBg} label={ACCOUNT_ITEMS[5].label} sub={ACCOUNT_ITEMS[5].sub} onClick={ACCOUNT_ITEMS[5].action} last/>
+            </AppleGroup>
+            <AppleGroup title="Support">
+              <AppleRow icon={ACCOUNT_ITEMS[7].icon} iconBg={ACCOUNT_ITEMS[7].iconBg} label={ACCOUNT_ITEMS[7].label} sub={ACCOUNT_ITEMS[7].sub} onClick={ACCOUNT_ITEMS[7].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[8].icon} iconBg={ACCOUNT_ITEMS[8].iconBg} label={ACCOUNT_ITEMS[8].label} sub={ACCOUNT_ITEMS[8].sub} onClick={ACCOUNT_ITEMS[8].action} last/>
+            </AppleGroup>
+          </>
+        )}
 
-        {/* Appearance */}
+        {/* Appearance — same theme picker/logic, wrapped in the new card language (kept unified across platforms) */}
         <SectionLabel text="Appearance"/>
-        <div style={{display:'flex',gap:8,marginBottom:24}}>
+        <div className="card fade-in-up" style={{ marginBottom:24, display:'flex', gap:8 }}>
           {[
-            { value:'light', icon:<SunIcon size={24} color={theme==='light' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Light' },
-            { value:'auto', icon:<AutoIcon size={24} color={theme==='auto' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Auto' },
-            { value:'dark', icon:<MoonIcon size={24} color={theme==='dark' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Dark' }
+            { value:'light', icon:<SunIcon size={22} color={theme==='light' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Light' },
+            { value:'auto', icon:<AutoIcon size={22} color={theme==='auto' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Auto' },
+            { value:'dark', icon:<MoonIcon size={22} color={theme==='dark' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Dark' }
           ].map(({ value, icon, label }) => (
-            <button key={value} onClick={() => setTheme(value)}
-              style={{flex:1,padding:'13px 8px',borderRadius:16,border:'2px solid '+(theme===value?'var(--primary)':'var(--border)'),background:theme===value?'var(--primary-bg)':'var(--card)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+            <button key={value} onClick={() => setTheme(value)} className="tap-scale"
+              style={{flex:1,padding:'13px 8px',borderRadius:14,border:'2px solid '+(theme===value?'var(--primary)':'var(--border)'),background:theme===value?'var(--primary-bg)':'var(--surface)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent'}}>
               <div style={{marginBottom:5}}>{icon}</div>
               <div style={{fontSize:12,fontWeight:700,color:theme===value?'var(--primary)':'var(--muted)'}}>{label}</div>
             </button>
           ))}
         </div>
 
-        {/* Legal */}
-        <SectionLabel text="Legal"/>
-        <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:24}}>
-          {[['terms','Terms & Conditions'],['privacy','Privacy Policy'],['data','Data & Privacy']].map(([key,label])=>(
-            <button key={key} onClick={()=>{setLegalPage(key);setView('legal')}}
-              style={{padding:'9px 16px',borderRadius:99,fontSize:13,fontWeight:500,cursor:'pointer',border:'1.5px solid var(--border)',background:'var(--card)',color:'var(--muted)',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
-              {label}
-            </button>
-          ))}
-        </div>
-
-        {/* Log out */}
-        <button onClick={async()=>{await supabase.auth.signOut();router.replace('/auth')}}
-          style={{width:'100%',padding:'15px',borderRadius:16,background:'#fef2f2',border:'1.5px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:15,cursor:'pointer',WebkitTapHighlightColor:'transparent', transition:'transform 0.15s ease, box-shadow 0.15s ease'}}>
+        {/* Log out — exact same signOut() call, just restyled */}
+        <button onClick={async()=>{await supabase.auth.signOut();router.replace('/auth')}} className="tap-scale"
+          style={{width:'100%',padding:'16px',borderRadius: isAndroid?20:16,background:'#fef2f2',border:'1px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,WebkitTapHighlightColor:'transparent'}}>
+          <LogoutIcon size={18} color="#dc2626"/>
           Log out
         </button>
       </div>

@@ -59,14 +59,7 @@ return (
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  @keyframes softPulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.35); }
-    50% { box-shadow: 0 0 0 8px rgba(16,185,129,0); }
-  }
   .fade-in-up { animation: fadeInUp 0.45s cubic-bezier(.4,0,.2,1) both; }
-  .tap-scale { transition: transform 0.15s ease, box-shadow 0.15s ease; }
-  .tap-scale:active { transform: scale(0.97); }
-  .resume-pulse { animation: softPulse 2.4s ease-in-out infinite; }
 `}</style>
 <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
 
@@ -76,8 +69,8 @@ return (
 <p style={{fontSize:13,color:'var(--muted)',fontWeight:600}}>Hey, {profile?.name?.split(' ')[0]||'there'}</p>
 <h1 style={{fontSize:30,fontWeight:800,letterSpacing:'-0.03em',marginTop:3,color:'var(--text)'}}>Start Workout</h1>
 </div>
-<button onClick={()=>router.push('/profile')} className="tap-scale" style={{background:'none',border:'none',cursor:'pointer',padding:0}}>
-<div style={{width:46,height:46,borderRadius:'50%',overflow:'hidden',background:'linear-gradient(135deg,var(--primary),#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:800,color:'#fff',border:'2px solid var(--border)'}}>
+<button onClick={()=>router.push('/profile')} className="press-effect" style={{background:'none',border:'none',cursor:'pointer',padding:0}}>
+<div style={{width:46,height:46,borderRadius:'50%',overflow:'hidden',background:'linear-gradient(135deg,var(--primary),var(--primary-light))',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18,fontWeight:800,color:'#fff',border:'2px solid var(--border)'}}>
 {profile?.photo_url?<img src={profile.photo_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>:(profile?.name?.[0]?.toUpperCase()||'?')}
 </div>
 </button>
@@ -86,8 +79,8 @@ return (
 {/* Active workout banner */}
 {activeWorkout && (
 <button onClick={()=>router.push('/workout/active')}
-className="tap-scale resume-pulse fade-in-up"
-style={{width:'100%',background:'linear-gradient(135deg,#10b981,#059669)',borderRadius:20,padding:'16px 18px',border:'none',cursor:'pointer',textAlign:'left',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
+className="press-effect pulse-ring fade-in-up"
+style={{width:'100%',background:'linear-gradient(135deg,var(--green),color-mix(in srgb, var(--green) 75%, black))',borderRadius:20,padding:'16px 18px',border:'none',cursor:'pointer',textAlign:'left',marginBottom:16,display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,'--pulse-color':'color-mix(in srgb, var(--green) 35%, transparent)'}}>
 <div style={{minWidth:0}}>
 <div style={{fontSize:11,color:'rgba(255,255,255,0.8)',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.06em',marginBottom:4}}>Active workout</div>
 <div style={{fontSize:16,fontWeight:700,color:'#fff',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{activeWorkout.name}</div>
@@ -101,7 +94,7 @@ style={{width:'100%',background:'linear-gradient(135deg,#10b981,#059669)',border
 
 {/* Quick start — the fastest path to logging */}
 <div className="fade-in-up" style={{marginBottom:20}}>
-<button onClick={()=>router.push('/workout/active?quick=1')} className="tap-scale"
+<button onClick={()=>router.push('/workout/active?quick=1')} className="press-effect"
 style={{width:'100%',background:'var(--primary)',borderRadius:20,padding:'18px 20px',border:'none',cursor:'pointer',display:'flex',alignItems:'center',gap:14,WebkitTapHighlightColor:'transparent',boxShadow:'0 8px 20px -8px var(--primary)'}}>
 <div style={{width:44,height:44,borderRadius:14,background:'rgba(255,255,255,0.18)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
 <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
@@ -117,8 +110,8 @@ style={{width:'100%',background:'var(--primary)',borderRadius:20,padding:'18px 2
 <div className="fade-in-up" style={{display:'flex',gap:8,marginBottom:24}}>
 {[
             {label:'Total',val:stats.total,Icon:MuscleIcon,color:'var(--primary)'},
-            {label:'This week',val:stats.week,Icon:ChartBarIcon,color:'#10b981'},
-            {label:'Volume (kg)',val:stats.volume,Icon:BoltIcon,color:'#f59e0b'},
+            {label:'This week',val:stats.week,Icon:ChartBarIcon,color:'var(--green)'},
+            {label:'Volume (kg)',val:stats.volume,Icon:BoltIcon,color:'var(--orange)'},
           ].map(s=>(
 <div key={s.label} style={{flex:1,background:'var(--card)',border:'1.5px solid var(--border)',borderRadius:16,padding:'12px 10px',display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
 <s.Icon size={16} color={s.color}/>
@@ -136,7 +129,7 @@ style={{width:'100%',background:'var(--primary)',borderRadius:20,padding:'18px 2
             {label:'History',Icon:ChartBarIcon,sub:`${stats.total} workouts`,action:()=>router.push('/workout/history')},
             {label:'Body Anatomy',Icon:HeartBeatIcon,sub:'Muscle map',action:()=>router.push('/workout/body')},
           ].map(item=>(
-<button key={item.label} onClick={item.action} className="tap-scale"
+<button key={item.label} onClick={item.action} className="press-effect"
 style={{background:'var(--card)',borderRadius:20,padding:'18px 16px',border:'1.5px solid var(--border)',cursor:'pointer',textAlign:'left',position:'relative',WebkitTapHighlightColor:'transparent',minHeight:110,display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
 <div style={{width:34,height:34,borderRadius:10,background:'var(--primary-bg)',display:'flex',alignItems:'center',justifyContent:'center'}}>
 <item.Icon size={19} color='var(--primary)' />
@@ -153,7 +146,7 @@ style={{background:'var(--card)',borderRadius:20,padding:'18px 16px',border:'1.5
 <div className="fade-in-up" style={{marginBottom:28}}>
 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
 <h2 style={{fontSize:20,fontWeight:700,color:'var(--text)'}}>Templates</h2>
-<button onClick={()=>router.push('/workout/template')} className="tap-scale"
+<button onClick={()=>router.push('/workout/template')} className="press-effect"
 style={{background:'var(--primary-bg)',border:'1.5px solid var(--primary)',borderRadius:99,padding:'5px 14px',fontSize:12,fontWeight:700,color:'var(--primary)',cursor:'pointer'}}>
                 + Template
 </button>
@@ -166,7 +159,7 @@ style={{background:'var(--primary-bg)',border:'1.5px solid var(--primary)',borde
 </div>
 <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:'var(--text)'}}>No templates yet</div>
 <div style={{fontSize:12,color:'var(--muted)',marginBottom:16}}>Create reusable workout routines</div>
-<button onClick={()=>router.push('/workout/template')} className="tap-scale" style={{background:'var(--primary)',border:'none',borderRadius:12,padding:'10px 22px',color:'#fff',fontWeight:700,fontSize:13,cursor:'pointer'}}>
+<button onClick={()=>router.push('/workout/template')} className="press-effect" style={{background:'var(--primary)',border:'none',borderRadius:12,padding:'10px 22px',color:'#fff',fontWeight:700,fontSize:13,cursor:'pointer'}}>
                 Create template
 </button>
 </div>
@@ -182,13 +175,13 @@ style={{background:'var(--primary-bg)',border:'1.5px solid var(--primary)',borde
 <div style={{fontSize:11,color:'var(--muted)',fontWeight:500}}>{(t.exercises||[]).length} exercises</div>
 </div>
 <div style={{display:'flex',gap:6,marginTop:12}}>
-<button onClick={()=>router.push('/workout/active?template='+t.id)} className="tap-scale"
+<button onClick={()=>router.push('/workout/active?template='+t.id)} className="press-effect"
 style={{flex:1,background:'var(--primary)',border:'none',borderRadius:10,padding:'8px',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}>
                       <svg width="10" height="10" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg>
                       Start
 </button>
-<button onClick={()=>router.push('/workout/template?edit='+t.id)} className="tap-scale"
-style={{background:'var(--card2, var(--primary-bg))',border:'1.5px solid var(--border)',borderRadius:10,padding:'8px 10px',color:'var(--muted)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+<button onClick={()=>router.push('/workout/template?edit='+t.id)} className="press-effect"
+style={{background:'var(--card2)',border:'1.5px solid var(--border)',borderRadius:10,padding:'8px 10px',color:'var(--muted)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
 </button>
 </div>

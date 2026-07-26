@@ -458,3 +458,10 @@ select {
   cursor: pointer;
 }
 select::-ms-expand { display: none; }
+
+/* ── pulse-primary — referenced on the dashboard's "Log food" CTA but never defined ── */
+@keyframes pulsePrimary {
+  0%, 100% { box-shadow: var(--shadow-primary); }
+  50% { box-shadow: 0 8px 32px rgba(99,102,241,0.5); }
+}
+.pulse-primary { animation: pulsePrimary 2.2s ease-in-out infinite; }

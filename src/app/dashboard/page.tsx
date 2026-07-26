@@ -36,11 +36,11 @@ function getFoodImage(name) {
 }
 
 const STATUS_CONFIG = {
-  on_track: { iconType: 'check', label: 'On track', color: '#10b981', bg: '#d1fae5' },
-  low_protein: { iconType: 'muscle', label: 'Low protein', color: '#3b82f6', bg: '#dbeafe' },
-  low_calories: { iconType: 'bolt', label: 'Need more food', color: '#f59e0b', bg: '#fef3c7' },
-  over_calories: { iconType: 'warning', label: 'Over calories', color: '#ef4444', bg: '#fee2e2' },
-  great: { iconType: 'trophy', label: 'Perfect day!', color: '#10b981', bg: '#d1fae5' },
+  on_track: { iconType: 'check', label: 'On track', color: 'var(--green)', bg: 'var(--green-bg)' },
+  low_protein: { iconType: 'muscle', label: 'Low protein', color: 'var(--blue)', bg: 'var(--blue-bg)' },
+  low_calories: { iconType: 'bolt', label: 'Need more food', color: 'var(--orange)', bg: 'var(--orange-bg)' },
+  over_calories: { iconType: 'warning', label: 'Over calories', color: 'var(--red)', bg: 'var(--red-bg)' },
+  great: { iconType: 'trophy', label: 'Perfect day!', color: 'var(--green)', bg: 'var(--green-bg)' },
 }
 
 // ---------- Presentation-only helpers (new) ----------
@@ -61,20 +61,20 @@ function CalorieRing({ consumed, target, size = 188, strokeWidth = 15 }) {
         <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--card2)" strokeWidth={strokeWidth} />
         <circle
           cx={size / 2} cy={size / 2} r={radius} fill="none"
-          stroke={over ? '#ef4444' : 'url(#calRingGradient)'}
+          stroke={over ? 'var(--red)' : 'url(#calRingGradient)'}
           strokeWidth={strokeWidth} strokeLinecap="round"
           strokeDasharray={circumference} strokeDashoffset={offset}
           style={{ transition: 'stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)' }}
         />
         <defs>
           <linearGradient id="calRingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#818cf8" />
+            <stop offset="0%" stopColor="var(--primary-light)" />
             <stop offset="100%" stopColor="var(--primary)" />
           </linearGradient>
         </defs>
       </svg>
       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <FireIcon size={16} color={over ? '#ef4444' : 'var(--primary)'} />
+        <FireIcon size={16} color={over ? 'var(--red)' : 'var(--primary)'} />
         <div style={{ fontSize: 34, fontWeight: 800, letterSpacing: '-0.02em', marginTop: 4, lineHeight: 1 }}>
           {Math.round(consumed)}
         </div>
@@ -83,7 +83,7 @@ function CalorieRing({ consumed, target, size = 188, strokeWidth = 15 }) {
         </div>
         <div style={{
           fontSize: 11, fontWeight: 700, marginTop: 8, padding: '3px 11px', borderRadius: 99,
-          background: over ? '#fee2e2' : 'var(--primary-bg)', color: over ? '#ef4444' : 'var(--primary)'
+          background: over ? 'var(--red-bg)' : 'var(--primary-bg)', color: over ? 'var(--red)' : 'var(--primary)'
         }}>
           {over ? `${remaining} over` : `${remaining} left`}
         </div>
@@ -186,7 +186,7 @@ export default function Dashboard() {
   }
 
   const mealGroups = ['breakfast','lunch','dinner','snack','other']
-  const mealColors = { breakfast:'#f59e0b', lunch:'#10b981', dinner:'#6366f1', snack:'#ef4444', other:'#94a3b8' }
+  const mealColors = { breakfast:'var(--orange)', lunch:'var(--green)', dinner:'var(--primary)', snack:'var(--red)', other:'var(--muted)' }
   const mealIconTypes = { breakfast:'sunrise', lunch:'sun', dinner:'moon', snack:'apple', other:'food' }
 
   const getIcon = (type) => {
@@ -222,7 +222,7 @@ export default function Dashboard() {
 
   // Unified quick-action rows (Meal Planner / Insights / Supplements) — same routes as before
   const quickActions = [
-    { icon: <MealPlanIcon size={19} color="#10b981"/>, iconBg: '#d1fae5', title: 'Meal Planner', sub: 'AI-generated daily plan', path: '/meal-plan' },
+    { icon: <MealPlanIcon size={19} color="var(--green)"/>, iconBg: 'var(--green-bg)', title: 'Meal Planner', sub: 'AI-generated daily plan', path: '/meal-plan' },
     { icon: <ChartBarIcon size={19} color="var(--primary)"/>, iconBg: 'var(--primary-bg)', title: 'Insights', sub: 'Weekly AI nutrition report', path: '/insights' },
     { icon: <SupplementIcon size={19} color="#ec4899"/>, iconBg: '#fce7f3', title: 'Supplements', sub: 'Track daily intake', path: '/supplements' },
   ]
@@ -235,8 +235,6 @@ export default function Dashboard() {
           to { opacity: 1; transform: translateY(0); }
         }
         .fade-in-up { animation: fadeInUp 0.5s cubic-bezier(.4,0,.2,1) both; }
-        .tap-scale { transition: transform 0.15s ease; }
-        .tap-scale:active { transform: scale(0.97); }
         .qa-row { transition: background-color 0.15s ease; }
         .qa-row:active { background-color: var(--card2); }
       `}</style>
@@ -261,8 +259,8 @@ export default function Dashboard() {
             {profile?.name ? <>Hey, {profile.name.split(' ')[0]} <WaveIcon size={22}/></> : 'Today'}
           </h1>
         </div>
-        <button onClick={() => router.push('/profile')} className="tap-scale" style={{ background:'none', border:'none', cursor:'pointer', padding:0 }}>
-          <div style={{ width:44, height:44, borderRadius:'50%', overflow:'hidden', background:'linear-gradient(135deg,var(--primary),#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, fontWeight:800, color:'#fff', border:'2px solid var(--border)' }}>
+        <button onClick={() => router.push('/profile')} className="press-effect" style={{ background:'none', border:'none', cursor:'pointer', padding:0 }}>
+          <div style={{ width:44, height:44, borderRadius:'50%', overflow:'hidden', background:'linear-gradient(135deg,var(--primary),var(--primary-light))', display:'flex', alignItems:'center', justifyContent:'center', fontSize:17, fontWeight:800, color:'#fff', border:'2px solid var(--border)' }}>
             {profile?.photo_url ? <img src={profile.photo_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : (profile?.name?.[0]?.toUpperCase() || '?')}
           </div>
         </button>
@@ -279,7 +277,7 @@ export default function Dashboard() {
       {/* Daily summary — hero calorie ring + 4 mini macro rings, single card */}
       <div
         onClick={() => router.push('/calories')}
-        className="card tap-scale fade-in-up"
+        className="card press-effect fade-in-up"
         style={{ padding:'22px 20px 18px', cursor:'pointer', position:'relative', animationDelay:'0.05s' }}
       >
         {statusConf && (
@@ -294,10 +292,10 @@ export default function Dashboard() {
         </div>
 
         <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:6, marginTop:24 }}>
-          <MiniRing label="Protein" value={totals.protein} target={g.protein_target} unit="g" color="#3b82f6"/>
-          <MiniRing label="Carbs" value={totals.carb} target={g.carb_target} unit="g" color="#f59e0b"/>
-          <MiniRing label="Fat" value={totals.fat} target={g.fat_target} unit="g" color="#ef4444"/>
-          <MiniRing label="Fiber" value={totals.fiber} target={g.fiber_target} unit="g" color="#10b981"/>
+          <MiniRing label="Protein" value={totals.protein} target={g.protein_target} unit="g" color="var(--blue)"/>
+          <MiniRing label="Carbs" value={totals.carb} target={g.carb_target} unit="g" color="var(--orange)"/>
+          <MiniRing label="Fat" value={totals.fat} target={g.fat_target} unit="g" color="var(--red)"/>
+          <MiniRing label="Fiber" value={totals.fiber} target={g.fiber_target} unit="g" color="var(--green)"/>
         </div>
 
         <div style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:4, marginTop:20, paddingTop:14, borderTop:'1px solid var(--border)' }}>
@@ -338,27 +336,27 @@ export default function Dashboard() {
       {/* Hydration — compact ring row */}
       <div
         onClick={() => router.push('/water')}
-        className="card tap-scale fade-in-up"
+        className="card press-effect fade-in-up"
         style={{ marginTop:14, padding:'16px 18px', cursor:'pointer', display:'flex', alignItems:'center', gap:14, animationDelay:'0.15s' }}
       >
         <div style={{ position:'relative', width:52, height:52, flexShrink:0 }}>
           <svg width="52" height="52" style={{ transform:'rotate(-90deg)', display:'block' }}>
             <circle cx="26" cy="26" r="22" fill="none" stroke="var(--card2)" strokeWidth="5"/>
-            <circle cx="26" cy="26" r="22" fill="none" stroke={waterMl>=waterGoal?'#10b981':'#3b82f6'} strokeWidth="5"
+            <circle cx="26" cy="26" r="22" fill="none" stroke={waterMl>=waterGoal?'var(--green)':'var(--blue)'} strokeWidth="5"
               strokeLinecap="round" strokeDasharray={2*Math.PI*22} strokeDashoffset={2*Math.PI*22*(1-waterPct)}
               style={{ transition:'stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1)' }}/>
           </svg>
           <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <DropletIcon size={19} color={waterMl>=waterGoal?'#10b981':'#3b82f6'}/>
+            <DropletIcon size={19} color={waterMl>=waterGoal?'var(--green)':'var(--blue)'}/>
           </div>
         </div>
         <div style={{ flex:1, minWidth:0 }}>
           <div style={{ fontWeight:700, fontSize:15 }}>Hydration</div>
           <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>
-            <span style={{ fontWeight:700, color:waterMl>=waterGoal?'#10b981':'#3b82f6' }}>{waterMl}ml</span> of {waterGoal}ml
+            <span style={{ fontWeight:700, color:waterMl>=waterGoal?'var(--green)':'var(--blue)' }}>{waterMl}ml</span> of {waterGoal}ml
           </div>
         </div>
-        <div style={{ fontSize:11, fontWeight:700, padding:'5px 12px', borderRadius:99, background:waterMl>=waterGoal?'#d1fae5':'#dbeafe', color:waterMl>=waterGoal?'#059669':'#3b82f6', display:'flex', alignItems:'center', gap:5, flexShrink:0, whiteSpace:'nowrap' }}>
+        <div style={{ fontSize:11, fontWeight:700, padding:'5px 12px', borderRadius:99, background:waterMl>=waterGoal?'var(--green-bg)':'var(--blue-bg)', color:waterMl>=waterGoal?'var(--green)':'var(--blue)', display:'flex', alignItems:'center', gap:5, flexShrink:0, whiteSpace:'nowrap' }}>
           {waterMl>=waterGoal ? <><PartyIcon size={13}/> Done</> : `${waterGoal-waterMl}ml left`}
         </div>
       </div>
@@ -369,7 +367,7 @@ export default function Dashboard() {
           <button
             key={item.title}
             onClick={() => router.push(item.path)}
-            className="qa-row"
+            className="qa-row press-effect"
             style={{
               width:'100%', display:'flex', alignItems:'center', gap:13, padding:'13px 18px',
               background:'none', border:'none', cursor:'pointer', textAlign:'left',

@@ -83,16 +83,14 @@ export default function TemplatePage() {
       <style jsx>{`
         @keyframes fadeInUp { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
         .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(.4,0,.2,1) both; }
-        .tap-scale { transition: transform 0.15s ease; }
-        .tap-scale:active { transform: scale(0.96); }
       `}</style>
       <div style={{ padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0' }}>
         <div className="fade-in-up" style={{ display:'flex', alignItems:'center', gap:12, marginBottom:22 }}>
-          <button onClick={()=>router.back()} className="tap-scale" style={{ width:38, height:38, borderRadius:11, background:'var(--card)', border:'1.5px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+          <button onClick={()=>router.back()} className="press-effect" style={{ width:38, height:38, borderRadius:11, background:'var(--card)', border:'1.5px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <h1 style={{ fontSize:24, fontWeight:800, letterSpacing:'-0.02em', flex:1, color:'var(--text)' }}>Templates</h1>
-          <button onClick={startCreate} className="tap-scale" style={{ background:'var(--primary)', border:'none', borderRadius:12, padding:'9px 16px', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
+          <button onClick={startCreate} className="press-effect" style={{ background:'var(--primary)', border:'none', borderRadius:12, padding:'9px 16px', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', gap:5 }}>
             <IconPlus size={12}/> New
           </button>
         </div>
@@ -104,7 +102,7 @@ export default function TemplatePage() {
             </div>
             <div style={{ fontWeight:700, fontSize:16, marginBottom:6, color:'var(--text)' }}>No templates yet</div>
             <div style={{ fontSize:13, color:'var(--muted)', marginBottom:22 }}>Create reusable workout templates</div>
-            <button className="btn btn-primary tap-scale" style={{ width:'auto', padding:'12px 26px' }} onClick={startCreate}>Create first template</button>
+            <button className="btn btn-primary" style={{ width:'auto', padding:'12px 26px' }} onClick={startCreate}>Create first template</button>
           </div>
         ):(
           templates.map((t,ti)=>(
@@ -112,10 +110,10 @@ export default function TemplatePage() {
               <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10 }}>
                 <div style={{ fontWeight:700, fontSize:16, color:'var(--text)' }}>{t.name}</div>
                 <div style={{ display:'flex', gap:6 }}>
-                  <button onClick={()=>startEdit(t)} className="tap-scale" style={{ background:'var(--card2)', border:'1.5px solid var(--border)', borderRadius:9, padding:'6px 11px', fontSize:12, fontWeight:600, cursor:'pointer', color:'var(--text)', display:'flex', alignItems:'center', gap:5 }}>
+                  <button onClick={()=>startEdit(t)} className="press-effect" style={{ background:'var(--card2)', border:'1.5px solid var(--border)', borderRadius:9, padding:'6px 11px', fontSize:12, fontWeight:600, cursor:'pointer', color:'var(--text)', display:'flex', alignItems:'center', gap:5 }}>
                     <IconPencil size={11}/> Edit
                   </button>
-                  <button onClick={()=>deleteTemplate(t.id)} className="tap-scale" style={{ background:'#fef2f2', border:'1.5px solid #fecaca', borderRadius:9, padding:'6px 11px', fontSize:12, fontWeight:600, cursor:'pointer', color:'#dc2626', display:'flex', alignItems:'center', gap:5 }}>
+                  <button onClick={()=>deleteTemplate(t.id)} className="press-effect" style={{ background:'var(--red-bg)', border:'1.5px solid color-mix(in srgb, var(--red) 35%, transparent)', borderRadius:9, padding:'6px 11px', fontSize:12, fontWeight:600, cursor:'pointer', color:'var(--red)', display:'flex', alignItems:'center', gap:5 }}>
                     <IconTrash size={11}/> Delete
                   </button>
                 </div>
@@ -126,7 +124,7 @@ export default function TemplatePage() {
                   <div key={i} style={{ padding:'4px 10px', background:'var(--primary-bg)', borderRadius:99, fontSize:11, fontWeight:600, color:'var(--primary)' }}>{e.name}</div>
                 ))}
               </div>
-              <button onClick={()=>router.push('/workout/active?template='+t.id)} className="tap-scale"
+              <button onClick={()=>router.push('/workout/active?template='+t.id)} className="press-effect"
                 style={{ width:'100%', padding:'12px', borderRadius:13, background:'var(--primary)', border:'none', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:7, boxShadow:'0 6px 16px -6px var(--primary)' }}>
                 <IconPlay size={11}/> Start workout
               </button>
@@ -144,17 +142,15 @@ export default function TemplatePage() {
         @keyframes fadeInUp { from { opacity:0; transform:translateY(10px);} to { opacity:1; transform:translateY(0);} }
         @keyframes tSheetUp { from { transform:translateY(100%);} to { transform:translateY(0);} }
         .fade-in-up { animation: fadeInUp 0.4s cubic-bezier(.4,0,.2,1) both; }
-        .tap-scale { transition: transform 0.15s ease; }
-        .tap-scale:active { transform: scale(0.96); }
         .t-sheet-up { animation: tSheetUp 0.3s cubic-bezier(.4,0,.2,1); }
       `}</style>
       <div style={{ padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0' }}>
         <div className="fade-in-up" style={{ display:'flex', alignItems:'center', gap:12, marginBottom:22 }}>
-          <button onClick={()=>setView('list')} className="tap-scale" style={{ width:38, height:38, borderRadius:11, background:'var(--card)', border:'1.5px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
+          <button onClick={()=>setView('list')} className="press-effect" style={{ width:38, height:38, borderRadius:11, background:'var(--card)', border:'1.5px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text)" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
           </button>
           <h1 style={{ fontSize:20, fontWeight:800, letterSpacing:'-0.02em', flex:1, color:'var(--text)' }}>{editTemplate?'Edit':'New'} Template</h1>
-          <button onClick={save} disabled={saving||!tName.trim()} className="tap-scale" style={{ background:'var(--primary)', border:'none', borderRadius:12, padding:'9px 16px', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', opacity:!tName.trim()?0.5:1 }}>
+          <button onClick={save} disabled={saving||!tName.trim()} className="press-effect" style={{ background:'var(--primary)', border:'none', borderRadius:12, padding:'9px 16px', color:'#fff', fontWeight:700, fontSize:13, cursor:'pointer', opacity:!tName.trim()?0.5:1 }}>
             {saving?'Saving…':'Save'}
           </button>
         </div>
@@ -169,14 +165,14 @@ export default function TemplatePage() {
               <div style={{ fontWeight:600, fontSize:13, color:'var(--text)' }}>{ex.name}</div>
               <div style={{ fontSize:11, color:'var(--muted)', marginTop:1 }}>{ex.sets} sets × {ex.reps} reps</div>
             </div>
-            <button onClick={()=>setTExercises(p=>p.filter((_,j)=>j!==i))} className="tap-scale"
-              style={{ background:'#fef2f2', border:'none', borderRadius:9, width:30, height:30, cursor:'pointer', color:'#dc2626', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <button onClick={()=>setTExercises(p=>p.filter((_,j)=>j!==i))} className="press-effect"
+              style={{ background:'var(--red-bg)', border:'none', borderRadius:9, width:30, height:30, cursor:'pointer', color:'var(--red)', display:'flex', alignItems:'center', justifyContent:'center' }}>
               <IconX size={13}/>
             </button>
           </div>
         ))}
 
-        <button onClick={()=>setShowPicker(true)} className="tap-scale fade-in-up"
+        <button onClick={()=>setShowPicker(true)} className="press-effect fade-in-up"
           style={{ width:'100%', padding:'15px', borderRadius:17, background:'var(--primary-bg)', border:'2px dashed var(--primary)', cursor:'pointer', fontSize:14, fontWeight:700, color:'var(--primary)', marginBottom:16, display:'flex', alignItems:'center', justifyContent:'center', gap:7 }}>
           <IconPlus size={13}/> Add Exercise
         </button>
@@ -187,7 +183,7 @@ export default function TemplatePage() {
           <div className="t-sheet-up" style={{ background:'var(--surface)', width:'100%', maxWidth:430, margin:'0 auto', borderRadius:'26px 26px 0 0', maxHeight:'80dvh', display:'flex', flexDirection:'column' }}>
             <div style={{ padding:'16px 20px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
               <div style={{ fontWeight:800, fontSize:18, color:'var(--text)' }}>Add Exercise</div>
-              <button onClick={()=>setShowPicker(false)} className="tap-scale" style={{ background:'var(--card2)', border:'none', borderRadius:10, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>
+              <button onClick={()=>setShowPicker(false)} className="press-effect" style={{ background:'var(--card2)', border:'none', borderRadius:10, width:32, height:32, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--muted)' }}>
                 <IconX size={14}/>
               </button>
             </div>
@@ -195,7 +191,7 @@ export default function TemplatePage() {
               <input type="text" placeholder="Search…" value={searchQ} onChange={e=>setSearchQ(e.target.value)} style={{ marginBottom:10 }}/>
               <div style={{ display:'flex', gap:6, overflowX:'auto', paddingBottom:4 }}>
                 {CATEGORIES.map(c=>(
-                  <button key={c} onClick={()=>setFilterCat(c)} className="tap-scale"
+                  <button key={c} onClick={()=>setFilterCat(c)} className="press-effect"
                     style={{ padding:'6px 13px', borderRadius:99, fontSize:12, fontWeight:700, cursor:'pointer', flexShrink:0, border:'1.5px solid '+(filterCat===c?'var(--primary)':'var(--border)'), background:filterCat===c?'var(--primary)':'transparent', color:filterCat===c?'#fff':'var(--muted)' }}>
                     {c}
                   </button>
@@ -204,7 +200,7 @@ export default function TemplatePage() {
             </div>
             <div style={{ overflowY:'auto', flex:1 }}>
               {filtered.map(ex=>(
-                <button key={ex.id} onClick={()=>addExercise(ex)} className="tap-scale"
+                <button key={ex.id} onClick={()=>addExercise(ex)} className="press-effect"
                   style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'13px 20px', background:'none', border:'none', borderBottom:'1px solid var(--border)', cursor:'pointer', textAlign:'left' }}>
                   <div style={{ width:42, height:42, borderRadius:12, background:'var(--primary-bg)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{ex.emoji}</div>
                   <div style={{ flex:1 }}>

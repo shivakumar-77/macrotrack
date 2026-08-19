@@ -62,7 +62,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     setNotifPermission(Notification.permission)
-    const saved = localStorage.getItem('macrotrack_reminders')
+    const saved = localStorage.getItem('Kayven_reminders')
     if (saved) { try { setReminders(JSON.parse(saved)) } catch {} }
     load()
   }, [])
@@ -190,7 +190,7 @@ export default function ProfilePage() {
   }
 
   function saveReminders() {
-    localStorage.setItem('macrotrack_reminders', JSON.stringify(reminders))
+    localStorage.setItem('Kayven_reminders', JSON.stringify(reminders))
     showMsg('Reminders saved!')
   }
 
@@ -289,7 +289,7 @@ export default function ProfilePage() {
     { id:'privacy', icon:<LockIcon size={18} color="#fff"/>, iconBg:'#3b82f6', label:'Privacy', sub:'How your data is handled', action:()=>{ setLegalPage('privacy'); setView('legal') } },
     { id:'notifications', icon:<BellIcon size={18} color="#fff"/>, iconBg:'#f97316', label:'Notifications', sub: notifPermission==='granted' ? `${reminders.filter(r=>r.enabled).length} reminders active` : 'Set meal reminders', action:()=>setView('notifications') },
     { id:'dataExport', icon:<IconDownloadTray size={18} color="#fff"/>, iconBg:'#0ea5e9', label:'Data Export', sub:'Request a copy of your data', action:()=>{ setLegalPage('data'); setView('legal') } },
-    { id:'support', icon:<IconLifeBuoy size={18} color="#fff"/>, iconBg:'#ec4899', label:'Support', sub:'support@macrotrack.app', action:()=>{ window.location.href = 'mailto:support@macrotrack.app' } },
+    { id:'support', icon:<IconLifeBuoy size={18} color="#fff"/>, iconBg:'#ec4899', label:'Support', sub:'support@Kayven.app', action:()=>{ window.location.href = 'mailto:support@Kayven.app' } },
     { id:'about', icon:<IconInfo size={18} color="#fff"/>, iconBg:'#64748b', label:'About', sub:'Kayven', action:()=>setView('about') },
   ]
 
@@ -302,7 +302,7 @@ export default function ProfilePage() {
       sections: [
         { t:'1. Acceptance of terms', b:'By accessing Kayven, you confirm you are at least 13 years old and agree to be bound by these Terms. If you are under 18, a parent or guardian must review and agree to these Terms on your behalf.' },
         { t:'2. Use of service', b:'Kayven grants you a personal, non-transferable, non-exclusive license to use the app for your individual nutrition tracking. You may not copy, modify, distribute, sell, or lease any part of our service.' },
-        { t:'3. Account responsibility', b:'You are solely responsible for maintaining the security of your login credentials. You agree to notify us immediately at support@macrotrack.app of any unauthorized access to your account.' },
+        { t:'3. Account responsibility', b:'You are solely responsible for maintaining the security of your login credentials. You agree to notify us immediately at support@Kayven.app of any unauthorized access to your account.' },
         { t:'4. Health & medical disclaimer', b:'Kayven is a wellness and tracking tool — it is NOT a medical service. Nothing in the app constitutes medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making significant changes to your diet, exercise routine, or health regimen. Do not use Kayven as a substitute for professional medical advice.' },
         { t:'5. Nutritional data accuracy', b:'While we strive to maintain accurate nutritional data, food composition can vary by brand, preparation method, and source. Kayven cannot guarantee the accuracy of all nutritional information. For critical dietary requirements (allergies, medical conditions), always verify with certified sources or a registered dietitian.' },
         { t:'6. AI features', b:'Kayven uses AI (powered by Anthropic Claude) for food scanning, meal suggestions, and insights. AI-generated results are estimates and should not be relied upon for medical or clinical decisions. The accuracy of food scanning depends on image quality and lighting.' },
@@ -312,7 +312,7 @@ export default function ProfilePage() {
         { t:'10. Limitation of liability', b:'To the maximum extent permitted by law, Kayven shall not be liable for indirect, incidental, special, or consequential damages arising from your use of the service.' },
         { t:'11. Changes to terms', b:'We may update these Terms periodically. Continued use of Kayven after changes are posted constitutes your acceptance. We will notify you of significant changes via the app or email.' },
         { t:'12. Governing law', b:'These Terms shall be governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Hyderabad, Telangana.' },
-        { t:'13. Contact us', b:'For questions about these Terms:\nEmail: support@macrotrack.app\nResponse time: within 5 business days' },
+        { t:'13. Contact us', b:'For questions about these Terms:\nEmail: support@Kayven.app\nResponse time: within 5 business days' },
       ]
     },
     privacy: {
@@ -325,12 +325,12 @@ export default function ProfilePage() {
         { t:'Data storage & security', b:'Your data is stored using Supabase, an enterprise-grade database provider with:\n• AES-256 encryption at rest\n• TLS 1.3 encryption in transit\n• SOC 2 Type 2 compliance\n• Regular security audits\n• Row-level security (your data is only accessible by you)\n\nProfile photos are stored as encrypted base64 strings directly in your profile record.' },
         { t:'Third-party services', b:'Kayven uses the following trusted third-party services:\n\n• Supabase (database & authentication)\n  Privacy policy: supabase.com/privacy\n  Data location: AWS infrastructure\n\n• Anthropic Claude AI (food scanning, insights, meal planning)\n  Privacy policy: anthropic.com/privacy\n  Note: Only food images and anonymized nutrition data are sent — NO personal information\n\n• Open Food Facts (barcode scanning)\n  Privacy policy: world.openfoodfacts.org/privacy\n  Note: This is an open-source database — no data is sent from Kayven\n\n• Google Fonts (typography)\n  Privacy policy: policies.google.com/privacy\n  Note: Font files only, no tracking' },
         { t:'Data sharing', b:'We do not sell, trade, or rent your personal information. We may share anonymized, aggregated data (e.g., "X% of users hit their protein goal on weekdays") for research purposes only. This data cannot be used to identify you.' },
-        { t:'Your privacy rights', b:'You have the right to:\n• Access: Request a copy of all data we hold about you\n• Correction: Update incorrect personal information at any time in the app\n• Deletion: Delete your account and all associated data permanently\n• Portability: Export your data in JSON format\n• Objection: Opt out of any non-essential data processing\n\nTo exercise these rights, contact privacy@macrotrack.app or use the in-app options under Account → Security.' },
+        { t:'Your privacy rights', b:'You have the right to:\n• Access: Request a copy of all data we hold about you\n• Correction: Update incorrect personal information at any time in the app\n• Deletion: Delete your account and all associated data permanently\n• Portability: Export your data in JSON format\n• Objection: Opt out of any non-essential data processing\n\nTo exercise these rights, contact privacy@Kayven.app or use the in-app options under Account → Security.' },
         { t:'Cookies & local storage', b:'Kayven uses:\n• Authentication cookies: Required for login sessions (cannot be disabled)\n• Local storage: Stores your food search history and favourite meals on your device only — this data never leaves your phone\n• Service worker cache: Stores app files locally for offline access\n\nWe do NOT use advertising cookies, tracking pixels, or third-party analytics.' },
-        { t:"Children's privacy", b:'Kayven is not directed to children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us at privacy@macrotrack.app and we will delete it within 72 hours.' },
+        { t:"Children's privacy", b:'Kayven is not directed to children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us at privacy@Kayven.app and we will delete it within 72 hours.' },
         { t:'Data retention', b:'Your data is retained as long as your account is active. If you delete your account:\n• Personal data is removed from our active database immediately\n• Backups are purged within 30 days\n• Anonymized aggregate data may be retained indefinitely\n\nIf your account is inactive for 24 months, we will email you before taking any action.' },
         { t:'Changes to this policy', b:'We will notify you of material changes to this Privacy Policy via in-app notification and email at least 14 days before they take effect. Continued use after that date constitutes acceptance.' },
-        { t:'Contact our privacy team', b:'For privacy questions or requests:\nEmail: privacy@macrotrack.app\nResponse time: within 72 hours\nFor urgent concerns: support@macrotrack.app' },
+        { t:'Contact our privacy team', b:'For privacy questions or requests:\nEmail: privacy@Kayven.app\nResponse time: within 72 hours\nFor urgent concerns: support@Kayven.app' },
       ]
     },
     data: {
@@ -340,12 +340,12 @@ export default function ProfilePage() {
       sections: [
         { t:'Complete data inventory', b:'Here is every piece of data Kayven stores about you:\n\nProfile data:\n• Full name, date of birth, age\n• Gender, height, phone number\n• Profile photo (base64 encoded)\n• Email address\n• Password (bcrypt hashed — we cannot read it)\n\nHealth & fitness data:\n• Daily food logs (food name, quantity, macros, meal type, timestamp)\n• Daily weight logs (weight in kg, date)\n• Daily water logs (amount in ml, date)\n• Body measurements (waist, chest, hips, arms, thighs, shoulders)\n• Nutrition goals (calorie target, macro targets, goal weight, water goal)\n\nApp preferences:\n• Notification reminder times (stored locally on device)\n• Favourite meals (stored locally on device)\n• Food search history (stored locally on device)\n• Theme preference (stored locally on device)\n\nTechnical data:\n• Account creation date\n• Last login timestamp' },
         { t:'Data you control locally', b:'The following data is stored ONLY on your device and never sent to our servers:\n• ⭐ Favourite meals\n• 🕐 Food search history\n• 🔔 Notification reminder times\n• 🎨 App theme preference (light/dark/auto)\n\nClearing your browser/app data will remove these.' },
-        { t:'Request your data export', b:'You have the right to receive a complete export of all your Kayven data in machine-readable JSON format.\n\nTo request an export:\n1. Email data@macrotrack.app with subject "Data Export Request"\n2. Include the email address associated with your account\n3. We will verify your identity and send your export within 7 business days\n4. Export includes all food logs, weight logs, water logs, measurements, and profile data' },
-        { t:'How to delete your data', b:'Option 1 — Delete account in app:\n1. Go to Account → Security → Delete my account\n2. Confirm deletion\n3. All your personal data is immediately removed from our active database\n4. Backup purge completes within 30 days\n\nOption 2 — Email request:\nEmail privacy@macrotrack.app with "Account Deletion Request"\nInclude your registered email address\nWe will process within 48 hours and confirm via email\n\n⚠️ Account deletion is permanent and irreversible. Deleted data cannot be recovered.' },
+        { t:'Request your data export', b:'You have the right to receive a complete export of all your Kayven data in machine-readable JSON format.\n\nTo request an export:\n1. Email data@Kayven.app with subject "Data Export Request"\n2. Include the email address associated with your account\n3. We will verify your identity and send your export within 7 business days\n4. Export includes all food logs, weight logs, water logs, measurements, and profile data' },
+        { t:'How to delete your data', b:'Option 1 — Delete account in app:\n1. Go to Account → Security → Delete my account\n2. Confirm deletion\n3. All your personal data is immediately removed from our active database\n4. Backup purge completes within 30 days\n\nOption 2 — Email request:\nEmail privacy@Kayven.app with "Account Deletion Request"\nInclude your registered email address\nWe will process within 48 hours and confirm via email\n\n⚠️ Account deletion is permanent and irreversible. Deleted data cannot be recovered.' },
         { t:'Data security measures', b:'We protect your data using industry-standard security practices:\n\nEncryption:\n• Data at rest: AES-256 encryption\n• Data in transit: TLS 1.3\n• Passwords: bcrypt hashing (never stored in plain text)\n\nAccess controls:\n• Row-level security: each user can only access their own data\n• API authentication: all requests require valid JWT tokens\n• No shared database access between users\n\nInfrastructure:\n• Hosted on Supabase (AWS infrastructure)\n• SOC 2 Type 2 compliant data center\n• Regular automated backups\n• 24/7 infrastructure monitoring\n\nCode security:\n• Input validation on all API endpoints\n• Rate limiting to prevent abuse\n• Security headers (CSP, HSTS, X-Frame-Options)\n• Regular dependency updates' },
         { t:'Third-party data processors', b:'We use the following sub-processors who may process your data:\n\n┌─────────────────────────────────────\n│ Supabase Inc.\n│ Role: Database & authentication\n│ Data: All personal data\n│ Location: AWS (us-east-1)\n│ DPA: Yes (GDPR compliant)\n├─────────────────────────────────────\n│ Anthropic, PBC\n│ Role: AI food scanning & insights\n│ Data: Food images only (no personal info)\n│ Location: USA\n│ DPA: Yes\n└─────────────────────────────────────' },
-        { t:'Regulatory compliance', b:'Kayven is committed to complying with applicable data protection regulations:\n\n• GDPR (EU General Data Protection Regulation)\n• DPDP Act 2023 (India Digital Personal Data Protection Act)\n• CCPA (California Consumer Privacy Act)\n\nFor regulatory inquiries or to exercise your rights under these laws, contact:\ndpo@macrotrack.app' },
-        { t:'Contact', b:'Data Protection:\ndpo@macrotrack.app\n\nPrivacy questions:\nprivacy@macrotrack.app\n\nData export/deletion:\ndata@macrotrack.app\n\nGeneral support:\nsupport@macrotrack.app\n\nAll emails receive a response within 72 hours.' },
+        { t:'Regulatory compliance', b:'Kayven is committed to complying with applicable data protection regulations:\n\n• GDPR (EU General Data Protection Regulation)\n• DPDP Act 2023 (India Digital Personal Data Protection Act)\n• CCPA (California Consumer Privacy Act)\n\nFor regulatory inquiries or to exercise your rights under these laws, contact:\ndpo@Kayven.app' },
+        { t:'Contact', b:'Data Protection:\ndpo@Kayven.app\n\nPrivacy questions:\nprivacy@Kayven.app\n\nData export/deletion:\ndata@Kayven.app\n\nGeneral support:\nsupport@Kayven.app\n\nAll emails receive a response within 72 hours.' },
       ]
     }
   }
@@ -400,7 +400,7 @@ export default function ProfilePage() {
           <div style={{ fontSize:13, color:'var(--muted)', marginTop:4 }}>Nutrition & fitness tracking</div>
         </div>
         <AppleGroup>
-          <AppleRow icon={<IconLifeBuoy size={16} color="#fff"/>} iconBg="#ec4899" label="Contact support" sub="support@macrotrack.app" onClick={()=>{ window.location.href = 'mailto:support@macrotrack.app' }}/>
+          <AppleRow icon={<IconLifeBuoy size={16} color="#fff"/>} iconBg="#ec4899" label="Contact support" sub="support@Kayven.app" onClick={()=>{ window.location.href = 'mailto:support@Kayven.app' }}/>
           <AppleRow icon={<IconPerson size={16} color="#fff"/>} iconBg="var(--primary)" label="Terms & Conditions" onClick={()=>{ setLegalPage('terms'); setView('legal') }}/>
           <AppleRow icon={<LockIcon size={16} color="#fff"/>} iconBg="#3b82f6" label="Privacy Policy" onClick={()=>{ setLegalPage('privacy'); setView('legal') }}/>
           <AppleRow icon={<IconDownloadTray size={16} color="#fff"/>} iconBg="#0ea5e9" label="Data & Privacy Controls" last onClick={()=>{ setLegalPage('data'); setView('legal') }}/>
@@ -683,7 +683,7 @@ export default function ProfilePage() {
 
   // ── MAIN ───────────────────────────────────────────────────
   return (
-    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:40 }}>
+    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:100 }}>
       {sharedStyles}
       <MsgBanner/>
 
@@ -766,7 +766,7 @@ export default function ProfilePage() {
                 <div style={{ width:32, height:32, borderRadius:10, background:'#ec4899', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconLifeBuoy size={18} color="#fff"/></div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Support</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>support@macrotrack.app</div>
+                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>support@Kayven.app</div>
                 </div>
                 <IconChevron/>
               </button>
@@ -804,6 +804,7 @@ export default function ProfilePage() {
           </button>
         </div>
       </div>
+      <BottomNav/>
     </div>
   )
 }

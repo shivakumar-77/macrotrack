@@ -153,7 +153,7 @@ export default function SharePage() {
 
           {/* Footer */}
           <div style={{ marginTop: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: t.text, opacity: 0.6 }}>macrotrack-gamma.vercel.app · {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</div>
+            <div style={{ fontSize: 11, color: t.text, opacity: 0.6 }}>macrotrack.app · {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</div>
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export default function SharePage() {
             {copied ? '✓ Copied!' : '🔗 Copy app link'}
           </button>
           <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600 }}
-            onClick={() => { const t = 'I am tracking my nutrition with MacroTrack! 💪 Check it out: macrotrack-gamma.vercel.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
+            onClick={() => { const t = 'I am tracking my nutrition with MacroTrack! 💪 Check it out: macrotrack.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
             💬 Share on WhatsApp
           </button>
         </div>

@@ -1,0 +1,9 @@
+
+/* ── pulse-ring — generic "needs attention" ring pulse. Color supplied per-use via
+   the --pulse-color custom property (e.g. color-mix(in srgb, var(--green) 35%, transparent)),
+   so this one utility works for any semantic color instead of each page hardcoding its own rgba. ── */
+@keyframes pulseRing {
+  0%, 100% { box-shadow: 0 0 0 0 var(--pulse-color, rgba(99,102,241,0.35)); }
+  50% { box-shadow: 0 0 0 8px rgba(0,0,0,0); }
+}
+.pulse-ring { animation: pulseRing 2.4s ease-in-out infinite; }

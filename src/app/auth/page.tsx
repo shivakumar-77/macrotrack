@@ -142,7 +142,7 @@ export default function AuthPage() {
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--surface)' }}>
       {/* Top brand area */}
       <div style={{ padding: '48px 24px 32px', textAlign: 'center' }}>
-        <div style={{ width: 56, height: 56, background: 'var(--primary)', borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', fontSize: 26, boxShadow: '0 8px 24px rgba(99,102,241,0.3)' }}>🥗</div>
+        <img src="/Kayven.PNG" alt="MacroTrack logo" style={{ width: 56, height: 56, borderRadius: 18, display: 'block', margin: '0 auto 16px', boxShadow: '0 8px 24px rgba(99,102,241,0.3)' }} />
         <h1 style={{ fontSize: 26, fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text)' }}>MacroTrack</h1>
         <p style={{ color: 'var(--muted)', marginTop: 6, fontSize: 14 }}>Smart nutrition, effortless tracking</p>
       </div>

@@ -395,7 +395,7 @@ export default function ProfilePage() {
       </div>
       <div style={{padding:'0 20px'}}>
         <div className="fade-in-up" style={{ textAlign:'center', padding:'20px 0 28px' }}>
-          <img src="/Kayven.PNG" alt="MacroTrack logo" style={{ width:72, height:72, borderRadius:20, display:'block', margin:'0 auto 14px' }}/>
+          <div style={{ width:72, height:72, borderRadius:20, background:'linear-gradient(135deg,var(--primary),#818cf8)', margin:'0 auto 14px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:30, fontWeight:800, color:'#fff' }}>M</div>
           <div style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>MacroTrack</div>
           <div style={{ fontSize:13, color:'var(--muted)', marginTop:4 }}>Nutrition & fitness tracking</div>
         </div>
@@ -683,116 +683,108 @@ export default function ProfilePage() {
 
   // ── MAIN ───────────────────────────────────────────────────
   return (
-    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:40 }}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
       {sharedStyles}
       <MsgBanner/>
+      <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
 
-      <div style={{ padding:'20px 20px 0', display:'flex', justifyContent:'center' }}>
-        <div style={{ width:'100%', maxWidth:360 }}>
-          <div className="fade-in-up" style={{ marginBottom:18 }}>
-            <div style={{ background:'rgba(255,255,255,0.85)', border:'1px solid rgba(0,0,0,0.04)', borderRadius:16, overflow:'hidden', boxShadow:'0 1px 0 rgba(0,0,0,0.02)' }}>
-              <button onClick={ACCOUNT_ITEMS[2].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', borderBottom:'1px solid var(--border)', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#f59e0b', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><TrophyIcon size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Progress &amp; Achievements</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Streaks, badges, challenges</div>
-                </div>
-                <IconChevron/>
-              </button>
-
-              <button onClick={ACCOUNT_ITEMS[3].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#8b5cf6', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconCrown size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Subscription</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Free plan</div>
-                </div>
-                <IconChevron/>
-              </button>
+        {/* Hero header — large photo, name, email, "membership" badge (real created_at, not a fabricated tier) */}
+        <div className="fade-in-up" style={{ textAlign:'center', marginBottom:28 }}>
+          <button onClick={()=>setView('edit')} className="tap-scale" style={{ position:'relative', width:108, height:108, margin:'0 auto 14px', cursor:'pointer', border:'none', background:'none', padding:0 }}>
+            <div style={{ width:108, height:108, borderRadius:'50%', overflow:'hidden', background:'linear-gradient(135deg,var(--primary),#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:40, fontWeight:800, color:'#fff' }}>
+              {photoUrl ? <img src={photoUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : (form.name ? form.name[0].toUpperCase() : '?')}
             </div>
-          </div>
-
-          <div style={{ marginBottom:18 }}>
-            <div className="section-label" style={{ marginLeft:10, letterSpacing:'0.12em' }}>Privacy &amp; Data</div>
-            <div style={{ background:'rgba(255,255,255,0.85)', border:'1px solid rgba(0,0,0,0.04)', borderRadius:16, overflow:'hidden', boxShadow:'0 1px 0 rgba(0,0,0,0.02)' }}>
-              <button onClick={ACCOUNT_ITEMS[4].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', borderBottom:'1px solid var(--border)', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#3b82f6', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><LockIcon size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Privacy</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>How your data is handled</div>
-                </div>
-                <IconChevron/>
-              </button>
-
-              <button onClick={ACCOUNT_ITEMS[6].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#0ea5e9', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconDownloadTray size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Data Export</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Request a copy of your data</div>
-                </div>
-                <IconChevron/>
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom:18 }}>
-            <div className="section-label" style={{ marginLeft:10, letterSpacing:'0.12em' }}>Preferences</div>
-            <div style={{ background:'rgba(255,255,255,0.85)', border:'1px solid rgba(0,0,0,0.04)', borderRadius:16, overflow:'hidden', boxShadow:'0 1px 0 rgba(0,0,0,0.02)' }}>
-              <button onClick={ACCOUNT_ITEMS[5].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#f97316', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><BellIcon size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Notifications</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Set meal reminders</div>
-                </div>
-                <IconChevron/>
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom:18 }}>
-            <div className="section-label" style={{ marginLeft:10, letterSpacing:'0.12em' }}>Support</div>
-            <div style={{ background:'rgba(255,255,255,0.85)', border:'1px solid rgba(0,0,0,0.04)', borderRadius:16, overflow:'hidden', boxShadow:'0 1px 0 rgba(0,0,0,0.02)' }}>
-              <button onClick={ACCOUNT_ITEMS[7].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', borderBottom:'1px solid var(--border)', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#ec4899', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconLifeBuoy size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Support</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>support@macrotrack.app</div>
-                </div>
-                <IconChevron/>
-              </button>
-
-              <button onClick={ACCOUNT_ITEMS[8].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#64748b', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconInfo size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>About</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>MacroTrack</div>
-                </div>
-                <IconChevron/>
-              </button>
-            </div>
-          </div>
-
-          <div style={{ marginBottom:24 }}>
-            <div className="section-label" style={{ marginLeft:10, letterSpacing:'0.12em' }}>Appearance</div>
-            <div style={{ background:'rgba(255,255,255,0.85)', border:'1px solid rgba(0,0,0,0.04)', borderRadius:16, padding:8, display:'grid', gridTemplateColumns:'repeat(3, minmax(0,1fr))', gap:10, boxShadow:'0 1px 0 rgba(0,0,0,0.02)' }}>
-              {[
-                { value:'light', icon:<SunIcon size={22} color={theme==='light' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Light' },
-                { value:'auto', icon:<AutoIcon size={22} color={theme==='auto' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Auto' },
-                { value:'dark', icon:<MoonIcon size={22} color={theme==='dark' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Dark' }
-              ].map(({ value, icon, label }) => (
-                <button key={value} onClick={() => setTheme(value)} className="tap-scale" style={{ border:'1px solid '+(theme===value ? 'var(--primary)' : 'var(--border)'), background:theme===value ? 'var(--primary-bg)' : 'rgba(255,255,255,0.45)', borderRadius:12, padding:'12px 8px 10px', cursor:'pointer', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:6, color:theme===value ? 'var(--primary)' : 'var(--muted)', fontWeight:700, fontSize:12 }}>
-                  {icon}
-                  <span>{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <button onClick={async()=>{await supabase.auth.signOut();router.replace('/auth')}} className="tap-scale" style={{ width:'100%', padding:'14px 16px', borderRadius:14, background:'#fef2f2', border:'1px solid #fecaca', color:'#dc2626', fontWeight:700, fontSize:15, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', gap:8 }}>
-            <LogoutIcon size={18} color="#dc2626"/>
-            Log out
+            <svg style={{ position:'absolute', top:-4, left:-4 }} width="116" height="116" viewBox="0 0 116 116">
+              <circle cx="58" cy="58" r="54" fill="none" stroke="var(--border)" strokeWidth="3"/>
+              <circle cx="58" cy="58" r="54" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round"
+                strokeDasharray={String(2*Math.PI*54)}
+                strokeDashoffset={String(2*Math.PI*54*(1-profilePct/100))}
+                style={{ transformOrigin:'58px 58px', transform:'rotate(-90deg)', transition:'stroke-dashoffset 0.6s ease' }}/>
+            </svg>
           </button>
+          <h1 style={{ fontSize:23, fontWeight:800, letterSpacing:'-0.02em', color:'var(--text)' }}>{form.name || 'Set your name'}</h1>
+          <p style={{ fontSize:13, color:'var(--muted)', marginTop:3 }}>{userEmail}</p>
+          {memberSinceLabel && (
+            <div style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:10, padding:'5px 14px', borderRadius:99, background:'var(--primary-bg)' }}>
+              <IconCrown size={12} color="var(--primary)"/>
+              <span style={{ fontSize:11, fontWeight:700, color:'var(--primary)' }}>Member since {memberSinceLabel}</span>
+            </div>
+          )}
+          <div style={{ fontSize:11, color:'var(--primary)', marginTop:8, fontWeight:600 }}>{profilePct}% profile complete · tap photo to edit</div>
         </div>
+
+        {/* Tools — kept, real routes, lightly restyled */}
+        <SectionLabel text="Tools"/>
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:24}}>
+          {[
+            {icon:<ScaleIcon size={26} color='var(--primary)'/>,label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
+            {icon:<FireIcon size={26} color='var(--primary)'/>,label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
+            {icon:<MeasureIcon size={26} color='var(--primary)'/>,label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
+            {icon:<ShareIcon size={26} color='var(--primary)'/>,label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
+          ].map(t=>(
+            <button key={t.label} onClick={t.go} className="tap-scale"
+              style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1px solid var(--border)',cursor:'pointer',textAlign:'left',WebkitTapHighlightColor:'transparent'}}>
+              <div style={{marginBottom:8}}>{t.icon}</div>
+              <div style={{fontWeight:700,fontSize:13,color:'var(--text)'}}>{t.label}</div>
+              <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{t.sub}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Settings — the 10 requested cards, platform-adaptive */}
+        {isAndroid ? (
+          <>
+            <SectionLabel text="Settings"/>
+            {ACCOUNT_ITEMS.map(item => (
+              <MaterialRow key={item.id} id={item.id} icon={item.icon} iconBg={item.iconBg} label={item.label} sub={item.sub} onClick={item.action}/>
+            ))}
+          </>
+        ) : (
+          <>
+            <AppleGroup title="Account">
+              <AppleRow icon={ACCOUNT_ITEMS[0].icon} iconBg={ACCOUNT_ITEMS[0].iconBg} label={ACCOUNT_ITEMS[0].label} sub={ACCOUNT_ITEMS[0].sub} onClick={ACCOUNT_ITEMS[0].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[1].icon} iconBg={ACCOUNT_ITEMS[1].iconBg} label={ACCOUNT_ITEMS[1].label} sub={ACCOUNT_ITEMS[1].sub} onClick={ACCOUNT_ITEMS[1].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[2].icon} iconBg={ACCOUNT_ITEMS[2].iconBg} label={ACCOUNT_ITEMS[2].label} sub={ACCOUNT_ITEMS[2].sub} onClick={ACCOUNT_ITEMS[2].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[3].icon} iconBg={ACCOUNT_ITEMS[3].iconBg} label={ACCOUNT_ITEMS[3].label} sub={ACCOUNT_ITEMS[3].sub} onClick={ACCOUNT_ITEMS[3].action} last/>
+            </AppleGroup>
+            <AppleGroup title="Privacy & Data">
+              <AppleRow icon={ACCOUNT_ITEMS[4].icon} iconBg={ACCOUNT_ITEMS[4].iconBg} label={ACCOUNT_ITEMS[4].label} sub={ACCOUNT_ITEMS[4].sub} onClick={ACCOUNT_ITEMS[4].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[6].icon} iconBg={ACCOUNT_ITEMS[6].iconBg} label={ACCOUNT_ITEMS[6].label} sub={ACCOUNT_ITEMS[6].sub} onClick={ACCOUNT_ITEMS[6].action} last/>
+            </AppleGroup>
+            <AppleGroup title="Preferences">
+              <AppleRow icon={ACCOUNT_ITEMS[5].icon} iconBg={ACCOUNT_ITEMS[5].iconBg} label={ACCOUNT_ITEMS[5].label} sub={ACCOUNT_ITEMS[5].sub} onClick={ACCOUNT_ITEMS[5].action} last/>
+            </AppleGroup>
+            <AppleGroup title="Support">
+              <AppleRow icon={ACCOUNT_ITEMS[7].icon} iconBg={ACCOUNT_ITEMS[7].iconBg} label={ACCOUNT_ITEMS[7].label} sub={ACCOUNT_ITEMS[7].sub} onClick={ACCOUNT_ITEMS[7].action}/>
+              <AppleRow icon={ACCOUNT_ITEMS[8].icon} iconBg={ACCOUNT_ITEMS[8].iconBg} label={ACCOUNT_ITEMS[8].label} sub={ACCOUNT_ITEMS[8].sub} onClick={ACCOUNT_ITEMS[8].action} last/>
+            </AppleGroup>
+          </>
+        )}
+
+        {/* Appearance — same theme picker/logic, wrapped in the new card language (kept unified across platforms) */}
+        <SectionLabel text="Appearance"/>
+        <div className="card fade-in-up" style={{ marginBottom:24, display:'flex', gap:8 }}>
+          {[
+            { value:'light', icon:<SunIcon size={22} color={theme==='light' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Light' },
+            { value:'auto', icon:<AutoIcon size={22} color={theme==='auto' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Auto' },
+            { value:'dark', icon:<MoonIcon size={22} color={theme==='dark' ? 'var(--primary)' : 'var(--muted)'}/>, label:'Dark' }
+          ].map(({ value, icon, label }) => (
+            <button key={value} onClick={() => setTheme(value)} className="tap-scale"
+              style={{flex:1,padding:'13px 8px',borderRadius:14,border:'2px solid '+(theme===value?'var(--primary)':'var(--border)'),background:theme===value?'var(--primary-bg)':'var(--surface)',cursor:'pointer',textAlign:'center',WebkitTapHighlightColor:'transparent'}}>
+              <div style={{marginBottom:5}}>{icon}</div>
+              <div style={{fontSize:12,fontWeight:700,color:theme===value?'var(--primary)':'var(--muted)'}}>{label}</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Log out — exact same signOut() call, just restyled */}
+        <button onClick={async()=>{await supabase.auth.signOut();router.replace('/auth')}} className="tap-scale"
+          style={{width:'100%',padding:'16px',borderRadius: isAndroid?20:16,background:'#fef2f2',border:'1px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:15,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:8,WebkitTapHighlightColor:'transparent'}}>
+          <LogoutIcon size={18} color="#dc2626"/>
+          Log out
+        </button>
       </div>
+      <BottomNav/>
     </div>
   )
 }

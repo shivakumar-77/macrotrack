@@ -10,8 +10,8 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'MacroTrack' },
   formatDetection: { telephone: false },
   icons: {
-    icon: [{ url: '/icon-192.png', sizes: '192x192', type: 'image/png' }],
-    apple: [{ url: '/apple-touch-icon.png' }],
+    icon: [{ url: '/Kayven.PNG', sizes: '1254x1254', type: 'image/png' }],
+    apple: [{ url: '/Kayven.PNG' }],
   },
 }
 
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
         <meta name="apple-mobile-web-app-title" content="MacroTrack"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
+        <link rel="apple-touch-icon" href="/Kayven.PNG"/>
         <link rel="manifest" href="/manifest.json"/>
         {/* No-flash theme script */}
         <script dangerouslySetInnerHTML={{ __html: `

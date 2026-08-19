@@ -99,7 +99,7 @@ export default function NotificationsPage() {
             body: r.id.includes('water') ? 'Time to hydrate! 💧 Stay on track with your water goal.' :
                   r.id === 'weight' ? 'Log your weight today to track your progress! ⚖️' :
                   'Time to log your ' + r.label.toLowerCase().replace(' reminder','') + '! 🍽️',
-            icon: '/icon-192.png',
+            icon: '/Kayven.PNG',
           })
           // Clean old fired after 2 min
           setTimeout(() => fired.delete(key), 120000)
@@ -112,7 +112,7 @@ export default function NotificationsPage() {
     if (permission !== 'granted') { await requestPermission(); return }
     new Notification('MacroTrack Test 🔔', {
       body: 'Notifications are working! You will get reminders at your set times.',
-      icon: '/icon-192.png',
+      icon: '/Kayven.PNG',
     })
     showMsg('Test notification sent!')
   }

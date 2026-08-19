@@ -3,9 +3,7 @@ const STATIC = [
   '/',
   '/dashboard',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
-  '/apple-touch-icon.png',
+  '/Kayven.PNG',
 ]
 
 self.addEventListener('install', e => {
@@ -65,8 +63,8 @@ self.addEventListener('push', e => {
   e.waitUntil(
     self.registration.showNotification(data.title || 'MacroTrack', {
       body: data.body || 'Time to log your meal!',
-      icon: '/icon-192.png',
-      badge: '/icon-192.png',
+      icon: '/Kayven.PNG',
+      badge: '/Kayven.PNG',
       vibrate: [200, 100, 200],
       data: { url: data.url || '/log' }
     })

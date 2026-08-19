@@ -4,10 +4,10 @@ import { ThemeProvider } from '@/components/ThemeProvider'
 import { ToastProvider } from '@/components/Toast'
 
 export const metadata: Metadata = {
-  title: 'MacroTrack',
+  title: 'Kayven',
   description: 'AI-powered fitness & nutrition',
   manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'MacroTrack' },
+  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Kayven' },
   formatDetection: { telephone: false },
   icons: {
     icon: [{ url: '/Kayven.PNG', sizes: '1254x1254', type: 'image/png' }],
@@ -30,7 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes"/>
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-        <meta name="apple-mobile-web-app-title" content="MacroTrack"/>
+        <meta name="apple-mobile-web-app-title" content="Kayven"/>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
         <link rel="apple-touch-icon" href="/Kayven.PNG"/>
         <link rel="manifest" href="/manifest.json"/>

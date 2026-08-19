@@ -689,27 +689,38 @@ export default function ProfilePage() {
 
       <div style={{ padding:'20px 20px 0', display:'flex', justifyContent:'center' }}>
         <div style={{ width:'100%', maxWidth:360 }}>
-          <div className="fade-in-up" style={{ marginBottom:18 }}>
-            <div style={{ background:'rgba(255,255,255,0.85)', border:'1px solid rgba(0,0,0,0.04)', borderRadius:16, overflow:'hidden', boxShadow:'0 1px 0 rgba(0,0,0,0.02)' }}>
-              <button onClick={ACCOUNT_ITEMS[2].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', borderBottom:'1px solid var(--border)', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#f59e0b', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><TrophyIcon size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Progress &amp; Achievements</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Streaks, badges, challenges</div>
-                </div>
-                <IconChevron/>
-              </button>
-
-              <button onClick={ACCOUNT_ITEMS[3].action} className="tap-scale" style={{ width:'100%', display:'flex', alignItems:'center', gap:14, padding:'15px 16px', background:'transparent', border:'none', cursor:'pointer', textAlign:'left' }}>
-                <div style={{ width:32, height:32, borderRadius:10, background:'#8b5cf6', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconCrown size={18} color="#fff"/></div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>Subscription</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Free plan</div>
-                </div>
-                <IconChevron/>
-              </button>
-            </div>
+          <div className="fade-in-up" style={{ textAlign:'center', marginBottom:28 }}>
+            <button onClick={()=>setView('edit')} className="tap-scale" style={{ position:'relative', width:108, height:108, margin:'0 auto 14px', cursor:'pointer', border:'none', background:'none', padding:0 }}>
+              <div style={{ width:108, height:108, borderRadius:'50%', overflow:'hidden', background:'linear-gradient(135deg,var(--primary),#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:40, fontWeight:800, color:'#fff' }}>
+                {photoUrl ? <img src={photoUrl} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }}/> : (form.name ? form.name[0].toUpperCase() : '?')}
+              </div>
+              <svg style={{ position:'absolute', top:-4, left:-4 }} width="116" height="116" viewBox="0 0 116 116">
+                <circle cx="58" cy="58" r="54" fill="none" stroke="var(--border)" strokeWidth="3"/>
+                <circle cx="58" cy="58" r="54" fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" strokeDasharray={String(2*Math.PI*54)} strokeDashoffset={String(2*Math.PI*54*(1-profilePct/100))} style={{ transformOrigin:'58px 58px', transform:'rotate(-90deg)' }}/>
+              </svg>
+            </button>
+            <h1 style={{ fontSize:23, fontWeight:800, color:'var(--text)' }}>{form.name || 'Set your name'}</h1>
+            <p style={{ fontSize:13, color:'var(--muted)', marginTop:3 }}>{userEmail}</p>
+            {memberSinceLabel && <div style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:10, padding:'5px 14px', borderRadius:99, background:'var(--primary-bg)' }}><IconCrown size={12} color="var(--primary)"/><span style={{ fontSize:11, fontWeight:700, color:'var(--primary)' }}>Member since {memberSinceLabel}</span></div>}
+            <div style={{ fontSize:11, color:'var(--primary)', marginTop:8, fontWeight:600 }}>{profilePct}% profile complete · tap photo to edit</div>
           </div>
+
+          <SectionLabel text="Tools"/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:24}}>
+            {[
+              {icon:<ScaleIcon size={26} color='var(--primary)'/>,label:'BMI Calculator',sub:'Check your index',go:()=>router.push('/bmi')},
+              {icon:<FireIcon size={26} color='var(--primary)'/>,label:'Calorie Calc',sub:'Find daily needs',go:()=>router.push('/calorie-calc')},
+              {icon:<MeasureIcon size={26} color='var(--primary)'/>,label:'Measurements',sub:'Body tracking',go:()=>router.push('/measurements')},
+              {icon:<ShareIcon size={26} color='var(--primary)'/>,label:'Share progress',sub:'Download card',go:()=>router.push('/share')},
+            ].map(t=><button key={t.label} onClick={t.go} className="tap-scale" style={{background:'var(--card)',borderRadius:18,padding:'16px 14px',border:'1px solid var(--border)',cursor:'pointer',textAlign:'left'}}><div style={{marginBottom:8}}>{t.icon}</div><div style={{fontWeight:700,fontSize:13,color:'var(--text)'}}>{t.label}</div><div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>{t.sub}</div></button>)}
+          </div>
+
+          <AppleGroup title="Account">
+            <AppleRow icon={ACCOUNT_ITEMS[0].icon} iconBg={ACCOUNT_ITEMS[0].iconBg} label={ACCOUNT_ITEMS[0].label} sub={ACCOUNT_ITEMS[0].sub} onClick={ACCOUNT_ITEMS[0].action}/>
+            <AppleRow icon={ACCOUNT_ITEMS[1].icon} iconBg={ACCOUNT_ITEMS[1].iconBg} label={ACCOUNT_ITEMS[1].label} sub={ACCOUNT_ITEMS[1].sub} onClick={ACCOUNT_ITEMS[1].action}/>
+            <AppleRow icon={ACCOUNT_ITEMS[2].icon} iconBg={ACCOUNT_ITEMS[2].iconBg} label={ACCOUNT_ITEMS[2].label} sub={ACCOUNT_ITEMS[2].sub} onClick={ACCOUNT_ITEMS[2].action}/>
+            <AppleRow icon={ACCOUNT_ITEMS[3].icon} iconBg={ACCOUNT_ITEMS[3].iconBg} label={ACCOUNT_ITEMS[3].label} sub={ACCOUNT_ITEMS[3].sub} onClick={ACCOUNT_ITEMS[3].action} last/>
+          </AppleGroup>
 
           <div style={{ marginBottom:18 }}>
             <div className="section-label" style={{ marginLeft:10, letterSpacing:'0.12em' }}>Privacy &amp; Data</div>

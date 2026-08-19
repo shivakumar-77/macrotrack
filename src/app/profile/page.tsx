@@ -290,7 +290,7 @@ export default function ProfilePage() {
     { id:'notifications', icon:<BellIcon size={18} color="#fff"/>, iconBg:'#f97316', label:'Notifications', sub: notifPermission==='granted' ? `${reminders.filter(r=>r.enabled).length} reminders active` : 'Set meal reminders', action:()=>setView('notifications') },
     { id:'dataExport', icon:<IconDownloadTray size={18} color="#fff"/>, iconBg:'#0ea5e9', label:'Data Export', sub:'Request a copy of your data', action:()=>{ setLegalPage('data'); setView('legal') } },
     { id:'support', icon:<IconLifeBuoy size={18} color="#fff"/>, iconBg:'#ec4899', label:'Support', sub:'support@macrotrack.app', action:()=>{ window.location.href = 'mailto:support@macrotrack.app' } },
-    { id:'about', icon:<IconInfo size={18} color="#fff"/>, iconBg:'#64748b', label:'About', sub:'MacroTrack', action:()=>setView('about') },
+    { id:'about', icon:<IconInfo size={18} color="#fff"/>, iconBg:'#64748b', label:'About', sub:'Kayven', action:()=>setView('about') },
   ]
 
   // ── LEGAL ──────────────────────────────────────────────────
@@ -396,7 +396,7 @@ export default function ProfilePage() {
       <div style={{padding:'0 20px'}}>
         <div className="fade-in-up" style={{ textAlign:'center', padding:'20px 0 28px' }}>
           <img src="/Kayven.PNG" alt="MacroTrack logo" style={{ width:72, height:72, borderRadius:20, display:'block', margin:'0 auto 14px' }}/>
-          <div style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>MacroTrack</div>
+          <div style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>Kayven</div>
           <div style={{ fontSize:13, color:'var(--muted)', marginTop:4 }}>Nutrition & fitness tracking</div>
         </div>
         <AppleGroup>
@@ -405,7 +405,7 @@ export default function ProfilePage() {
           <AppleRow icon={<LockIcon size={16} color="#fff"/>} iconBg="#3b82f6" label="Privacy Policy" onClick={()=>{ setLegalPage('privacy'); setView('legal') }}/>
           <AppleRow icon={<IconDownloadTray size={16} color="#fff"/>} iconBg="#0ea5e9" label="Data & Privacy Controls" last onClick={()=>{ setLegalPage('data'); setView('legal') }}/>
         </AppleGroup>
-        <div style={{ textAlign:'center', fontSize:11, color:'var(--muted)', marginTop:8 }}>© {new Date().getFullYear()} MacroTrack</div>
+        <div style={{ textAlign:'center', fontSize:11, color:'var(--muted)', marginTop:8 }}>© {new Date().getFullYear()} Kayven</div>
       </div>
       <BottomNav/>
     </div>
@@ -775,7 +775,7 @@ export default function ProfilePage() {
                 <div style={{ width:32, height:32, borderRadius:10, background:'#64748b', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', flexShrink:0 }}><IconInfo size={18} color="#fff"/></div>
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontWeight:600, fontSize:15, color:'var(--text)', lineHeight:1.2 }}>About</div>
-                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>MacroTrack</div>
+                  <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>Kayven</div>
                 </div>
                 <IconChevron/>
               </button>

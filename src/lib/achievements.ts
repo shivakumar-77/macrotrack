@@ -55,7 +55,7 @@ export const ACHIEVEMENTS: Achievement[] = [
 
   // ── Milestones ───────────────────────────────────────────
   { id:'profile_complete',title:'All Set Up',           description:'Complete your profile 100%',                             icon:'✅',  color:'#10b981', category:'milestone',   rarity:'common' },
-  { id:'early_adopter',   title:'Early Adopter',        description:'One of the first MacroTrack users',                     icon:'⭐',  color:'#f59e0b', category:'milestone',   rarity:'legendary', secret:true },
+  { id:'early_adopter',   title:'Early Adopter',        description:'One of the first Kayven users',                         icon:'⭐',  color:'#f59e0b', category:'milestone',   rarity:'legendary', secret:true },
   { id:'night_owl',       title:'Night Owl',            description:'Log a meal after midnight',                              icon:'🌙',  color:'#6366f1', category:'milestone',   rarity:'rare', secret:true },
   { id:'overachiever',    title:'Overachiever',         description:'Exceed your calorie goal by less than 50 kcal 3 times',  icon:'🎖️', color:'#8b5cf6', category:'milestone',   rarity:'epic' },
 ]

@@ -61,7 +61,7 @@ self.addEventListener('fetch', e => {
 self.addEventListener('push', e => {
   const data = e.data?.json() || {}
   e.waitUntil(
-    self.registration.showNotification(data.title || 'MacroTrack', {
+    self.registration.showNotification(data.title || 'Kayven', {
       body: data.body || 'Time to log your meal!',
       icon: '/Kayven.PNG',
       badge: '/Kayven.PNG',

@@ -36,7 +36,7 @@ export default function NotificationsPage() {
     const p = await Notification.requestPermission()
     setPermission(p)
     if (p === 'granted') {
-      new Notification('MacroTrack 🎉', { body: 'Notifications enabled! We will remind you to stay on track.' })
+      new Notification('Kayven 🎉', { body: 'Notifications enabled! We will remind you to stay on track.' })
       showMsg('Notifications enabled!')
       registerSW()
     } else {
@@ -95,7 +95,7 @@ export default function NotificationsPage() {
         const key = r.id + '-' + hhmm
         if (r.time === hhmm && !fired.has(key)) {
           fired.add(key)
-          new Notification(r.label + ' — MacroTrack', {
+          new Notification(r.label + ' — Kayven', {
             body: r.id.includes('water') ? 'Time to hydrate! 💧 Stay on track with your water goal.' :
                   r.id === 'weight' ? 'Log your weight today to track your progress! ⚖️' :
                   'Time to log your ' + r.label.toLowerCase().replace(' reminder','') + '! 🍽️',
@@ -110,7 +110,7 @@ export default function NotificationsPage() {
 
   async function sendTestNotification() {
     if (permission !== 'granted') { await requestPermission(); return }
-    new Notification('MacroTrack Test 🔔', {
+    new Notification('Kayven Test 🔔', {
       body: 'Notifications are working! You will get reminders at your set times.',
       icon: '/Kayven.PNG',
     })
@@ -145,7 +145,7 @@ export default function NotificationsPage() {
                 {permission === 'granted' ? 'Notifications active' : 'Enable notifications'}
               </div>
               <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-                {permission === 'granted' ? enabledCount + ' reminder' + (enabledCount !== 1 ? 's' : '') + ' scheduled' : 'Allow MacroTrack to send meal reminders'}
+                {permission === 'granted' ? enabledCount + ' reminder' + (enabledCount !== 1 ? 's' : '') + ' scheduled' : 'Allow Kayven to send meal reminders'}
               </div>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function NotificationsPage() {
 
         <div style={{ background: '#f0fdf4', borderRadius: 16, padding: '14px 16px', border: '1.5px solid #bbf7d0' }}>
           <p style={{ fontSize: 12, color: '#15803d', lineHeight: 1.7 }}>
-            ⚠️ Reminders only fire while the app is open in your browser or installed as a PWA. For persistent notifications, add MacroTrack to your home screen.
+            ⚠️ Reminders only fire while the app is open in your browser or installed as a PWA. For persistent notifications, add Kayven to your home screen.
           </p>
         </div>
       </div>

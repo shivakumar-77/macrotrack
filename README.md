@@ -1,4 +1,4 @@
-# MacroTrack — Smart Nutrition Tracker
+# Kayven — Smart Nutrition Tracker
 
 ## Setup
 

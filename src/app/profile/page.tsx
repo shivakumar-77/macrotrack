@@ -185,7 +185,7 @@ export default function ProfilePage() {
   async function enableNotifications() {
     const p = await Notification.requestPermission()
     setNotifPermission(p)
-    if (p==='granted') { new Notification('MacroTrack',{body:'Reminders enabled!'}); showMsg('Notifications enabled!') }
+    if (p==='granted') { new Notification('Kayven',{body:'Reminders enabled!'}); showMsg('Notifications enabled!') }
     else showMsg('Please allow notifications in browser settings.')
   }
 
@@ -298,19 +298,19 @@ export default function ProfilePage() {
     terms: {
       title: 'Terms & Conditions',
       updated: 'April 2025',
-      intro: 'Welcome to MacroTrack. By downloading or using our app, you agree to these Terms. Please read them carefully before using the service.',
+      intro: 'Welcome to Kayven. By downloading or using our app, you agree to these Terms. Please read them carefully before using the service.',
       sections: [
-        { t:'1. Acceptance of terms', b:'By accessing MacroTrack, you confirm you are at least 13 years old and agree to be bound by these Terms. If you are under 18, a parent or guardian must review and agree to these Terms on your behalf.' },
-        { t:'2. Use of service', b:'MacroTrack grants you a personal, non-transferable, non-exclusive license to use the app for your individual nutrition tracking. You may not copy, modify, distribute, sell, or lease any part of our service.' },
+        { t:'1. Acceptance of terms', b:'By accessing Kayven, you confirm you are at least 13 years old and agree to be bound by these Terms. If you are under 18, a parent or guardian must review and agree to these Terms on your behalf.' },
+        { t:'2. Use of service', b:'Kayven grants you a personal, non-transferable, non-exclusive license to use the app for your individual nutrition tracking. You may not copy, modify, distribute, sell, or lease any part of our service.' },
         { t:'3. Account responsibility', b:'You are solely responsible for maintaining the security of your login credentials. You agree to notify us immediately at support@macrotrack.app of any unauthorized access to your account.' },
-        { t:'4. Health & medical disclaimer', b:'MacroTrack is a wellness and tracking tool — it is NOT a medical service. Nothing in the app constitutes medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making significant changes to your diet, exercise routine, or health regimen. Do not use MacroTrack as a substitute for professional medical advice.' },
-        { t:'5. Nutritional data accuracy', b:'While we strive to maintain accurate nutritional data, food composition can vary by brand, preparation method, and source. MacroTrack cannot guarantee the accuracy of all nutritional information. For critical dietary requirements (allergies, medical conditions), always verify with certified sources or a registered dietitian.' },
-        { t:'6. AI features', b:'MacroTrack uses AI (powered by Anthropic Claude) for food scanning, meal suggestions, and insights. AI-generated results are estimates and should not be relied upon for medical or clinical decisions. The accuracy of food scanning depends on image quality and lighting.' },
-        { t:'7. Intellectual property', b:'All content, features, designs, and functionality of MacroTrack are owned by MacroTrack and protected under applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without express written permission.' },
+        { t:'4. Health & medical disclaimer', b:'Kayven is a wellness and tracking tool — it is NOT a medical service. Nothing in the app constitutes medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making significant changes to your diet, exercise routine, or health regimen. Do not use Kayven as a substitute for professional medical advice.' },
+        { t:'5. Nutritional data accuracy', b:'While we strive to maintain accurate nutritional data, food composition can vary by brand, preparation method, and source. Kayven cannot guarantee the accuracy of all nutritional information. For critical dietary requirements (allergies, medical conditions), always verify with certified sources or a registered dietitian.' },
+        { t:'6. AI features', b:'Kayven uses AI (powered by Anthropic Claude) for food scanning, meal suggestions, and insights. AI-generated results are estimates and should not be relied upon for medical or clinical decisions. The accuracy of food scanning depends on image quality and lighting.' },
+        { t:'7. Intellectual property', b:'All content, features, designs, and functionality of Kayven are owned by Kayven and protected under applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without express written permission.' },
         { t:'8. Prohibited conduct', b:'You agree not to: attempt to hack, disrupt, or probe our systems; scrape or extract data from the app; use the app for any unlawful purpose; impersonate other users; or upload malicious code or content.' },
         { t:'9. Termination', b:'We reserve the right to suspend or permanently terminate your account without notice if you violate these Terms or engage in fraudulent, harmful, or abusive behavior.' },
-        { t:'10. Limitation of liability', b:'To the maximum extent permitted by law, MacroTrack shall not be liable for indirect, incidental, special, or consequential damages arising from your use of the service.' },
-        { t:'11. Changes to terms', b:'We may update these Terms periodically. Continued use of MacroTrack after changes are posted constitutes your acceptance. We will notify you of significant changes via the app or email.' },
+        { t:'10. Limitation of liability', b:'To the maximum extent permitted by law, Kayven shall not be liable for indirect, incidental, special, or consequential damages arising from your use of the service.' },
+        { t:'11. Changes to terms', b:'We may update these Terms periodically. Continued use of Kayven after changes are posted constitutes your acceptance. We will notify you of significant changes via the app or email.' },
         { t:'12. Governing law', b:'These Terms shall be governed by and construed in accordance with the laws of India. Any disputes shall be subject to the exclusive jurisdiction of courts in Hyderabad, Telangana.' },
         { t:'13. Contact us', b:'For questions about these Terms:\nEmail: support@macrotrack.app\nResponse time: within 5 business days' },
       ]
@@ -318,16 +318,16 @@ export default function ProfilePage() {
     privacy: {
       title: 'Privacy Policy',
       updated: 'April 2025',
-      intro: 'Your privacy is fundamental to us. This Privacy Policy explains what information MacroTrack collects, how we use it, and the choices you have. We are committed to protecting your personal data.',
+      intro: 'Your privacy is fundamental to us. This Privacy Policy explains what information Kayven collects, how we use it, and the choices you have. We are committed to protecting your personal data.',
       sections: [
         { t:'Information we collect', b:'Personal data you provide:\n• Profile: name, date of birth, age, gender, height, current weight, phone number\n• Health goals: calorie targets, macro targets, goal weight\n• Activity logs: food entries with nutritional data, timestamps, meal types\n• Weight logs: daily weight entries with dates\n• Water logs: daily hydration tracking\n• Authentication: email address, encrypted password\n• Profile photo (stored as encrypted base64)\n\nData collected automatically:\n• App usage patterns (anonymized)\n• Device type and OS version (for bug fixes)\n• Error logs (no personal data included)' },
         { t:'How we use your information', b:'We use your data exclusively to:\n• Provide personalized calorie and macro tracking\n• Calculate your BMI, TDEE, and nutrition targets\n• Generate AI-powered meal suggestions and insights\n• Send meal and hydration reminders (only if you enable them)\n• Improve app performance and fix bugs\n• Respond to your support requests\n\nWe will NEVER use your data for advertising or sell it to third parties.' },
         { t:'Data storage & security', b:'Your data is stored using Supabase, an enterprise-grade database provider with:\n• AES-256 encryption at rest\n• TLS 1.3 encryption in transit\n• SOC 2 Type 2 compliance\n• Regular security audits\n• Row-level security (your data is only accessible by you)\n\nProfile photos are stored as encrypted base64 strings directly in your profile record.' },
-        { t:'Third-party services', b:'MacroTrack uses the following trusted third-party services:\n\n• Supabase (database & authentication)\n  Privacy policy: supabase.com/privacy\n  Data location: AWS infrastructure\n\n• Anthropic Claude AI (food scanning, insights, meal planning)\n  Privacy policy: anthropic.com/privacy\n  Note: Only food images and anonymized nutrition data are sent — NO personal information\n\n• Open Food Facts (barcode scanning)\n  Privacy policy: world.openfoodfacts.org/privacy\n  Note: This is an open-source database — no data is sent from MacroTrack\n\n• Google Fonts (typography)\n  Privacy policy: policies.google.com/privacy\n  Note: Font files only, no tracking' },
+        { t:'Third-party services', b:'Kayven uses the following trusted third-party services:\n\n• Supabase (database & authentication)\n  Privacy policy: supabase.com/privacy\n  Data location: AWS infrastructure\n\n• Anthropic Claude AI (food scanning, insights, meal planning)\n  Privacy policy: anthropic.com/privacy\n  Note: Only food images and anonymized nutrition data are sent — NO personal information\n\n• Open Food Facts (barcode scanning)\n  Privacy policy: world.openfoodfacts.org/privacy\n  Note: This is an open-source database — no data is sent from Kayven\n\n• Google Fonts (typography)\n  Privacy policy: policies.google.com/privacy\n  Note: Font files only, no tracking' },
         { t:'Data sharing', b:'We do not sell, trade, or rent your personal information. We may share anonymized, aggregated data (e.g., "X% of users hit their protein goal on weekdays") for research purposes only. This data cannot be used to identify you.' },
         { t:'Your privacy rights', b:'You have the right to:\n• Access: Request a copy of all data we hold about you\n• Correction: Update incorrect personal information at any time in the app\n• Deletion: Delete your account and all associated data permanently\n• Portability: Export your data in JSON format\n• Objection: Opt out of any non-essential data processing\n\nTo exercise these rights, contact privacy@macrotrack.app or use the in-app options under Account → Security.' },
-        { t:'Cookies & local storage', b:'MacroTrack uses:\n• Authentication cookies: Required for login sessions (cannot be disabled)\n• Local storage: Stores your food search history and favourite meals on your device only — this data never leaves your phone\n• Service worker cache: Stores app files locally for offline access\n\nWe do NOT use advertising cookies, tracking pixels, or third-party analytics.' },
-        { t:"Children's privacy", b:'MacroTrack is not directed to children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us at privacy@macrotrack.app and we will delete it within 72 hours.' },
+        { t:'Cookies & local storage', b:'Kayven uses:\n• Authentication cookies: Required for login sessions (cannot be disabled)\n• Local storage: Stores your food search history and favourite meals on your device only — this data never leaves your phone\n• Service worker cache: Stores app files locally for offline access\n\nWe do NOT use advertising cookies, tracking pixels, or third-party analytics.' },
+        { t:"Children's privacy", b:'Kayven is not directed to children under 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us at privacy@macrotrack.app and we will delete it within 72 hours.' },
         { t:'Data retention', b:'Your data is retained as long as your account is active. If you delete your account:\n• Personal data is removed from our active database immediately\n• Backups are purged within 30 days\n• Anonymized aggregate data may be retained indefinitely\n\nIf your account is inactive for 24 months, we will email you before taking any action.' },
         { t:'Changes to this policy', b:'We will notify you of material changes to this Privacy Policy via in-app notification and email at least 14 days before they take effect. Continued use after that date constitutes acceptance.' },
         { t:'Contact our privacy team', b:'For privacy questions or requests:\nEmail: privacy@macrotrack.app\nResponse time: within 72 hours\nFor urgent concerns: support@macrotrack.app' },
@@ -336,15 +336,15 @@ export default function ProfilePage() {
     data: {
       title: 'Data & Privacy Controls',
       updated: 'April 2025',
-      intro: 'This page explains exactly what data MacroTrack stores about you, how long we keep it, and how you can control or delete it. You are in full control of your data.',
+      intro: 'This page explains exactly what data Kayven stores about you, how long we keep it, and how you can control or delete it. You are in full control of your data.',
       sections: [
-        { t:'Complete data inventory', b:'Here is every piece of data MacroTrack stores about you:\n\nProfile data:\n• Full name, date of birth, age\n• Gender, height, phone number\n• Profile photo (base64 encoded)\n• Email address\n• Password (bcrypt hashed — we cannot read it)\n\nHealth & fitness data:\n• Daily food logs (food name, quantity, macros, meal type, timestamp)\n• Daily weight logs (weight in kg, date)\n• Daily water logs (amount in ml, date)\n• Body measurements (waist, chest, hips, arms, thighs, shoulders)\n• Nutrition goals (calorie target, macro targets, goal weight, water goal)\n\nApp preferences:\n• Notification reminder times (stored locally on device)\n• Favourite meals (stored locally on device)\n• Food search history (stored locally on device)\n• Theme preference (stored locally on device)\n\nTechnical data:\n• Account creation date\n• Last login timestamp' },
+        { t:'Complete data inventory', b:'Here is every piece of data Kayven stores about you:\n\nProfile data:\n• Full name, date of birth, age\n• Gender, height, phone number\n• Profile photo (base64 encoded)\n• Email address\n• Password (bcrypt hashed — we cannot read it)\n\nHealth & fitness data:\n• Daily food logs (food name, quantity, macros, meal type, timestamp)\n• Daily weight logs (weight in kg, date)\n• Daily water logs (amount in ml, date)\n• Body measurements (waist, chest, hips, arms, thighs, shoulders)\n• Nutrition goals (calorie target, macro targets, goal weight, water goal)\n\nApp preferences:\n• Notification reminder times (stored locally on device)\n• Favourite meals (stored locally on device)\n• Food search history (stored locally on device)\n• Theme preference (stored locally on device)\n\nTechnical data:\n• Account creation date\n• Last login timestamp' },
         { t:'Data you control locally', b:'The following data is stored ONLY on your device and never sent to our servers:\n• ⭐ Favourite meals\n• 🕐 Food search history\n• 🔔 Notification reminder times\n• 🎨 App theme preference (light/dark/auto)\n\nClearing your browser/app data will remove these.' },
-        { t:'Request your data export', b:'You have the right to receive a complete export of all your MacroTrack data in machine-readable JSON format.\n\nTo request an export:\n1. Email data@macrotrack.app with subject "Data Export Request"\n2. Include the email address associated with your account\n3. We will verify your identity and send your export within 7 business days\n4. Export includes all food logs, weight logs, water logs, measurements, and profile data' },
+        { t:'Request your data export', b:'You have the right to receive a complete export of all your Kayven data in machine-readable JSON format.\n\nTo request an export:\n1. Email data@macrotrack.app with subject "Data Export Request"\n2. Include the email address associated with your account\n3. We will verify your identity and send your export within 7 business days\n4. Export includes all food logs, weight logs, water logs, measurements, and profile data' },
         { t:'How to delete your data', b:'Option 1 — Delete account in app:\n1. Go to Account → Security → Delete my account\n2. Confirm deletion\n3. All your personal data is immediately removed from our active database\n4. Backup purge completes within 30 days\n\nOption 2 — Email request:\nEmail privacy@macrotrack.app with "Account Deletion Request"\nInclude your registered email address\nWe will process within 48 hours and confirm via email\n\n⚠️ Account deletion is permanent and irreversible. Deleted data cannot be recovered.' },
         { t:'Data security measures', b:'We protect your data using industry-standard security practices:\n\nEncryption:\n• Data at rest: AES-256 encryption\n• Data in transit: TLS 1.3\n• Passwords: bcrypt hashing (never stored in plain text)\n\nAccess controls:\n• Row-level security: each user can only access their own data\n• API authentication: all requests require valid JWT tokens\n• No shared database access between users\n\nInfrastructure:\n• Hosted on Supabase (AWS infrastructure)\n• SOC 2 Type 2 compliant data center\n• Regular automated backups\n• 24/7 infrastructure monitoring\n\nCode security:\n• Input validation on all API endpoints\n• Rate limiting to prevent abuse\n• Security headers (CSP, HSTS, X-Frame-Options)\n• Regular dependency updates' },
         { t:'Third-party data processors', b:'We use the following sub-processors who may process your data:\n\n┌─────────────────────────────────────\n│ Supabase Inc.\n│ Role: Database & authentication\n│ Data: All personal data\n│ Location: AWS (us-east-1)\n│ DPA: Yes (GDPR compliant)\n├─────────────────────────────────────\n│ Anthropic, PBC\n│ Role: AI food scanning & insights\n│ Data: Food images only (no personal info)\n│ Location: USA\n│ DPA: Yes\n└─────────────────────────────────────' },
-        { t:'Regulatory compliance', b:'MacroTrack is committed to complying with applicable data protection regulations:\n\n• GDPR (EU General Data Protection Regulation)\n• DPDP Act 2023 (India Digital Personal Data Protection Act)\n• CCPA (California Consumer Privacy Act)\n\nFor regulatory inquiries or to exercise your rights under these laws, contact:\ndpo@macrotrack.app' },
+        { t:'Regulatory compliance', b:'Kayven is committed to complying with applicable data protection regulations:\n\n• GDPR (EU General Data Protection Regulation)\n• DPDP Act 2023 (India Digital Personal Data Protection Act)\n• CCPA (California Consumer Privacy Act)\n\nFor regulatory inquiries or to exercise your rights under these laws, contact:\ndpo@macrotrack.app' },
         { t:'Contact', b:'Data Protection:\ndpo@macrotrack.app\n\nPrivacy questions:\nprivacy@macrotrack.app\n\nData export/deletion:\ndata@macrotrack.app\n\nGeneral support:\nsupport@macrotrack.app\n\nAll emails receive a response within 72 hours.' },
       ]
     }
@@ -395,7 +395,7 @@ export default function ProfilePage() {
       </div>
       <div style={{padding:'0 20px'}}>
         <div className="fade-in-up" style={{ textAlign:'center', padding:'20px 0 28px' }}>
-          <img src="/Kayven.PNG" alt="MacroTrack logo" style={{ width:72, height:72, borderRadius:20, display:'block', margin:'0 auto 14px' }}/>
+          <img src="/Kayven.PNG" alt="Kayven logo" style={{ width:72, height:72, borderRadius:20, display:'block', margin:'0 auto 14px' }}/>
           <div style={{ fontWeight:800, fontSize:20, color:'var(--text)' }}>Kayven</div>
           <div style={{ fontSize:13, color:'var(--muted)', marginTop:4 }}>Nutrition & fitness tracking</div>
         </div>
@@ -428,7 +428,7 @@ export default function ProfilePage() {
             </div>
           </div>
           <div style={{ fontSize:13, color:'var(--muted)', lineHeight:1.7 }}>
-            MacroTrack doesn't have a paid subscription system built yet — everything in the app is available to every account right now. This screen is here so the card has an honest destination instead of doing nothing when tapped.
+            Kayven doesn't have a paid subscription system built yet — everything in the app is available to every account right now. This screen is here so the card has an honest destination instead of doing nothing when tapped.
           </div>
         </div>
       </div>
@@ -534,7 +534,7 @@ export default function ProfilePage() {
         <div className="card fade-in-up" style={{border:'1px solid #fecaca'}}>
           <div style={{fontWeight:700,fontSize:15,marginBottom:8,color:'#dc2626'}}>Danger zone</div>
           <p style={{fontSize:13,color:'var(--muted)',marginBottom:16,lineHeight:1.7}}>
-            Permanently delete your MacroTrack account and all associated data. This action <strong>cannot be undone</strong>. All food logs, weight history, and profile data will be permanently removed.
+            Permanently delete your Kayven account and all associated data. This action <strong>cannot be undone</strong>. All food logs, weight history, and profile data will be permanently removed.
           </p>
           <button className="tap-scale" style={{width:'100%',padding:'14px',borderRadius:14,background:'#fef2f2',border:'1px solid #fecaca',color:'#dc2626',fontWeight:700,fontSize:14,cursor:'pointer',WebkitTapHighlightColor:'transparent'}}
             onClick={async()=>{if(confirm('This will permanently delete your account and all data. Are you sure?')){await supabase.auth.signOut();router.replace('/auth')}}}>
@@ -637,14 +637,14 @@ export default function ProfilePage() {
               <div style={{fontSize:12,color:'var(--muted)',marginTop:2}}>
                 {notifPermission==='granted'
                   ?`${reminders.filter(r=>r.enabled).length} reminder${reminders.filter(r=>r.enabled).length!==1?'s':''} active`
-                  :'Allow MacroTrack to send meal reminders'}
+                  :'Allow Kayven to send meal reminders'}
               </div>
             </div>
           </div>
           {notifPermission!=='granted'
             ? <button className="btn btn-primary tap-scale" style={{padding:'13px',fontWeight:700}} onClick={enableNotifications}>Enable notifications</button>
             : <button className="btn btn-ghost tap-scale" style={{padding:'12px',fontSize:13,fontWeight:600}}
-                onClick={()=>new Notification('MacroTrack',{body:'Notifications are working perfectly!'})}>
+                onClick={()=>new Notification('Kayven',{body:'Notifications are working perfectly!'})}>
                 Send test notification
               </button>
           }

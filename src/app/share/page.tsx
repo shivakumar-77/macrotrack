@@ -61,7 +61,7 @@ export default function SharePage() {
       const html2canvas = (await import('html2canvas')).default
       const canvas = await html2canvas(cardRef.current, { scale: 3, backgroundColor: null, useCORS: true })
       const link = document.createElement('a')
-      link.download = 'macrotrack-progress.png'
+      link.download = 'kayven-progress.png'
       link.href = canvas.toDataURL('image/png')
       link.click()
     } catch (e) {
@@ -72,7 +72,7 @@ export default function SharePage() {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText('I am tracking my nutrition with MacroTrack! 💪 macrotrack-gamma.vercel.app')
+    await navigator.clipboard.writeText('I am tracking my nutrition with Kayven! 💪 macrotrack-gamma.vercel.app')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -112,7 +112,7 @@ export default function SharePage() {
           {/* Header */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 600, color: t.text, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>MacroTrack</div>
+              <div style={{ fontSize: 11, fontWeight: 600, color: t.text, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 4 }}>Kayven</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: t.text }}>{profile?.name ? 'My Progress' : 'Progress Card'}</div>
               {profile?.name && <div style={{ fontSize: 14, color: t.text, opacity: 0.8, marginTop: 2 }}>{profile.name}</div>}
             </div>
@@ -166,7 +166,7 @@ export default function SharePage() {
             {copied ? '✓ Copied!' : '🔗 Copy app link'}
           </button>
           <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600 }}
-            onClick={() => { const t = 'I am tracking my nutrition with MacroTrack! 💪 Check it out: macrotrack.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
+            onClick={() => { const t = 'I am tracking my nutrition with Kayven! 💪 Check it out: macrotrack.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
             💬 Share on WhatsApp
           </button>
         </div>

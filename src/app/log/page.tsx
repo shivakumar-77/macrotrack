@@ -11,8 +11,8 @@ import { FOOD_DATABASE } from '@/lib/foodDatabase'
 
 const MEAL_TYPES = ['breakfast','lunch','dinner','snack','other']
 const todayStr = () => new Date().toISOString().slice(0,10)
-const HISTORY_KEY = 'macrotrack_food_history'
-const FAVS_KEY = 'macrotrack_favourites'
+const HISTORY_KEY = 'Kayven_food_history'
+const FAVS_KEY = 'Kayven_favourites'
 
 function getFavs() { try { return JSON.parse(localStorage.getItem(FAVS_KEY)||'[]') } catch { return [] } }
 function saveFav(item) {

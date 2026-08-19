@@ -24,7 +24,7 @@ export default function NotificationsPage() {
 
   useEffect(() => {
     setPermission(Notification.permission)
-    const saved = localStorage.getItem('macrotrack_reminders')
+    const saved = localStorage.getItem('Kayven_reminders')
     if (saved) { try { setReminders(JSON.parse(saved)) } catch {} }
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.ready.then(() => setSwReady(true))
@@ -65,7 +65,7 @@ export default function NotificationsPage() {
 
   async function saveAndSchedule() {
     setSaving(true)
-    localStorage.setItem('macrotrack_reminders', JSON.stringify(reminders))
+    localStorage.setItem('Kayven_reminders', JSON.stringify(reminders))
 
     if (permission !== 'granted') {
       showMsg('Please enable notifications first')

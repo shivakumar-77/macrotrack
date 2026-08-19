@@ -36,7 +36,7 @@ week: logs.filter(l=>new Date(l.started_at)>week).length,
 volume: Math.round(logs.reduce((s,l)=>s+(l.total_volume_kg||0),0))
       })
     }
-const active = localStorage.getItem('macrotrack_active_workout')
+const active = localStorage.getItem('Kayven_active_workout')
 if (active) { try { setActiveWorkout(JSON.parse(active)) } catch {} }
 setLoading(false)
   }

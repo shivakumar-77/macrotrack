@@ -72,7 +72,7 @@ export default function SharePage() {
   }
 
   async function copyLink() {
-    await navigator.clipboard.writeText('I am tracking my nutrition with Kayven! 💪 macrotrack-gamma.vercel.app')
+    await navigator.clipboard.writeText('I am tracking my nutrition with Kayven! 💪 Kayven-gamma.vercel.app')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -153,7 +153,7 @@ export default function SharePage() {
 
           {/* Footer */}
           <div style={{ marginTop: 20, textAlign: 'center' }}>
-            <div style={{ fontSize: 11, color: t.text, opacity: 0.6 }}>macrotrack.app · {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</div>
+            <div style={{ fontSize: 11, color: t.text, opacity: 0.6 }}>Kayven.app · {new Date().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</div>
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export default function SharePage() {
             {copied ? '✓ Copied!' : '🔗 Copy app link'}
           </button>
           <button className="btn btn-ghost" style={{ width: '100%', padding: '14px', fontWeight: 600 }}
-            onClick={() => { const t = 'I am tracking my nutrition with Kayven! 💪 Check it out: macrotrack.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
+            onClick={() => { const t = 'I am tracking my nutrition with Kayven! 💪 Check it out: Kayven.app'; window.open('https://wa.me/?text=' + encodeURIComponent(t)) }}>
             💬 Share on WhatsApp
           </button>
         </div>

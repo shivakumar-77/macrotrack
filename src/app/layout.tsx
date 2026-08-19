@@ -37,7 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* No-flash theme script */}
         <script dangerouslySetInnerHTML={{ __html: `
 (function(){
-  var t=localStorage.getItem('macrotrack_theme')||'auto';
+  var t=localStorage.getItem('Kayven_theme')||'auto';
   var d=document.documentElement;
   if(t==='dark')d.setAttribute('data-theme','dark');
   else if(t==='light')d.setAttribute('data-theme','light');

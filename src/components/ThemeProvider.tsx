@@ -8,14 +8,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('auto')
 
   useEffect(() => {
-    const saved = localStorage.getItem('macrotrack_theme') as Theme || 'auto'
+    const saved = localStorage.getItem('Kayven_theme') as Theme || 'auto'
     setThemeState(saved)
     applyTheme(saved)
   }, [])
 
   function setTheme(t: Theme) {
     setThemeState(t)
-    localStorage.setItem('macrotrack_theme', t)
+    localStorage.setItem('Kayven_theme', t)
     applyTheme(t)
   }
 

@@ -1,4 +1,4 @@
-const CACHE = 'macrotrack-v2'
+const CACHE = 'Kayven-v2'
 const STATIC = [
   '/',
   '/dashboard',

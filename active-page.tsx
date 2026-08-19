@@ -156,7 +156,7 @@ function ActiveWorkoutPageContent() {
         return
       }
     }
-    const saved = localStorage.getItem('macrotrack_active_workout')
+    const saved = localStorage.getItem('Kayven_active_workout')
     if (saved && !templateId) {
       try {
         const w = JSON.parse(saved)
@@ -169,7 +169,7 @@ function ActiveWorkoutPageContent() {
   // Save to localStorage on change
   useEffect(() => {
     if (exercises.length > 0 || name !== 'My Workout') {
-      localStorage.setItem('macrotrack_active_workout', JSON.stringify({ name, exercises, startedAt: startTime }))
+      localStorage.setItem('Kayven_active_workout', JSON.stringify({ name, exercises, startedAt: startTime }))
     }
   }, [name, exercises])
 
@@ -266,7 +266,7 @@ function ActiveWorkoutPageContent() {
       total_volume_kg: totalVolume(),
       exercises
     })
-    localStorage.removeItem('macrotrack_active_workout')
+    localStorage.removeItem('Kayven_active_workout')
     setSaving(false)
     router.push('/workout')
   }
@@ -309,7 +309,7 @@ function ActiveWorkoutPageContent() {
       {/* Header */}
       <div style={{ position: 'sticky', top: 0, zIndex: 100, background: 'var(--surface)', padding: 'calc(env(safe-area-inset-top,0px) + 10px) 16px 12px', borderBottom: '0.5px solid var(--border)', backdropFilter: 'blur(12px)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <button onClick={() => { if (confirm('Discard this workout?')) { localStorage.removeItem('macrotrack_active_workout'); router.push('/workout') } }}
+          <button onClick={() => { if (confirm('Discard this workout?')) { localStorage.removeItem('Kayven_active_workout'); router.push('/workout') } }}
             className="tap-scale"
             style={{ width: 38, height: 38, borderRadius: 11, background: 'var(--card2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--muted)' }}>
             <IconX size={15}/>

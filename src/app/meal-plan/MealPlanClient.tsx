@@ -87,8 +87,8 @@ export default function MealPlanPage() {
       if (!user) { router.replace('/auth'); return }
       const { data:prof } = await supabase.from('profiles').select('*').eq('id', user.id).single()
       if (prof) setProfile(prof)
-      const saved = localStorage.getItem('macrotrack_mealplan_date')
-      const savedPlan = localStorage.getItem('macrotrack_mealplan')
+      const saved = localStorage.getItem('Kayven_mealplan_date')
+      const savedPlan = localStorage.getItem('Kayven_mealplan')
       const today = new Date().toISOString().slice(0,10)
       if (saved===today && savedPlan) {
         try { setPlan(JSON.parse(savedPlan)); setStep('plan') } catch (e) { console.error(e) }
@@ -130,8 +130,8 @@ Create ONLY a JSON response with: summary, meals array (with type, time, items w
       if (data.result) {
         setPlan(data.result)
         const today = new Date().toISOString().slice(0,10)
-        localStorage.setItem('macrotrack_mealplan_date', today)
-        localStorage.setItem('macrotrack_mealplan', JSON.stringify(data.result))
+        localStorage.setItem('Kayven_mealplan_date', today)
+        localStorage.setItem('Kayven_mealplan', JSON.stringify(data.result))
         setStep('plan')
       } else {
         setStep('quiz'); setQuizStep(0)

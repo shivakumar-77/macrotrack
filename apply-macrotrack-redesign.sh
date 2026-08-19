@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Applies the white/green/purple MacroTrack redesign to an existing
+# Applies the white/green/purple Kayven redesign to an existing
 # local checkout. Run from your project ROOT (same folder as package.json).
 #
 # This OVERWRITES the 26 files below with the final redesigned versions.
@@ -7,7 +7,7 @@
 # details in src/data/content.ts), back that up first — this script
 # doesn't merge, it replaces.
 set -e
-echo "Applying MacroTrack redesign..."
+echo "Applying Kayven redesign..."
 
 mkdir -p "src/app"
 cat > 'src/app/globals.css' << 'MTRACK_EOF'
@@ -16,7 +16,7 @@ cat > 'src/app/globals.css' << 'MTRACK_EOF'
 @tailwind utilities;
 
 :root {
-  /* MacroTrack brand palette — RGB channels so Tailwind's alpha
+  /* Kayven brand palette — RGB channels so Tailwind's alpha
      modifiers (e.g. bg-card/40) work directly off these tokens. */
   --primary: 34 197 94; /* #22C55E — green */
   --secondary: 99 102 241; /* #6366F1 — purple/indigo */
@@ -149,19 +149,19 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 
-const SITE_URL = "https://macrotrack.app";
+const SITE_URL = "https://Kayven.app";
 const SITE_DESCRIPTION =
-  "MacroTrack is an AI-powered fitness platform for calorie tracking, workouts, water, macros, body progress, and personalized coaching — all in one app. Join the waitlist for early access.";
+  "Kayven is an AI-powered fitness platform for calorie tracking, workouts, water, macros, body progress, and personalized coaching — all in one app. Join the waitlist for early access.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "MacroTrack — Transform Your Fitness with AI",
-    template: "%s · MacroTrack",
+    default: "Kayven — Transform Your Fitness with AI",
+    template: "%s · Kayven",
   },
   description: SITE_DESCRIPTION,
   keywords: [
-    "MacroTrack",
+    "Kayven",
     "AI fitness app",
     "calorie tracker",
     "macro tracker",
@@ -172,13 +172,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: "MacroTrack — Transform Your Fitness with AI",
+    title: "Kayven — Transform Your Fitness with AI",
     description: SITE_DESCRIPTION,
-    siteName: "MacroTrack",
+    siteName: "Kayven",
   },
   twitter: {
     card: "summary_large_image",
-    title: "MacroTrack — Transform Your Fitness with AI",
+    title: "Kayven — Transform Your Fitness with AI",
     description: SITE_DESCRIPTION,
   },
   robots: { index: true, follow: true },
@@ -1149,7 +1149,7 @@ import { Logo } from "@/components/shared/logo";
 const SOCIALS = [
   { label: "Instagram", href: "#", icon: Instagram },
   { label: "LinkedIn", href: "#", icon: Linkedin },
-  { label: "Email", href: "mailto:hello@macrotrack.app", icon: Mail },
+  { label: "Email", href: "mailto:hello@Kayven.app", icon: Mail },
 ];
 
 export function Footer() {
@@ -1184,7 +1184,7 @@ export function Footer() {
       </div>
 
       <p className="mx-auto mt-8 max-w-7xl text-center text-xs text-muted-foreground/70 md:text-left">
-        © {year} MacroTrack. All rights reserved.
+        © {year} Kayven. All rights reserved.
       </p>
     </footer>
   );
@@ -1509,7 +1509,7 @@ export function WaitlistSection() {
                             checked={field.value === true}
                             onCheckedChange={(checked) => field.onChange(checked === true)}
                           />
-                          I agree to receive updates about MacroTrack.
+                          I agree to receive updates about Kayven.
                         </label>
                       )}
                     />
@@ -1544,14 +1544,14 @@ MTRACK_EOF
 echo "  updated src/components/sections/waitlist-section.tsx"
 
 mkdir -p "src/components/sections"
-cat > 'src/components/sections/why-macrotrack-section.tsx' << 'MTRACK_EOF'
+cat > 'src/components/sections/why-Kayven-section.tsx' << 'MTRACK_EOF'
 "use client";
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Layers, LayoutDashboard, Repeat, ShieldCheck, Sparkles } from "lucide-react";
-import { WHY_MACROTRACK } from "@/data/content";
+import { WHY_Kayven } from "@/data/content";
 import { Reveal, RevealGroup, RevealItem } from "@/components/shared/reveal";
 import { Card } from "@/components/ui/card";
 import { GradientBlob } from "@/components/shared/gradient-blob";
@@ -1568,7 +1568,7 @@ const TONES = [
   { chip: "bg-green-50 text-primary" },
 ];
 
-export function WhyMacroTrackSection() {
+export function WhyKayvenSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const blobRef = useRef<HTMLDivElement>(null);
 
@@ -1610,7 +1610,7 @@ export function WhyMacroTrackSection() {
       <div className="relative mx-auto max-w-6xl px-5 sm:px-8">
         <Reveal className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-            Why MacroTrack
+            Why Kayven
           </h2>
           <p className="mt-4 text-base text-muted-foreground sm:text-lg">
             Not just another tracker — the parts that make people actually stick with it.
@@ -1621,7 +1621,7 @@ export function WhyMacroTrackSection() {
           className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
           staggerDelay={0.08}
         >
-          {WHY_MACROTRACK.map((item, index) => {
+          {WHY_Kayven.map((item, index) => {
             const Icon = ICONS[item.icon];
             const tone = TONES[index % TONES.length];
             return (
@@ -1644,7 +1644,7 @@ export function WhyMacroTrackSection() {
   );
 }
 MTRACK_EOF
-echo "  updated src/components/sections/why-macrotrack-section.tsx"
+echo "  updated src/components/sections/why-Kayven-section.tsx"
 
 mkdir -p "src/components/sections"
 cat > 'src/components/sections/features-section.tsx' << 'MTRACK_EOF'
@@ -2002,7 +2002,7 @@ export type TimelineItem = {
   description: string;
 };
 
-export const WHY_MACROTRACK: TimelineItem[] = [
+export const WHY_Kayven: TimelineItem[] = [
   {
     icon: "Layers",
     title: "Everything in one app",
@@ -2049,19 +2049,19 @@ export type FaqItem = {
 
 export const FAQ: FaqItem[] = [
   {
-    question: "When will MacroTrack launch?",
+    question: "When will Kayven launch?",
     answer:
       "We're finishing the core app now. Waitlist members get first access when the beta opens, with a public launch date announced closer to release — join the list and you'll hear about both before anyone else.",
   },
   {
     question: "Will it be free?",
     answer:
-      "Yes. MacroTrack has a free tier that covers calorie, macro, workout, and water tracking. A Pro plan will unlock the AI Coach, advanced analytics, and personalized meal and workout plans.",
+      "Yes. Kayven has a free tier that covers calorie, macro, workout, and water tracking. A Pro plan will unlock the AI Coach, advanced analytics, and personalized meal and workout plans.",
   },
   {
     question: "Android or iPhone?",
     answer:
-      "Both. MacroTrack is being built for iOS and Android from day one, alongside a web dashboard, so switching phones won't mean losing your history.",
+      "Both. Kayven is being built for iOS and Android from day one, alongside a web dashboard, so switching phones won't mean losing your history.",
   },
   {
     question: "How does the AI actually work?",
@@ -2087,16 +2087,16 @@ echo "  updated src/data/content.ts"
 
 
 cat > 'README.md' << 'MTRACK_EOF'
-# MacroTrack — Waitlist Landing Page
+# Kayven — Waitlist Landing Page
 
-A production-ready waitlist landing page for MacroTrack, an AI-powered fitness
+A production-ready waitlist landing page for Kayven, an AI-powered fitness
 platform. Built with Next.js 15 (App Router), TypeScript, Tailwind CSS,
 shadcn/ui-style components on Radix primitives, Framer Motion, GSAP
 (ScrollTrigger), Firebase Firestore, React Hook Form, and Zod.
 
 ## Design system
 
-The UI was redesigned to a light theme matching the MacroTrack mobile app.
+The UI was redesigned to a light theme matching the Kayven mobile app.
 All colors live as CSS variables in `src/app/globals.css` and are mapped
 into Tailwind in `tailwind.config.ts`, so every component pulls from the
 same source of truth:
@@ -2106,7 +2106,7 @@ same source of truth:
 | `background` | `#F8FAFC` | Page background |
 | `card` | `#FFFFFF` | Cards, inputs, the floating navbar's glass base |
 | `primary` / `accent` / `success` | `#22C55E` | Buttons, icons, focus rings, checkmarks — one green used consistently |
-| `secondary` | `#6366F1` | Purple accents in "Why MacroTrack" and background glows |
+| `secondary` | `#6366F1` | Purple accents in "Why Kayven" and background glows |
 | `foreground` | `#111827` | Body text |
 | `muted-foreground` | `#6B7280` | Secondary text |
 | `border` | `#E5E7EB` | Card borders, dividers |
@@ -2119,7 +2119,7 @@ same source of truth:
 | **Tailwind CSS** | Styling, using CSS variables for the brand color system |
 | **Radix UI + CVA** | Accessible primitives (Accordion, Select, Checkbox, Label) styled shadcn-style |
 | **Framer Motion** | Scroll reveals, hero entrance, mouse-parallax phone, form success animation |
-| **GSAP + ScrollTrigger** | The scroll-scrubbed connecting line in the "Why MacroTrack" timeline |
+| **GSAP + ScrollTrigger** | The scroll-scrubbed connecting line in the "Why Kayven" timeline |
 | **Firebase Firestore** | Waitlist submissions (`waitlist` collection) + live signup count |
 | **React Hook Form + Zod** | Waitlist form state and validation |
 | **Lucide Icons** | All iconography |

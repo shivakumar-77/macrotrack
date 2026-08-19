@@ -126,7 +126,7 @@ def process_file(filepath):
 
 def main():
     """Main function"""
-    src_dir = Path('/workspaces/macrotrack/src/app')
+    src_dir = Path('/workspaces/Kayven/src/app')
     
     files_with_emojis = []
     for tsx_file in src_dir.rglob('*.tsx'):

@@ -89,8 +89,8 @@ export default function MealPlanPage() {
       if (prof) setProfile(prof)
 
       // Check saved plan from today
-      const saved = localStorage.getItem('macrotrack_mealplan_date')
-      const savedPlan = localStorage.getItem('macrotrack_mealplan')
+      const saved = localStorage.getItem('Kayven_mealplan_date')
+      const savedPlan = localStorage.getItem('Kayven_mealplan')
       const today = new Date().toISOString().slice(0,10)
       if (saved===today && savedPlan) {
         try { setPlan(JSON.parse(savedPlan)); setStep('plan') } catch {}
@@ -176,8 +176,8 @@ Create ONLY a JSON response matching this exact structure:
       if (data.result) {
         setPlan(data.result)
         const today = new Date().toISOString().slice(0,10)
-        localStorage.setItem('macrotrack_mealplan_date', today)
-        localStorage.setItem('macrotrack_mealplan', JSON.stringify(data.result))
+        localStorage.setItem('Kayven_mealplan_date', today)
+        localStorage.setItem('Kayven_mealplan', JSON.stringify(data.result))
         setStep('plan')
       } else {
         setStep('quiz'); setQuizStep(0)
@@ -309,7 +309,7 @@ Create ONLY a JSON response matching this exact structure:
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
           <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em'}}>Your Meal Plan</h1>
-          <button onClick={()=>{setPlan(null);setStep('quiz');setQuizStep(0);setAnswers({});setLoggedMeals(new Set());localStorage.removeItem('macrotrack_mealplan');localStorage.removeItem('macrotrack_mealplan_date')}}
+          <button onClick={()=>{setPlan(null);setStep('quiz');setQuizStep(0);setAnswers({});setLoggedMeals(new Set());localStorage.removeItem('Kayven_mealplan');localStorage.removeItem('Kayven_mealplan_date')}}
             style={{background:'var(--card2)',border:'1.5px solid var(--border)',borderRadius:10,padding:'7px 12px',color:'var(--muted)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
             Redo quiz
           </button>

@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   try {
     const res = await fetch(
       'https://world.openfoodfacts.org/api/v2/product/' + encodeURIComponent(code.trim()) + '.json',
-      { headers: { 'User-Agent': 'Kayven/2.0 (contact@macrotrack.app)' }, next: { revalidate: 3600 } }
+      { headers: { 'User-Agent': 'Kayven/2.0 (contact@Kayven.app)' }, next: { revalidate: 3600 } }
     )
     if (!res.ok) return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     const data = await res.json()

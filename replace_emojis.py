@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Script to replace emojis with SVG icon components in MacroTrack
+Script to replace emojis with SVG icon components in Kayven
 """
 
 import os
@@ -163,7 +163,7 @@ def replace_emojis_in_file(filepath):
 
 def main():
     """Main function to process all TSX files"""
-    src_dir = Path('/workspaces/macrotrack/src/app')
+    src_dir = Path('/workspaces/Kayven/src/app')
     
     updated_files = []
     for tsx_file in src_dir.rglob('*.tsx'):

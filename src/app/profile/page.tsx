@@ -61,7 +61,7 @@ export default function ProfilePage() {
   const [ripples, setRipples] = useState({})
 
   useEffect(() => {
-    setNotifPermission(Notification.permission)
+    if (typeof Notification !== 'undefined') setNotifPermission(Notification.permission)
     const saved = localStorage.getItem('Kayven_reminders')
     if (saved) { try { setReminders(JSON.parse(saved)) } catch {} }
     load()
@@ -183,6 +183,10 @@ export default function ProfilePage() {
   }
 
   async function enableNotifications() {
+    if (typeof Notification === 'undefined') {
+      showMsg('Notifications are not supported in this browser.')
+      return
+    }
     const p = await Notification.requestPermission()
     setNotifPermission(p)
     if (p==='granted') { new Notification('Kayven',{body:'Reminders enabled!'}); showMsg('Notifications enabled!') }

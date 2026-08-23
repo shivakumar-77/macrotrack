@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter, usePathname } from 'next/navigation'
 import { HomeIcon, NutritionIcon, WorkoutIcon, WeightIcon, ProfileIcon } from '@/lib/icons'
 
@@ -16,6 +17,14 @@ function isActive(href, path) {
   return href === '/dashboard'
     ? path === '/' || path === '/dashboard' || path.startsWith('/dashboard')
     : path === href || path.startsWith(href)
+}
+
+function NavPortal({ children }) {
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => setMounted(true), [])
+
+  return mounted ? createPortal(children, document.body) : children
 }
 
 export default function BottomNav() {
@@ -57,7 +66,7 @@ export default function BottomNav() {
 
   if (isAndroid) {
     return (
-      <nav aria-label="Bottom navigation" style={{ ...wrapStyle, display:'flex', padding:'10px 8px', borderRadius:28, background:'var(--card)', border:'1px solid var(--border)', boxShadow:'0 6px 20px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}>
+      <NavPortal><nav aria-label="Bottom navigation" style={{ ...wrapStyle, display:'flex', padding:'10px 8px', borderRadius:28, background:'var(--card)', border:'1px solid var(--border)', boxShadow:'0 6px 20px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}>
         <style jsx>{`
           @keyframes mdRipple { from { transform: scale(0); opacity: 0.35; } to { transform: scale(22); opacity: 0; } }
           .md-tap { transition: transform 0.12s ease; }
@@ -80,12 +89,12 @@ export default function BottomNav() {
             </button>
           )
         })}
-      </nav>
+      </nav></NavPortal>
     )
   }
 
   return (
-    <nav aria-label="Bottom navigation" style={{ ...wrapStyle, position:'fixed', display:'flex', padding:6, borderRadius:999, background:'color-mix(in srgb, var(--surface) 72%, transparent)', backdropFilter:'blur(24px) saturate(180%)', WebkitBackdropFilter:'blur(24px) saturate(180%)', border:'1px solid color-mix(in srgb, var(--border) 70%, transparent)', boxShadow:'0 10px 30px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06)' }}>
+    <NavPortal><nav aria-label="Bottom navigation" style={{ ...wrapStyle, position:'fixed', display:'flex', padding:6, borderRadius:999, background:'color-mix(in srgb, var(--surface) 72%, transparent)', backdropFilter:'blur(24px) saturate(180%)', WebkitBackdropFilter:'blur(24px) saturate(180%)', border:'1px solid color-mix(in srgb, var(--border) 70%, transparent)', boxShadow:'0 10px 30px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06)' }}>
       <style jsx>{`
         .ios-tap { transition: transform 0.15s ease; }
         .ios-tap:active { transform: scale(0.92); }
@@ -103,6 +112,6 @@ export default function BottomNav() {
           </button>
         )
       })}
-    </nav>
+    </nav></NavPortal>
   )
 }

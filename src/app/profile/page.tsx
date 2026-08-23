@@ -369,7 +369,7 @@ export default function ProfilePage() {
   if (view === 'legal') {
     const page = LEGAL[legalPage]
     return (
-      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:60}}>
+      <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
         {sharedStyles}
         <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
           <BackBtn label={page.title}/>
@@ -392,7 +392,7 @@ export default function ProfilePage() {
 
   // ── ABOUT (new — minimal, factual only, no invented version number) ──
   if (view === 'about') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:60}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
       {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn label="About"/>
@@ -417,7 +417,7 @@ export default function ProfilePage() {
 
   // ── SUBSCRIPTION (new — honest placeholder, no fake plan/payment logic) ──
   if (view === 'subscription') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:60}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
       {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn label="Subscription"/>
@@ -442,7 +442,7 @@ export default function ProfilePage() {
 
   // ── EDIT PROFILE (now includes Security — email, password, delete account) ──
   if (view === 'edit') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
       {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
@@ -552,7 +552,7 @@ export default function ProfilePage() {
 
   // ── GOALS ─────────────────────────────────────────────────
   if (view === 'goals') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
       {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
@@ -624,7 +624,7 @@ export default function ProfilePage() {
 
   // ── NOTIFICATIONS ──────────────────────────────────────────
   if (view === 'notifications') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:100}}>
+    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
       {sharedStyles}
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
         <BackBtn/>
@@ -687,7 +687,7 @@ export default function ProfilePage() {
 
   // ── MAIN ───────────────────────────────────────────────────
   return (
-    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:100 }}>
+    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:'calc(var(--sab) + 120px)' }}>
       {sharedStyles}
       <MsgBanner/>
 

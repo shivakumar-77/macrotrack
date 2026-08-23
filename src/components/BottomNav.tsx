@@ -24,7 +24,7 @@ function NavPortal({ children }) {
 
   useEffect(() => setMounted(true), [])
 
-  return mounted ? createPortal(children, document.body) : children
+  return mounted ? createPortal(children, document.body) : null
 }
 
 export default function BottomNav() {
@@ -100,7 +100,7 @@ export default function BottomNav() {
         .ios-tap:active { transform: scale(0.92); }
       `}</style>
       {activeIdx >= 0 && (
-        <span aria-hidden="true" style={{ position:'absolute', top:3, bottom:3, left:3, width:`calc((100% - 6px) / ${NAV.length})`, transform:`translateX(calc(${activeIdx} * 100%))`, borderRadius:999, background:'linear-gradient(145deg, rgba(255,255,255,0.76), rgba(224,231,255,0.56))', border:'1px solid rgba(255,255,255,0.8)', boxShadow:'0 5px 14px rgba(99,102,241,0.18), inset 0 1px 1px rgba(255,255,255,0.95)', transition:'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)' }}/>
+        <span aria-hidden="true" style={{ position:'absolute', top:-10, bottom:-10, left:3, width:`calc((100% - 6px) / ${NAV.length})`, transform:`translateX(calc(${activeIdx} * 100%))`, borderRadius:30, background:'linear-gradient(145deg, rgba(255,255,255,0.46), rgba(210,218,255,0.28))', border:'1px solid rgba(255,255,255,0.72)', boxShadow:'0 8px 20px rgba(99,102,241,0.18), inset 0 1px 1px rgba(255,255,255,0.9), inset 0 -1px 1px rgba(255,255,255,0.2)', backdropFilter:'blur(16px) saturate(180%)', WebkitBackdropFilter:'blur(16px) saturate(180%)', transition:'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)', pointerEvents:'none' }}/>
       )}
       {NAV.map(({ href, label, Icon }) => {
         const active = isActive(href, path)

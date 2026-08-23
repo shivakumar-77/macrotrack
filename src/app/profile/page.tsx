@@ -687,7 +687,7 @@ export default function ProfilePage() {
 
   // ── MAIN ───────────────────────────────────────────────────
   return (
-    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingBottom:'calc(var(--sab) + 120px)' }}>
+    <div style={{ background:'#f2f2f7', minHeight:'100dvh', maxWidth:430, margin:'0 auto', paddingTop:'calc(var(--sat) + 24px)', paddingBottom:'calc(var(--sab) + 120px)' }}>
       {sharedStyles}
       <MsgBanner/>
 

@@ -66,7 +66,7 @@ export default function BottomNav() {
 
   if (isAndroid) {
     return (
-      <NavPortal><nav aria-label="Bottom navigation" style={{ ...wrapStyle, display:'flex', padding:'10px 8px', borderRadius:28, background:'var(--card)', border:'1px solid var(--border)', boxShadow:'0 6px 20px rgba(0,0,0,0.18), 0 2px 6px rgba(0,0,0,0.08)' }}>
+      <NavPortal><nav aria-label="Bottom navigation" style={{ ...wrapStyle, display:'flex', padding:'10px 8px', borderRadius:28, background:'color-mix(in srgb, var(--surface) 58%, transparent)', backdropFilter:'blur(30px) saturate(190%)', WebkitBackdropFilter:'blur(30px) saturate(190%)', border:'1px solid color-mix(in srgb, #fff 48%, var(--border))', boxShadow:'0 12px 35px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.65), inset 0 -1px 0 rgba(255,255,255,0.12)' }}>
         <style jsx>{`
           @keyframes mdRipple { from { transform: scale(0); opacity: 0.35; } to { transform: scale(22); opacity: 0; } }
           .md-tap { transition: transform 0.12s ease; }
@@ -82,7 +82,7 @@ export default function BottomNav() {
               {itemRipples.map(rp => (
                 <span key={rp.id} style={{ position:'absolute', left:rp.x, top:rp.y, width:8, height:8, marginLeft:-4, marginTop:-4, borderRadius:'50%', background:'var(--primary)', opacity:0.25, animation:'mdRipple 0.5s ease-out forwards', pointerEvents:'none' }}/>
               ))}
-              <span style={{ display:'flex', alignItems:'center', justifyContent:'center', width:52, height:30, borderRadius:15, background: active ? 'var(--primary-bg)' : 'transparent', transition:'background 0.25s ease' }}>
+              <span style={{ display:'flex', alignItems:'center', justifyContent:'center', width:52, height:30, borderRadius:15, background: active ? 'color-mix(in srgb, var(--primary) 16%, transparent)' : 'transparent', boxShadow: active ? 'inset 0 1px 1px rgba(255,255,255,0.7), 0 3px 10px rgba(99,102,241,0.12)' : 'none', transition:'background 0.25s ease, box-shadow 0.25s ease' }}>
                 <Icon size={21} strokeWidth={active ? 2.2 : 1.8} color={active ? 'var(--primary)' : 'var(--muted)'}/>
               </span>
               <span style={{ fontSize:11, fontWeight: active ? 700 : 500, color: active ? 'var(--primary)' : 'var(--muted)', letterSpacing:'0.01em' }}>{label}</span>
@@ -94,13 +94,13 @@ export default function BottomNav() {
   }
 
   return (
-    <NavPortal><nav aria-label="Bottom navigation" style={{ ...wrapStyle, position:'fixed', display:'flex', padding:6, borderRadius:999, background:'color-mix(in srgb, var(--surface) 72%, transparent)', backdropFilter:'blur(24px) saturate(180%)', WebkitBackdropFilter:'blur(24px) saturate(180%)', border:'1px solid color-mix(in srgb, var(--border) 70%, transparent)', boxShadow:'0 10px 30px rgba(0,0,0,0.15), 0 2px 8px rgba(0,0,0,0.06)' }}>
+    <NavPortal><nav aria-label="Bottom navigation" style={{ ...wrapStyle, position:'fixed', display:'flex', padding:6, borderRadius:999, background:'linear-gradient(180deg, rgba(255,255,255,0.62), rgba(255,255,255,0.32))', backdropFilter:'blur(30px) saturate(190%)', WebkitBackdropFilter:'blur(30px) saturate(190%)', border:'1px solid rgba(255,255,255,0.78)', boxShadow:'0 14px 38px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.9), inset 0 -1px 0 rgba(255,255,255,0.28)' }}>
       <style jsx>{`
         .ios-tap { transition: transform 0.15s ease; }
         .ios-tap:active { transform: scale(0.92); }
       `}</style>
       {activeIdx >= 0 && (
-        <span style={{ position:'absolute', top:6, bottom:6, left:6, width:`calc((100% - 12px) / ${NAV.length})`, transform:`translateX(calc(${activeIdx} * 100%))`, borderRadius:999, background:'var(--primary-bg)', transition:'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)' }}/>
+        <span aria-hidden="true" style={{ position:'absolute', top:3, bottom:3, left:3, width:`calc((100% - 6px) / ${NAV.length})`, transform:`translateX(calc(${activeIdx} * 100%))`, borderRadius:999, background:'linear-gradient(145deg, rgba(255,255,255,0.76), rgba(224,231,255,0.56))', border:'1px solid rgba(255,255,255,0.8)', boxShadow:'0 5px 14px rgba(99,102,241,0.18), inset 0 1px 1px rgba(255,255,255,0.95)', transition:'transform 0.45s cubic-bezier(0.34,1.56,0.64,1)' }}/>
       )}
       {NAV.map(({ href, label, Icon }) => {
         const active = isActive(href, path)

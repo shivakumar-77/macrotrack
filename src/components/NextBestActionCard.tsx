@@ -29,12 +29,12 @@ export default function NextBestActionCard() {
           const parsed = JSON.parse(cached)
           if (parsed.expiresAt > Date.now()) { setAction(parsed.action); return }
         }
-        const response = await fetch('/api/next-action')
+        const response = await fetch('/api/health-agent')
         if (!response.ok) return
         const data = await response.json()
-        if (!cancelled && data.action?.actionType !== 'NONE') {
-          setAction(data.action)
-          localStorage.setItem(STORAGE_KEY, JSON.stringify({ action: data.action, expiresAt: Date.now() + COOLDOWN_MS }))
+        if (!cancelled && data.state?.action?.actionType !== 'NONE') {
+          setAction(data.state.action)
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({ action: data.state.action, expiresAt: Date.now() + COOLDOWN_MS }))
         }
       } catch {}
     }

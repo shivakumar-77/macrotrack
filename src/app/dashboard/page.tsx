@@ -391,10 +391,11 @@ export default function Dashboard() {
 
       {/* Log food */}
       <button className="btn btn-primary pulse-primary fade-in-up"
-        style={{ width:'100%', marginTop:16, fontSize:16, fontWeight:700, padding:'16px', animationDelay:'0.25s' }}
+        style={{ position:'fixed', left:'50%', bottom:'calc(env(safe-area-inset-bottom,0px) + 92px)', transform:'translateX(-50%)', width:'calc(100% - 40px)', maxWidth:390, zIndex:998, fontSize:16, fontWeight:700, padding:'16px', animationDelay:'0.25s', boxShadow:'var(--shadow-primary)' }}
         onClick={() => router.push('/log')}>
         + Log food
       </button>
+      <div aria-hidden="true" style={{ height:68, marginTop:16 }} />
 
       {/* Food logs */}
       <div style={{ marginTop:28 }}>

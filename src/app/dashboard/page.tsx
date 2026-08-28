@@ -3,6 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
+import NextBestActionCard from '@/components/NextBestActionCard'
 import { SkeletonDashboard, PageLoader } from '@/components/Skeleton'
 import { useToast } from '@/components/Toast'
 import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon, CheckIcon, MuscleIcon, WarningIcon, TrophyIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, FoodIcon, PartyIcon, SupplementIcon, RobotIcon, WaveIcon } from '@/lib/icons'
@@ -360,6 +361,8 @@ export default function Dashboard() {
           {waterMl>=waterGoal ? <><PartyIcon size={13}/> Done</> : `${waterGoal-waterMl}ml left`}
         </div>
       </div>
+
+      <NextBestActionCard />
 
       {/* Quick actions — unified list card (Meal Planner / Insights / Supplements) */}
       <div className="card fade-in-up" style={{ marginTop:14, padding:'4px 0', animationDelay:'0.2s' }}>

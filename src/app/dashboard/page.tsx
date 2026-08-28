@@ -362,7 +362,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <NextBestActionCard />
+      <NextBestActionCard profile={profile} logs={logs} waterMl={waterMl} />
 
       {/* Quick actions — unified list card (Meal Planner / Insights / Supplements) */}
       <div className="card fade-in-up" style={{ marginTop:14, padding:'4px 0', animationDelay:'0.2s' }}>

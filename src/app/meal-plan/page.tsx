@@ -46,7 +46,20 @@ const QUIZ = [
     options:['Quick — under 15 min','Moderate — 15-30 min','I love cooking — 30+ min','Prefer ready-to-eat'],
     custom:false
   },
+  {
+    id:'budget', question:'What is your food budget preference?', iconType:'food',
+    options:['Budget-friendly','Moderate','Flexible','Use what I already have'],
+    custom:true
+  },
+  {
+    id:'plan_focus', question:'What should this plan focus on?', iconType:'salad',
+    options:['High protein','High fiber','Simple meals','Meal prep friendly','Weight-loss focused','Muscle-building focused','Balanced nutrition'],
+    custom:true
+  },
 ]
+
+const PLAN_STORAGE_KEY = 'Kayven_mealplan_v2'
+const PLAN_DATE_STORAGE_KEY = 'Kayven_mealplan_v2_date'
 
 const MEAL_COLORS = { Breakfast:'#f59e0b', Lunch:'#10b981', Snack:'#6366f1', Dinner:'#3b82f6' }
 
@@ -78,6 +91,7 @@ export default function MealPlanPage() {
   const [customInput, setCustomInput] = useState('')
   const [showCustom, setShowCustom]   = useState(false)
   const [plan, setPlan]        = useState(null)
+  const [selectedOptions, setSelectedOptions] = useState({})
   const [logging, setLogging]  = useState(null)
   const [loggedMeals, setLoggedMeals] = useState(new Set())
 
@@ -89,11 +103,16 @@ export default function MealPlanPage() {
       if (prof) setProfile(prof)
 
       // Check saved plan from today
-      const saved = localStorage.getItem('Kayven_mealplan_date')
-      const savedPlan = localStorage.getItem('Kayven_mealplan')
+      const saved = localStorage.getItem(PLAN_DATE_STORAGE_KEY)
+      const savedPlan = localStorage.getItem(PLAN_STORAGE_KEY)
       const today = new Date().toISOString().slice(0,10)
       if (saved===today && savedPlan) {
-        try { setPlan(JSON.parse(savedPlan)); setStep('plan') } catch {}
+        try {
+          const parsed = JSON.parse(savedPlan)
+          if (parsed.meals?.length && parsed.meals.every(meal => Array.isArray(meal.options) && meal.options.length === 4)) {
+            setPlan(parsed); setStep('plan')
+          }
+        } catch {}
       }
     }
     load()
@@ -138,8 +157,11 @@ User food preferences (from quiz):
 - Snack preference: ${prefs.snack_pref || 'fruits and nuts'}
 - Foods to avoid: ${prefs.allergies || 'none'}
 - Cooking time: ${prefs.cooking_time || 'moderate'}
+- Budget: ${prefs.budget || 'moderate'}
+- Plan focus: ${prefs.plan_focus || 'balanced nutrition'}
 
 Create ONLY a JSON response matching this exact structure:
+Return exactly four genuinely different options for each of Breakfast, Lunch, Snack, and Dinner. Never return fewer or duplicate variations.
 {
   "summary": "One sentence about this plan",
   "meals": [
@@ -147,14 +169,15 @@ Create ONLY a JSON response matching this exact structure:
       "type": "Breakfast",
       "time": "7:00 - 9:00 AM",
       "emoji": "SunriseIcon",
-      "items": [
-        {"name": "specific food name", "qty": "150g", "cal": 250, "protein": 12, "carb": 30, "fat": 8, "note": "optional cooking tip"}
-      ],
-      "total_cal": 400,
-      "total_protein": 25,
-      "total_carb": 45,
-      "total_fat": 12,
-      "tip": "one helpful tip for this meal"
+      "options": [
+        {
+          "name": "genuinely different meal option",
+          "ingredients": [{"name":"Oats","quantity":"60 g"}],
+          "nutrition": {"calories":400,"protein":25,"carbs":45,"fat":12,"fiber":8},
+          "recipe": ["Add ingredients to a pan.","Cook until ready.","Serve."],
+          "tip": "one helpful practical tip"
+        }
+      ]
     },
     { "type": "Lunch", ... },
     { "type": "Snack", ... },
@@ -162,6 +185,9 @@ Create ONLY a JSON response matching this exact structure:
   ],
   "day_total_cal": 1700,
   "day_total_protein": 167,
+  "day_total_carbs": 144,
+  "day_total_fat": 60,
+  "day_total_fiber": 25,
   "shopping_list": ["item1", "item2"],
   "hydration_tip": "specific water advice",
   "pro_tip": "one important nutrition tip for this person's goal"
@@ -176,8 +202,8 @@ Create ONLY a JSON response matching this exact structure:
       if (data.result) {
         setPlan(data.result)
         const today = new Date().toISOString().slice(0,10)
-        localStorage.setItem('Kayven_mealplan_date', today)
-        localStorage.setItem('Kayven_mealplan', JSON.stringify(data.result))
+        localStorage.setItem(PLAN_DATE_STORAGE_KEY, today)
+        localStorage.setItem(PLAN_STORAGE_KEY, JSON.stringify(data.result))
         setStep('plan')
       } else {
         setStep('quiz'); setQuizStep(0)
@@ -188,15 +214,16 @@ Create ONLY a JSON response matching this exact structure:
     }
   }
 
-  async function logMeal(meal) {
+  async function logMeal(meal, option) {
     const { data:{ user } } = await supabase.auth.getUser(); if (!user) return
     setLogging(meal.type)
     const today = new Date().toISOString().slice(0,10)
-    await Promise.all(meal.items.map(item =>
+    const items = option?.ingredients || option?.items || []
+    await Promise.all(items.map(item =>
       supabase.from('food_logs').insert({
         user_id:user.id, logged_at:today,
-        name:item.name, qty:parseFloat(item.qty)||100, unit:'g',
-        cal:item.cal, protein:item.protein, carb:item.carb||0, fat:item.fat||0, fiber:0,
+        name:item.name, qty:parseFloat(String(item.quantity || item.qty || '').replace(/[^0-9.]/g,''))||100, unit:'g',
+        cal:item.cal ?? item.nutrition?.calories ?? 0, protein:item.protein ?? item.nutrition?.protein ?? 0, carb:item.carb ?? item.nutrition?.carbs ?? 0, fat:item.fat ?? item.nutrition?.fat ?? 0, fiber:item.fiber ?? item.nutrition?.fiber ?? 0,
         meal_type:meal.type.toLowerCase()
       })
     ))
@@ -235,7 +262,7 @@ Create ONLY a JSON response matching this exact structure:
 
           {/* Question */}
           <div style={{textAlign:'center',marginBottom:32}}>
-            <div style={{fontSize:56,marginBottom:16}}>{q.icon}</div>
+            <div style={{fontSize:56,marginBottom:16}}>{getQuizIcon(q.iconType)}</div>
             <div style={{fontSize:20,fontWeight:700,lineHeight:1.4,color:'var(--text)'}}>{q.question}</div>
           </div>
 
@@ -292,7 +319,7 @@ Create ONLY a JSON response matching this exact structure:
       <div style={{fontSize:64,marginBottom:24}}>🍽️</div>
       <div style={{fontWeight:700,fontSize:20,marginBottom:8}}>Building your plan…</div>
       <div style={{fontSize:14,color:'var(--muted)',marginBottom:32,lineHeight:1.7}}>
-        AI is crafting a personalised meal plan based on your preferences and targets
+        Matching your goal, nutrition targets, food preferences, cooking time, and diet
       </div>
       <div style={{display:'flex',gap:8}}>
         {[0,1,2].map(i=>(
@@ -309,7 +336,7 @@ Create ONLY a JSON response matching this exact structure:
       <div style={{padding:'calc(env(safe-area-inset-top,0px) + 20px) 20px 0'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:4}}>
           <h1 style={{fontSize:22,fontWeight:700,letterSpacing:'-0.02em'}}>Your Meal Plan</h1>
-          <button onClick={()=>{setPlan(null);setStep('quiz');setQuizStep(0);setAnswers({});setLoggedMeals(new Set());localStorage.removeItem('Kayven_mealplan');localStorage.removeItem('Kayven_mealplan_date')}}
+          <button onClick={()=>{setPlan(null);setStep('quiz');setQuizStep(0);setAnswers({});setSelectedOptions({});setLoggedMeals(new Set());localStorage.removeItem(PLAN_STORAGE_KEY);localStorage.removeItem(PLAN_DATE_STORAGE_KEY)}}
             style={{background:'var(--card2)',border:'1.5px solid var(--border)',borderRadius:10,padding:'7px 12px',color:'var(--muted)',fontSize:12,fontWeight:600,cursor:'pointer'}}>
             Redo quiz
           </button>
@@ -320,7 +347,7 @@ Create ONLY a JSON response matching this exact structure:
         <div style={{background:'linear-gradient(135deg,#10b981,#059669)',borderRadius:20,padding:'18px 20px',marginBottom:16,color:'#fff'}}>
           <div style={{fontSize:12,opacity:0.85,fontWeight:600,textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:12}}>Today's targets</div>
           <div style={{display:'flex',gap:20}}>
-            {[{l:'Calories',v:plan.day_total_cal,u:'kcal'},{l:'Protein',v:plan.day_total_protein,u:'g'}].map(s=>(
+            {[{l:'Calories',v:plan.day_total_cal,u:'kcal'},{l:'Protein',v:plan.day_total_protein,u:'g'},{l:'Carbs',v:plan.day_total_carbs,u:'g'},{l:'Fat',v:plan.day_total_fat,u:'g'},{l:'Fiber',v:plan.day_total_fiber,u:'g'}].map(s=>(
               <div key={s.l}>
                 <div style={{fontSize:28,fontWeight:800}}>{s.v}<span style={{fontSize:14,fontWeight:400,opacity:0.8}}> {s.u}</span></div>
                 <div style={{fontSize:11,opacity:0.75}}>{s.l}</div>
@@ -334,53 +361,36 @@ Create ONLY a JSON response matching this exact structure:
           )}
         </div>
 
-        {/* Meal cards */}
+        {/* Meal cards with one expanded option at a time */}
         {plan.meals?.map((meal,i)=>{
           const color  = MEAL_COLORS[meal.type]||'#6366f1'
-          const icon   = meal.emoji||MEAL_ICONS[meal.type]||'FoodIcon'
+          const icon   = getMealIcon(meal.type)
+          const options = Array.isArray(meal.options) ? meal.options.slice(0,4) : []
+          const selected = Math.min(selectedOptions[meal.type] || 0, Math.max(options.length - 1, 0))
+          const option = options[selected]
+          const nutrition = option?.nutrition || {}
           const logged = loggedMeals.has(meal.type)
+          if (options.length !== 4) return null
           return (
             <div key={i} className="card" style={{marginBottom:14,borderLeft:'4px solid '+color}}>
-              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:42,height:42,borderRadius:12,background:color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
-                    {icon}
-                  </div>
-                  <div>
-                    <div style={{fontWeight:700,fontSize:15,color}}>{meal.type}</div>
-                    <div style={{fontSize:11,color:'var(--muted)'}}>{meal.time}</div>
-                  </div>
+                  <div style={{width:42,height:42,borderRadius:12,background:color+'18',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>{icon}</div>
+                  <div><div style={{fontWeight:700,fontSize:15,color}}>{meal.type}</div><div style={{fontSize:11,color:'var(--muted)'}}>{meal.time}</div></div>
                 </div>
-                <div style={{textAlign:'right'}}>
-                  <div style={{fontWeight:800,fontSize:16,color}}>{meal.total_cal} kcal</div>
-                  <div style={{fontSize:11,color:'var(--muted)'}}>{meal.total_protein}g P · {meal.total_carb}g C · {meal.total_fat}g F</div>
-                </div>
+                <div style={{textAlign:'right'}}><div style={{fontWeight:800,fontSize:16,color}}>{nutrition.calories || 0} kcal</div><div style={{fontSize:11,color:'var(--muted)'}}>{nutrition.protein || 0}g P · {nutrition.carbs || 0}g C · {nutrition.fat || 0}g F · {nutrition.fiber || 0}g fiber</div></div>
               </div>
-
-              {/* Food items */}
-              {meal.items?.map((item,j)=>(
-                <div key={j} style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',padding:'10px 0',borderBottom:j<meal.items.length-1?'1px solid var(--border)':'none'}}>
-                  <div style={{flex:1,paddingRight:8}}>
-                    <div style={{fontWeight:600,fontSize:13}}>{item.name}</div>
-                    <div style={{fontSize:11,color:'var(--muted)',marginTop:2}}>
-                      {item.qty} · {item.protein}g P · {item.carb}g C · {item.fat}g F
-                    </div>
-                    {item.note&&<div style={{fontSize:11,color:'var(--primary)',marginTop:3,fontStyle:'italic'}}>{item.note}</div>}
-                  </div>
-                  <div style={{fontWeight:700,fontSize:13,color:'var(--muted)',flexShrink:0}}>{item.cal} kcal</div>
-                </div>
-              ))}
-
-              {meal.tip&&(
-                <div style={{marginTop:12,padding:'10px 12px',background:color+'12',borderRadius:10,fontSize:12,color:color,fontWeight:500}}>
-                  💡 {meal.tip}
-                </div>
-              )}
-
-              <button onClick={()=>!logged&&logMeal(meal)} disabled={logging===meal.type||logged}
-                style={{width:'100%',marginTop:14,padding:'12px',borderRadius:12,background:logged?'#d1fae5':color,color:logged?'#059669':'#fff',border:logged?'1.5px solid #6ee7b7':'none',fontWeight:700,fontSize:13,cursor:logged?'default':'pointer',transition:'all 0.2s',WebkitTapHighlightColor:'transparent'}}>
-                {logging===meal.type?'Logging…':logged?'✓ Logged':'+ Log this meal'}
-              </button>
+              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:5,marginBottom:14}}>
+                {options.map((candidate,j)=><button key={j} onClick={()=>setSelectedOptions(p=>({...p,[meal.type]:j}))} style={{padding:'8px 4px',borderRadius:9,border:'1px solid '+(selected===j?color:'var(--border)'),background:selected===j?color+'18':'var(--card2)',color:selected===j?color:'var(--muted)',fontSize:10,fontWeight:700,cursor:'pointer',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>Option {j+1}</button>)}
+              </div>
+              <div style={{fontWeight:700,fontSize:14,marginBottom:10}}>{option.name}</div>
+              {option.ingredients?.map((ingredient,j)=><div key={j} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:j<option.ingredients.length-1?'1px solid var(--border)':'none',fontSize:12}}><span>{ingredient.name}</span><strong>{ingredient.quantity}</strong></div>)}
+              <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:4,marginTop:12,padding:'10px 6px',background:'var(--card2)',borderRadius:10,textAlign:'center'}}>
+                {[['Calories',nutrition.calories,'kcal'],['Protein',nutrition.protein,'g'],['Carbs',nutrition.carbs,'g'],['Fat',nutrition.fat,'g'],['Fiber',nutrition.fiber,'g']].map(([label,value,unit])=><div key={label}><div style={{fontWeight:700,fontSize:12}}>{value || 0}{unit==='kcal'?'':'g'}</div><div style={{fontSize:9,color:'var(--muted)',marginTop:2}}>{label}</div></div>)}
+              </div>
+              {option.recipe?.length>0&&<div style={{marginTop:12}}><div style={{fontWeight:700,fontSize:12,marginBottom:5}}>How to make</div><ol style={{paddingLeft:20,margin:0,color:'var(--text-2)',fontSize:12,lineHeight:1.6}}>{option.recipe.map((step,j)=><li key={j}>{step}</li>)}</ol></div>}
+              {option.tip&&<div style={{marginTop:12,padding:'10px 12px',background:color+'12',borderRadius:10,fontSize:12,color:color,fontWeight:500}}>Tip: {option.tip}</div>}
+              <button onClick={()=>!logged&&logMeal(meal,option)} disabled={logging===meal.type||logged} style={{width:'100%',marginTop:14,padding:'12px',borderRadius:12,background:logged?'#d1fae5':color,color:logged?'#059669':'#fff',border:logged?'1.5px solid #6ee7b7':'none',fontWeight:700,fontSize:13,cursor:logged?'default':'pointer',transition:'all 0.2s',WebkitTapHighlightColor:'transparent'}}>{logging===meal.type?'Logging…':logged?'✓ Logged':'+ Log this meal'}</button>
             </div>
           )
         })}

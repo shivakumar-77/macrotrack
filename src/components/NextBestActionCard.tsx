@@ -37,11 +37,14 @@ function fallbackAction(profile: any, logs: any[], waterMl: number): Action {
   const waterTarget = number(profile?.water_goal)
   const proteinRemaining = proteinTarget - protein
   const caloriesRemaining = calorieTarget - calories
+  const overallOnTrack = calories >= calorieTarget * 0.75 && calories <= calorieTarget * 1.05 && protein >= proteinTarget * 0.85 && (waterTarget <= 0 || waterMl >= waterTarget * 0.8)
 
   if (!logs.length) return { actionType:'LOG_MEAL', priority:0.8, title:'Log your next meal', message:'Nothing has been logged today yet.', suggestedAction:'Start with your next meal or snack.', destination:'/log' }
-  if (proteinRemaining >= 25 && caloriesRemaining >= 150) return { actionType:'PROTEIN', priority:0.92, title:'Close your protein gap', message:`You are about ${Math.round(proteinRemaining)}g short of your protein target today.`, suggestedAction:`Log a protein-focused meal within your remaining ${Math.round(caloriesRemaining)} calories.`, destination:'/log' }
   if (waterTarget > 0 && waterMl < waterTarget * 0.6) return { actionType:'HYDRATION', priority:0.84, title:'Top up your hydration', message:`You have logged ${Math.round(waterMl)}ml of your ${Math.round(waterTarget)}ml water target today.`, suggestedAction:`Drink about ${Math.round(waterTarget - waterMl)}ml more today.`, destination:'/water' }
-  if (calorieTarget > 0 && caloriesRemaining > 200) return { actionType:'NUTRITION', priority:0.68, title:'Plan your next meal', message:`You have about ${Math.round(caloriesRemaining)} calories remaining today.`, suggestedAction:'Choose a balanced meal that fits your remaining calories.', destination:'/meal-plan' }
+  if (proteinRemaining >= 25 && caloriesRemaining >= 150) return { actionType:'PROTEIN', priority:0.72, title:'Close your protein gap', message:`You are about ${Math.round(proteinRemaining)}g short of your protein target today.`, suggestedAction:`Log a protein-focused meal within your remaining ${Math.round(caloriesRemaining)} calories.`, destination:'/log' }
+  if (calorieTarget > 0 && caloriesRemaining > 200 && !overallOnTrack) return { actionType:'NUTRITION', priority:0.68, title:'Plan your next meal', message:`You have about ${Math.round(caloriesRemaining)} calories remaining today.`, suggestedAction:'Choose a balanced meal that fits your remaining calories.', destination:'/meal-plan' }
+  if (calorieTarget > 0 && caloriesRemaining <= 100 && proteinRemaining > 20) return { actionType:'NONE', priority:0 }
+  if (overallOnTrack) return { actionType:'PROGRESS', priority:0.4, title:'You are on track today', message:'Your logged nutrition and hydration are tracking well against your targets.', suggestedAction:'Keep the consistency going.', destination:'/insights' }
   return { actionType:'NONE', priority:0 }
 }
 

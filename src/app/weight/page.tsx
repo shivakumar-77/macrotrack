@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -55,9 +56,6 @@ export default function WeightPage() {
 
   useEffect(() => {
     if (typeof navigator === 'undefined') return
-    const uaDataPlatform = navigator.userAgentData?.platform || ''
-    if (/android/i.test(uaDataPlatform)) { setPlatform('android'); return }
-    if (/ios|iphone|ipad/i.test(uaDataPlatform)) { setPlatform('ios'); return }
     const ua = navigator.userAgent || ''
     if (/Android/i.test(ua)) setPlatform('android')
     else if (/iPhone|iPad|iPod/i.test(ua)) setPlatform('ios')

@@ -33,7 +33,7 @@ Respond ONLY with this JSON, no markdown:
           ]
         }]
       }),
-      timeout: 60000
+      signal: AbortSignal.timeout(60000)
     })
 
     if (!response.ok) {

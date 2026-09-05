@@ -81,14 +81,15 @@ export default function NotificationsPage() {
 
   function scheduleLocalNotifications(rems) {
     // Clear existing
-    if (window._notifInterval) clearInterval(window._notifInterval)
+    const win = window as any
+    if (win._notifInterval) clearInterval(win._notifInterval)
 
     const enabled = rems.filter(r => r.enabled)
     if (!enabled.length) return
 
     const fired = new Set()
 
-    window._notifInterval = setInterval(() => {
+    win._notifInterval = setInterval(() => {
       const now = new Date()
       const hhmm = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0')
       enabled.forEach(r => {

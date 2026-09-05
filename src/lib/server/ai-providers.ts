@@ -1,6 +1,8 @@
-import { AIProvider, AITextRequest, AIStructuredRequest, parseStructuredOutput } from './ai-provider'
+import { AIProvider, AIProviderName, AITextRequest, AIStructuredRequest, parseStructuredOutput } from './ai-provider'
 
 export class AnthropicProvider implements AIProvider {
+  readonly name: AIProviderName = 'anthropic'
+
   async generateResponse(request: AITextRequest) {
     const key = process.env.ANTHROPIC_API_KEY
     if (!key) throw new Error('ANTHROPIC_API_KEY is not configured')
@@ -16,6 +18,8 @@ export class AnthropicProvider implements AIProvider {
 }
 
 export class OpenAIProvider implements AIProvider {
+  readonly name: AIProviderName = 'openai'
+
   async generateResponse(request: AITextRequest) {
     const key = process.env.OPENAI_API_KEY
     if (!key) throw new Error('OPENAI_API_KEY is not configured')
@@ -27,5 +31,17 @@ export class OpenAIProvider implements AIProvider {
 
   async generateStructuredOutput<T>(request: AIStructuredRequest) {
     return parseStructuredOutput<T>(await this.generateResponse({ ...request, prompt: `${request.prompt}\nRespond with valid JSON only.` }))
+  }
+}
+
+export class GeminiProvider implements AIProvider {
+  readonly name: AIProviderName = 'gemini'
+
+  async generateResponse(_request: AITextRequest): Promise<string> {
+    throw new Error('Gemini provider is intentionally not enabled yet. Add credentials in a future module only when needed.')
+  }
+
+  async generateStructuredOutput<T>(_request: AIStructuredRequest): Promise<T> {
+    throw new Error('Gemini provider is intentionally not enabled yet. Add credentials in a future module only when needed.')
   }
 }

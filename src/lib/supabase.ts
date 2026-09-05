@@ -167,6 +167,30 @@ const createStub = () => ({
         console.error('signInWithOAuth error:', error)
         return { error }
       }
+    },
+    updateUser: async (attributes: any) => {
+      const client = getClient()
+      if (!client) {
+        return { error: new Error('Supabase not properly configured.') }
+      }
+      try {
+        return await withTimeout(client.auth.updateUser(attributes), 8000)
+      } catch (error) {
+        console.error('updateUser error:', error)
+        return { error: error instanceof Error ? error : new Error('Update failed') }
+      }
+    },
+    resetPasswordForEmail: async (email: string, options?: any) => {
+      const client = getClient()
+      if (!client) {
+        return { error: new Error('Supabase not properly configured.') }
+      }
+      try {
+        return await withTimeout(client.auth.resetPasswordForEmail(email, options), 8000)
+      } catch (error) {
+        console.error('resetPasswordForEmail error:', error)
+        return { error: error instanceof Error ? error : new Error('Reset failed') }
+      }
     }
   },
   from: (table: string) => {

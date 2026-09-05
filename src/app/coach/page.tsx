@@ -9,7 +9,7 @@ import { supabase } from '@/lib/supabase'
 
 type Message = { role: 'user' | 'assistant'; content: string; actions?: string[] }
 
-const SUGGESTIONS = ['How am I doing today?', 'What should I eat next?', 'Help me hit my protein goal', 'Review my week']
+const SUGGESTIONS = ['How am I doing today?', 'What should I eat for dinner?', 'Help me hit my protein target', 'Review my progress']
 
 export default function CoachPage() {
   const router = useRouter()
@@ -17,6 +17,7 @@ export default function CoachPage() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [conversationId, setConversationId] = useState<string | null>(null)
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -34,9 +35,10 @@ export default function CoachPage() {
     setMessages(nextMessages)
     setLoading(true)
     try {
-      const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: trimmed, messages }) })
+      const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: trimmed, messages, conversationId }) })
       const data = await response.json()
       if (!response.ok) throw new Error(data.error || 'Unable to reach the Coach')
+      if (data.conversationId) setConversationId(data.conversationId)
       setMessages([...nextMessages, { role: 'assistant', content: data.answer, actions: data.actions }])
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'The Coach is unavailable right now.')

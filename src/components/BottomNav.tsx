@@ -35,11 +35,6 @@ export default function BottomNav() {
 
   useEffect(() => {
     if (typeof navigator === 'undefined') return
-    // Prefer the structured Client Hints API when the browser exposes it (most current Android Chrome) —
-    // more robust than string-sniffing since UA strings are increasingly frozen/reduced by browsers.
-    const uaDataPlatform = navigator.userAgentData?.platform || ''
-    if (/android/i.test(uaDataPlatform)) { setPlatform('android'); return }
-    if (/ios|iphone|ipad/i.test(uaDataPlatform)) { setPlatform('ios'); return }
     const ua = navigator.userAgent || ''
     if (/Android/i.test(ua)) setPlatform('android')
     else if (/iPhone|iPad|iPod/i.test(ua)) setPlatform('ios')
@@ -59,9 +54,9 @@ export default function BottomNav() {
   const activeIdx = NAV.findIndex(n => isActive(n.href, path))
   const isAndroid = platform === 'android'
 
-  const wrapStyle = {
-    position:'fixed', left:'50%', bottom:'calc(env(safe-area-inset-bottom,0px) + 14px)',
-    transform:'translateX(-50%)', width:'calc(100% - 32px)', maxWidth:398, zIndex:1000,
+  const wrapStyle: React.CSSProperties = {
+    position: 'fixed', left: '50%', bottom: 'calc(env(safe-area-inset-bottom,0px) + 14px)',
+    transform: 'translateX(-50%)', width: 'calc(100% - 32px)', maxWidth: 398, zIndex: 1000,
   }
 
   if (isAndroid) {

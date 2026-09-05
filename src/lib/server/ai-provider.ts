@@ -1,4 +1,7 @@
+export type AIProviderName = 'anthropic' | 'openai' | 'gemini' | 'custom'
+
 export interface AIProvider {
+  readonly name: AIProviderName
   generateResponse(request: AITextRequest): Promise<string>
   generateStructuredOutput<T>(request: AIStructuredRequest): Promise<T>
 }
@@ -7,6 +10,7 @@ export interface AITextRequest {
   prompt: string
   system?: string
   maxTokens?: number
+  metadata?: Record<string, unknown>
 }
 
 export interface AIStructuredRequest extends AITextRequest {

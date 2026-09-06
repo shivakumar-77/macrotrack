@@ -9,6 +9,12 @@ import {
 } from '@/lib/server/kayven-intelligence-engine'
 import { validateKAYVENSafety } from '@/lib/server/kayven-safety'
 import {
+  understandKayvenConversation,
+} from '@/lib/server/kayven-brain/conversation-brain'
+import {
+  composeKAYVENResponse,
+} from '@/lib/server/kayven-brain/response-composer'
+import {
   globalKAYVENCostTracker,
   createCostMetadata,
 } from '@/lib/server/kayven-cost-tracking'
@@ -655,7 +661,29 @@ export async function POST(request: NextRequest) {
       content: message,
     })
 
-    const range = contextRange(message)
+    const intent = classifyKayvenIntent(message)
+
+    const brainDecision =
+      understandKayvenConversation(
+        message,
+        intent,
+        conversation,
+      )
+
+    let range = contextRange(message)
+
+    if (
+      brainDecision.complexity === 'complex' &&
+      brainDecision.needsUserData
+    ) {
+      range = '30d'
+    } else if (
+      brainDecision.complexity === 'moderate' &&
+      brainDecision.needsUserData &&
+      range === 'today'
+    ) {
+      range = '7d'
+    }
 
     const context =
       await getKayvenIntelligenceContext(
@@ -665,8 +693,27 @@ export async function POST(request: NextRequest) {
       )
 
     const memory = getKAYVENMemory(context as any)
-    const intent = classifyKayvenIntent(message)
     const safety = validateKAYVENSafety(message)
+
+    console.info(
+      '[KAYVEN Brain] Conversation understood',
+      {
+        intent: brainDecision.intent,
+        confidence: brainDecision.confidence,
+        complexity: brainDecision.complexity,
+        responseStrategy:
+          brainDecision.responseStrategy,
+        needsUserData:
+          brainDecision.needsUserData,
+        requiredData:
+          brainDecision.requiredData,
+        resolvedReferences:
+          brainDecision.resolvedReferences.length,
+        shouldAskClarification:
+          brainDecision.shouldAskClarification,
+        range,
+      },
+    )
 
     const kyRequest: KAYVENAIRequest = {
       user: {
@@ -733,6 +780,42 @@ export async function POST(request: NextRequest) {
     let executionPath:
       'deterministic_tool' | 'local_intelligence' =
       'deterministic_tool'
+
+    if (!kayvenResponse) {
+      const composedResponse =
+        composeKAYVENResponse({
+          message,
+          intent,
+          context,
+          conversation,
+          brainDecision,
+          safetyStatus: safety.status,
+        })
+
+      if (
+        !composedResponse.shouldFallback &&
+        composedResponse.text
+      ) {
+        executionPath = 'local_intelligence'
+
+        kayvenResponse = {
+          text: composedResponse.text,
+          safetyStatus: safety.status,
+          provider: {
+            name: 'custom',
+            model: 'kayven-response-composer',
+          },
+          suggestedActions:
+            composedResponse.suggestedActions,
+          metadata: {
+            usedAI: false,
+            provider: 'custom',
+            intent,
+            executionPath: 'local_intelligence',
+          },
+        }
+      }
+    }
 
     if (!kayvenResponse) {
       executionPath = 'local_intelligence'

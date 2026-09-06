@@ -70,12 +70,230 @@ function getTodayMetrics(context: any) {
   }
 }
 
+
+type ExtractedBodyProfile = {
+  currentWeightKg: number | null
+  goalWeightKg: number | null
+  heightCm: number | null
+  age: number | null
+}
+
+function extractBodyProfileFromMessage(message: string): ExtractedBodyProfile {
+  const normalized = message.toLowerCase().replace(/\s+/g, ' ')
+
+  let currentWeightKg: number | null = null
+  let goalWeightKg: number | null = null
+  let heightCm: number | null = null
+  let age: number | null = null
+
+  const currentWeightPatterns = [
+    /(?:i am|i'm|my weight is|currently|current weight)\s*(?:about |around )?(\d{2,3}(?:\.\d+)?)\s*(?:kg|kgs|kilograms?)/i,
+    /(\d{2,3}(?:\.\d+)?)\s*(?:kg|kgs|kilograms?)\s*(?:weight|currently|now)/i,
+  ]
+
+  for (const pattern of currentWeightPatterns) {
+    const match = normalized.match(pattern)
+    if (match?.[1]) {
+      const value = Number(match[1])
+      if (Number.isFinite(value) && value >= 30 && value <= 350) {
+        currentWeightKg = value
+        break
+      }
+    }
+  }
+
+  const goalWeightPatterns = [
+    /(?:goal weight|goal|target weight|target)\s*(?:is|of|weight)?\s*(\d{2,3}(?:\.\d+)?)\s*(?:kg|kgs|kilograms?)/i,
+    /(?:lose weight to|get to|reach)\s*(\d{2,3}(?:\.\d+)?)\s*(?:kg|kgs|kilograms?)/i,
+  ]
+
+  for (const pattern of goalWeightPatterns) {
+    const match = normalized.match(pattern)
+    if (match?.[1]) {
+      const value = Number(match[1])
+      if (Number.isFinite(value) && value >= 30 && value <= 250) {
+        goalWeightKg = value
+        break
+      }
+    }
+  }
+
+  const heightMatch =
+    normalized.match(/(\d{3}(?:\.\d+)?)\s*(?:cm|cms|centimeters?)/i)
+
+  if (heightMatch?.[1]) {
+    const value = Number(heightMatch[1])
+    if (Number.isFinite(value) && value >= 100 && value <= 250) {
+      heightCm = value
+    }
+  }
+
+  const agePatterns = [
+    /(?:age|aged)\s*(?:is)?\s*(\d{1,2})/i,
+    /(\d{1,2})\s*(?:years?\s*old|year old|yo)\b/i,
+  ]
+
+  for (const pattern of agePatterns) {
+    const match = normalized.match(pattern)
+    if (match?.[1]) {
+      const value = Number(match[1])
+      if (Number.isFinite(value) && value >= 13 && value <= 100) {
+        age = value
+        break
+      }
+    }
+  }
+
+  return {
+    currentWeightKg,
+    goalWeightKg,
+    heightCm,
+    age,
+  }
+}
+
+function isProteinRecommendationQuestion(message: string): boolean {
+  const normalized = message.toLowerCase()
+
+  const mentionsProtein = /\bprotein\b/.test(normalized)
+
+  const asksRecommendation =
+    /how much|how many|should i take|should i eat|do i need|need per day|daily|recommend|target/.test(normalized)
+
+  return mentionsProtein && asksRecommendation
+}
+
+function buildProteinRecommendation(
+  message: string,
+  context: any,
+): KAYVENAIResponse {
+  const extracted = extractBodyProfileFromMessage(message)
+
+  const loggedCurrentWeight = Number(
+    context?.body?.currentWeightKg ??
+    context?.body?.weightKg
+  )
+
+  const loggedGoalWeight = Number(
+    context?.user?.goals?.weightGoalKg
+  )
+
+  const currentWeightKg =
+    extracted.currentWeightKg ??
+    (Number.isFinite(loggedCurrentWeight) ? loggedCurrentWeight : null)
+
+  const goalWeightKg =
+    extracted.goalWeightKg ??
+    (Number.isFinite(loggedGoalWeight) ? loggedGoalWeight : null)
+
+  /*
+   * For users with substantial weight to lose, use goal weight
+   * as a practical protein reference rather than blindly
+   * multiplying protein by the full current body weight.
+   *
+   * Range:
+   * 1.6–2.2 g/kg of practical reference weight.
+   */
+
+  const referenceWeightKg =
+    goalWeightKg ??
+    currentWeightKg
+
+  if (!referenceWeightKg) {
+    return {
+      text:
+        'To calculate a personalised protein target, tell me your current weight, goal weight, and whether your main goal is fat loss, muscle gain, or maintenance.',
+      safetyStatus: 'allowed',
+      provider: {
+        name: 'custom',
+        model: 'kayven-local-intelligence',
+      },
+      suggestedActions: [],
+      metadata: {
+        usedAI: false,
+        provider: 'custom',
+        intent: 'nutrition_question',
+        executionPath: 'deterministic_tool',
+      },
+    }
+  }
+
+  const lowerProtein = Math.round(referenceWeightKg * 1.6)
+  const upperProtein = Math.round(referenceWeightKg * 2.2)
+  const practicalTarget = Math.round(referenceWeightKg * 2)
+
+  const loggedProteinTarget = Number(
+    context?.user?.goals?.proteinTargetG
+  )
+
+  const currentWeightText =
+    currentWeightKg
+      ? `${currentWeightKg.toFixed(1)} kg`
+      : 'your current weight'
+
+  const goalWeightText =
+    goalWeightKg
+      ? `${goalWeightKg.toFixed(1)} kg`
+      : null
+
+  let text =
+    `For your goal, a practical daily protein range is approximately ${lowerProtein}–${upperProtein} g per day. ` +
+    `A strong starting target is around ${practicalTarget} g per day.`
+
+  if (goalWeightText && currentWeightKg) {
+    text +=
+      ` Since you are currently ${currentWeightText} and aiming for ${goalWeightText}, KAYVEN is using your goal weight as the practical protein reference instead of multiplying by your full current body weight.`
+  }
+
+  if (
+    Number.isFinite(loggedProteinTarget) &&
+    loggedProteinTarget > 0
+  ) {
+    const difference = Math.abs(loggedProteinTarget - practicalTarget)
+
+    if (difference <= 20) {
+      text +=
+        ` Your current KAYVEN target of ${Math.round(loggedProteinTarget)} g is already close to this practical target.`
+    } else {
+      text +=
+        ` Your current KAYVEN target is ${Math.round(loggedProteinTarget)} g, so you may want to review whether that target matches your current fat-loss plan and training level.`
+    }
+  }
+
+  text +=
+    ' Spread your protein across your meals and focus on consistency rather than trying to hit the maximum possible amount every day.'
+
+  return {
+    text,
+    safetyStatus: 'allowed',
+    provider: {
+      name: 'custom',
+      model: 'kayven-local-intelligence',
+    },
+    suggestedActions: [
+      'Check protein target',
+      'Log your next meal',
+    ],
+    metadata: {
+      usedAI: false,
+      provider: 'custom',
+      intent: 'nutrition_question',
+      executionPath: 'deterministic_tool',
+    },
+  }
+}
+
+
 function buildLocalCoachResponse(
   message: string,
   intent: KAYVENIntent,
   context: any,
   safetyStatus: 'allowed' | 'constrained' | 'escalate',
 ): KAYVENAIResponse {
+  if (isProteinRecommendationQuestion(message)) {
+    return buildProteinRecommendation(message, context)
+  }
+
   const metrics = getTodayMetrics(context)
 
   const calories = formatNumber(metrics.calories)

@@ -12,6 +12,9 @@ import {
   understandKayvenConversation,
 } from '@/lib/server/kayven-brain/conversation-brain'
 import {
+  generateKayvenAIResponse,
+} from '@/lib/server/kayven-brain/ai-response-engine'
+import {
   composeKAYVENResponse,
 } from '@/lib/server/kayven-brain/response-composer'
 import {

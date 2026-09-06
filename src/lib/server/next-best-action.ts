@@ -1,7 +1,34 @@
+import {
+  buildKayvenUserState,
+  type KayvenMetricState,
+  type KayvenUserState,
+} from './kayven-user-state'
 import { KayvenIntelligenceContext } from './kayven-intelligence-context'
 
-export const ACTION_TYPES = ['LOG_MEAL', 'NUTRITION', 'PROTEIN', 'HYDRATION', 'WORKOUT', 'RECOVERY', 'WEIGHT', 'MEAL_PLAN', 'PROGRESS', 'AI_COACH', 'NONE'] as const
+export const ACTION_TYPES = [
+  'LOG_MEAL',
+  'NUTRITION',
+  'PROTEIN',
+  'HYDRATION',
+  'ACTIVITY',
+  'WORKOUT',
+  'RECOVERY',
+  'WEIGHT',
+  'MEAL_PLAN',
+  'PROGRESS',
+  'AI_COACH',
+  'NONE',
+] as const
+
 export type NextActionType = typeof ACTION_TYPES[number]
+export type NextActionPriorityLevel = 'high' | 'medium' | 'low'
+
+export interface NextActionMetric {
+  current: number | null
+  target: number | null
+  remaining: number | null
+  unit: string
+}
 
 export interface NextBestAction {
   actionType: NextActionType
@@ -11,90 +38,263 @@ export interface NextBestAction {
   reason?: string
   suggestedAction?: string
   destination?: string
+  priorityLevel?: NextActionPriorityLevel
+  metric?: NextActionMetric | null
+  source?: 'deterministic'
+  generatedAt?: string
 }
 
-function round(value: number) {
-  return Math.max(0, Math.round(value))
+type ActionCategory =
+  | 'protein'
+  | 'nutrition'
+  | 'hydration'
+  | 'weight_progress'
+  | 'workout'
+  | 'activity'
+  | 'meal_plan'
+
+type ActionCandidate = NextBestAction & {
+  category: ActionCategory
+  urgency: number
+  tieBreakOrder: number
 }
 
-function isRecentWorkout(workout: Record<string, unknown>) {
-  const startedAt = new Date(String(workout.started_at || ''))
-  return Number.isFinite(startedAt.getTime()) && Date.now() - startedAt.getTime() <= 36 * 60 * 60 * 1000
+const ACTION_PRIORITY = {
+  high: 0.9,
+  medium: 0.6,
+  low: 0.3,
+} as const
+
+const TIE_BREAK_ORDER: Record<ActionCategory, number> = {
+  protein: 1,
+  nutrition: 2,
+  hydration: 3,
+  weight_progress: 4,
+  workout: 5,
+  activity: 6,
+  meal_plan: 7,
 }
 
-export function getNextBestAction(context: KayvenIntelligenceContext): NextBestAction {
-  const today = context.nutrition.today
-  const goals = context.user.goals
-  const caloriesRemaining = goals.calorieTarget == null ? null : goals.calorieTarget - today.calories
-  const proteinRemaining = goals.proteinTargetG == null ? null : goals.proteinTargetG - today.proteinG
-  const waterTarget = context.hydration.targetMl
-  const recentWorkout = context.fitness.recentWorkouts.some(isRecentWorkout)
+function round(value: number): number {
+  return Math.round(value)
+}
 
-  if (!today.daysWithLogs) {
-    return {
-      actionType: 'LOG_MEAL', priority: 0.8, title: 'Log your next meal',
-      message: 'Nothing has been logged today yet.',
-      reason: 'A meal log is needed before KAYVEN can give more personalized nutrition guidance.',
-      suggestedAction: 'Start with your next meal or snack.', destination: '/log'
-    }
+function metricFor(metric: KayvenMetricState, unit: string): NextActionMetric {
+  return {
+    current: metric.current,
+    target: metric.target,
+    remaining: metric.remaining,
+    unit,
+  }
+}
+
+function actionPriorityForStatus(
+  status: KayvenMetricState['status']
+): NextActionPriorityLevel | null {
+  if (status === 'very_low' || status === 'low') {
+    return 'high'
   }
 
-  if (recentWorkout && proteinRemaining != null && proteinRemaining >= 20 && (caloriesRemaining == null || caloriesRemaining >= 150)) {
-    return {
-      actionType: 'RECOVERY', priority: 0.96, title: 'Fuel your recovery',
-      message: `You are about ${round(proteinRemaining)}g short of your protein target after a recent workout.`,
-      reason: 'A recent workout and an available protein target make recovery nutrition the most useful next step.',
-      suggestedAction: caloriesRemaining == null ? 'Choose a protein-rich next meal.' : `Choose a protein-rich meal within your remaining ${round(caloriesRemaining)} calories.`,
-      destination: '/log'
-    }
+  return status === 'behind' ? 'medium' : null
+}
+
+function actionCandidate(
+  category: ActionCategory,
+  priorityLevel: NextActionPriorityLevel,
+  action: Omit<NextBestAction, 'priority' | 'priorityLevel' | 'source' | 'generatedAt'>
+): ActionCandidate {
+  return {
+    ...action,
+    category,
+    priority: ACTION_PRIORITY[priorityLevel],
+    priorityLevel,
+    source: 'deterministic',
+    generatedAt: new Date().toISOString(),
+    urgency: ACTION_PRIORITY[priorityLevel],
+    tieBreakOrder: TIE_BREAK_ORDER[category],
+  }
+}
+
+function metricIsActionable(metric: KayvenMetricState): boolean {
+  return metric.current !== null &&
+    metric.target !== null &&
+    metric.remaining !== null &&
+    metric.remaining > 0
+}
+
+function createProteinCandidate(metric: KayvenMetricState): ActionCandidate | null {
+  const priorityLevel = actionPriorityForStatus(metric.status)
+
+  if (!priorityLevel || !metricIsActionable(metric)) {
+    return null
   }
 
-  if (proteinRemaining != null && proteinRemaining >= 25 && (caloriesRemaining == null || caloriesRemaining >= 150)) {
-    return {
-      actionType: 'PROTEIN', priority: 0.92, title: 'Close your protein gap',
-      message: `You are about ${round(proteinRemaining)}g short of your protein target today.`,
-      reason: 'Protein intake is meaningfully below the user target while there is room for more food.',
-      suggestedAction: caloriesRemaining == null ? 'Log a protein-focused next meal.' : `Log a protein-focused meal within your remaining ${round(caloriesRemaining)} calories.`,
-      destination: '/log'
-    }
+  const percentage = metric.percentage === null ? null : round(metric.percentage)
+
+  return actionCandidate('protein', priorityLevel, {
+    actionType: 'PROTEIN',
+    title: 'Increase your protein intake',
+    message: percentage === null
+      ? 'Focus on a protein-rich next meal to close today’s protein gap.'
+      : `You’ve reached ${percentage}% of your protein target today. Focus on your next protein-rich meal.`,
+    reason: 'Protein is currently your largest actionable nutrition gap.',
+    suggestedAction: `Aim for about ${round(metric.remaining ?? 0)}g more protein today.`,
+    destination: '/log',
+    metric: metricFor(metric, 'g'),
+  })
+}
+
+function createNutritionCandidate(metric: KayvenMetricState): ActionCandidate | null {
+  const priorityLevel = actionPriorityForStatus(metric.status)
+
+  if (!priorityLevel || !metricIsActionable(metric)) {
+    return null
   }
 
-  if (waterTarget != null && waterTarget > 0 && context.hydration.todayMl < waterTarget * 0.6) {
-    return {
-      actionType: 'HYDRATION', priority: 0.84, title: 'Top up your hydration',
-      message: `You have logged ${round(context.hydration.todayMl)}ml of your ${round(waterTarget)}ml water target today.`,
-      reason: 'Today’s hydration is substantially below the recorded target.',
-      suggestedAction: `Drink about ${round(waterTarget - context.hydration.todayMl)}ml more today.`,
-      destination: '/water'
-    }
+  return actionCandidate('nutrition', priorityLevel, {
+    actionType: 'NUTRITION',
+    title: 'Plan your next meal',
+    message: `You have reached ${round(metric.percentage ?? 0)}% of your calorie target today.`,
+    reason: 'Calories are currently below the recorded daily target.',
+    suggestedAction: `Plan a balanced meal with about ${round(metric.remaining ?? 0)} calories remaining.`,
+    destination: '/log',
+    metric: metricFor(metric, 'kcal'),
+  })
+}
+
+function createHydrationCandidate(metric: KayvenMetricState): ActionCandidate | null {
+  const priorityLevel = actionPriorityForStatus(metric.status)
+
+  if (!priorityLevel || !metricIsActionable(metric)) {
+    return null
   }
 
-  if (caloriesRemaining != null && caloriesRemaining > 200 && today.daysWithLogs > 0) {
-    return {
-      actionType: 'NUTRITION', priority: 0.68, title: 'Plan your next meal',
-      message: `You have about ${round(caloriesRemaining)} calories remaining today.`,
-      reason: 'There is meaningful room within the calorie target for another planned meal.',
-      suggestedAction: 'Choose a balanced meal that fits your remaining calories.', destination: '/meal-plan'
-    }
+  return actionCandidate('hydration', priorityLevel, {
+    actionType: 'HYDRATION',
+    title: 'Top up your hydration',
+    message: `You have logged ${round(metric.current ?? 0)}ml of your ${round(metric.target ?? 0)}ml water target today.`,
+    reason: 'Hydration is below the recorded daily target.',
+    suggestedAction: `Drink about ${round(metric.remaining ?? 0)}ml more today.`,
+    destination: '/water',
+    metric: metricFor(metric, 'ml'),
+  })
+}
+
+function createActivityCandidate(metric: KayvenMetricState): ActionCandidate | null {
+  const priorityLevel = actionPriorityForStatus(metric.status)
+
+  if (!priorityLevel || !metricIsActionable(metric)) {
+    return null
   }
 
-  if (context.mealPlanning.currentPlan) {
-    return {
-      actionType: 'MEAL_PLAN', priority: 0.62, title: 'Check your meal plan',
-      message: 'You have a meal plan available for today.',
-      reason: 'An existing plan is a useful source of direction without creating new recommendations.',
-      suggestedAction: 'Open the plan and continue with the next meal.', destination: '/meal-plan'
-    }
+  return actionCandidate('activity', priorityLevel, {
+    actionType: 'ACTIVITY',
+    title: 'Add more movement today',
+    message: `You have logged ${round(metric.current ?? 0)} of your ${round(metric.target ?? 0)} step target.`,
+    reason: 'Activity is below the recorded step target.',
+    suggestedAction: `Aim for about ${round(metric.remaining ?? 0)} more steps today.`,
+    destination: '/workout',
+    metric: metricFor(metric, 'steps'),
+  })
+}
+
+function createWorkoutCandidate(userState: KayvenUserState): ActionCandidate | null {
+  if (userState.workout.status !== 'pending') {
+    return null
   }
 
-  if (context.nutrition.weeklySummary.length >= 3 && context.nutrition.macroSummary.daysWithLogs >= 3) {
-    return {
-      actionType: 'PROGRESS', priority: 0.45, title: 'Review your week',
-      message: `You have logged nutrition on ${context.nutrition.macroSummary.daysWithLogs} recent days.`,
-      reason: 'There is enough recent data to review consistency without overreacting to one day.',
-      suggestedAction: 'Review your nutrition insights.', destination: '/insights'
-    }
+  return actionCandidate('workout', 'medium', {
+    actionType: 'WORKOUT',
+    title: 'Complete your planned workout',
+    message: 'You have a workout scheduled for today that has not been marked complete.',
+    reason: 'Your current state shows a pending workout.',
+    suggestedAction: 'Open your workout and continue when ready.',
+    destination: '/workout',
+    metric: null,
+  })
+}
+
+function createWeightCandidate(userState: KayvenUserState): ActionCandidate | null {
+  if (userState.weight.progressStatus !== 'needs_attention') {
+    return null
   }
 
-  return { actionType: 'NONE', priority: 0 }
+  const recentTrendMovesAway = userState.weight.direction === 'lose'
+    ? (userState.weight.trendKg ?? 0) >= 0.5
+    : (userState.weight.trendKg ?? 0) <= -0.5
+  const message = recentTrendMovesAway
+    ? 'Your recent weight trend is moving away from your current goal.'
+    : 'Your weight has not changed meaningfully in the recent tracked period.'
+
+  return actionCandidate('weight_progress', 'high', {
+    actionType: 'WEIGHT',
+    title: 'Review your weight progress',
+    message,
+    reason: 'Your deterministic weight trend needs attention.',
+    suggestedAction: 'Review your recent nutrition and activity consistency.',
+    destination: '/insights',
+    metric: {
+      current: userState.weight.currentKg,
+      target: userState.weight.goalKg,
+      remaining: userState.weight.remainingKg,
+      unit: 'kg',
+    },
+  })
+}
+
+function createMealPlanCandidate(context: KayvenIntelligenceContext): ActionCandidate | null {
+  if (!context.mealPlanning.currentPlan) {
+    return null
+  }
+
+  return actionCandidate('meal_plan', 'low', {
+    actionType: 'MEAL_PLAN',
+    title: 'Check your meal plan',
+    message: 'You have a meal plan available for today.',
+    reason: 'An existing meal plan is available as a low-priority planning aid.',
+    suggestedAction: 'Open the plan and continue with the next meal.',
+    destination: '/meal-plan',
+    metric: null,
+  })
+}
+
+function fallbackAction(): NextBestAction {
+  return {
+    actionType: 'NONE',
+    priority: 0,
+    priorityLevel: 'low',
+    title: 'Keep building your routine',
+    message: 'Track your meals, water, workouts, or weight so KAYVEN can personalise your next step.',
+    reason: 'There is not enough recent data to identify a reliable priority.',
+    metric: null,
+    source: 'deterministic',
+    generatedAt: new Date().toISOString(),
+  }
+}
+
+export function getNextBestAction(
+  context: KayvenIntelligenceContext,
+  userState: KayvenUserState = buildKayvenUserState(context)
+): NextBestAction {
+  const candidates = [
+    createProteinCandidate(userState.nutrition.protein),
+    createNutritionCandidate(userState.nutrition.calories),
+    createHydrationCandidate(userState.hydration),
+    createActivityCandidate(userState.activity.steps),
+    createWorkoutCandidate(userState),
+    createWeightCandidate(userState),
+    createMealPlanCandidate(context),
+  ].filter((candidate): candidate is ActionCandidate => candidate !== null)
+
+  if (candidates.length === 0) {
+    return fallbackAction()
+  }
+
+  candidates.sort((left, right) => {
+    return right.urgency - left.urgency || left.tieBreakOrder - right.tieBreakOrder
+  })
+
+  const { category: _category, urgency: _urgency, tieBreakOrder: _tieBreakOrder, ...action } = candidates[0]
+
+  return action
 }

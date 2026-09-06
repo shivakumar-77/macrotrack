@@ -1,7 +1,3 @@
-import { AnthropicProvider, OpenAIProvider } from './ai-providers'
-import { AIProvider, AITextRequest } from './ai-provider'
-import { decideTool, executeTool } from './kayven-tools'
-import { executeSafeTool } from './kayven-tool-executor'
 import type {
   KAYVENAIRequest,
   KAYVENAIResponse,
@@ -11,32 +7,68 @@ import type {
   KAYVENTool,
 } from './kayven-ai'
 
+function numberValue(value: unknown): number | null {
+  const valueNumber = Number(value)
+  return Number.isFinite(valueNumber) ? valueNumber : null
+}
+
+function formatNumber(value: number | null, decimals = 0): string {
+  if (value === null || !Number.isFinite(value)) return 'not available'
+  return value.toFixed(decimals)
+}
+
 export function classifyKayvenIntent(message: string): KAYVENIntent {
   const text = message.toLowerCase()
 
-  if (/emergency|chest pain|shortness of breath|faint|severe|medical|doctor|hospital|urgent|danger/i.test(text)) {
+  if (/emergency|chest pain|shortness of breath|stroke|faint|severe bleeding|suicid|hospital|urgent/i.test(text)) {
     return 'emergency_high_risk_health_question'
   }
 
-  if (/account|login|sign in|logout|profile|settings|password|email|app question|bug|help/i.test(text)) {
+  if (/account|login|sign in|logout|profile|settings|password|email|bug|app question|help/i.test(text)) {
     return 'account_app_question'
   }
 
-  if (/weight loss|lose weight|fat loss|cut|lean|slim/i.test(text)) return 'weight_loss_question'
-  if (/meal plan|meal planning|dinner|lunch|breakfast|snack|diet plan/i.test(text)) return 'meal_planning'
-  if (/workout|training|exercise|lift|bench|squat|cardio|session/i.test(text)) return 'workout_question'
-  if (/progress|trend|streak|weekly|month|results|improvement|weight change/i.test(text)) return 'progress_question'
-  if (/hydrate|water|hydration|fluid/i.test(text)) return 'hydration'
-  if (/supplement|protein powder|creatine|vitamin|multivitamin|pill/i.test(text)) return 'supplements'
-  if (/steps|activity|walking|movement|daily movement/i.test(text)) return 'activity_steps'
-  if (/nutrition|protein|carbs|calories|macro|food|meal|eat/i.test(text)) return 'nutrition_question'
-  if (/health|wellness|body|symptom|conditions|medical info/i.test(text)) return 'health_information_question'
+  if (/weight loss|lose weight|losing weight|fat loss|cutting|cut|lean|slim/i.test(text)) {
+    return 'weight_loss_question'
+  }
+
+  if (/meal plan|meal planning|diet plan|breakfast|lunch|dinner|snack/i.test(text)) {
+    return 'meal_planning'
+  }
+
+  if (/workout|training|exercise|bench|squat|deadlift|cardio|session|gym/i.test(text)) {
+    return 'workout_question'
+  }
+
+  if (/progress|trend|streak|weekly|monthly|month|results|improvement|weight change/i.test(text)) {
+    return 'progress_question'
+  }
+
+  if (/hydrate|water|hydration|fluid/i.test(text)) {
+    return 'hydration'
+  }
+
+  if (/supplement|protein powder|creatine|vitamin|multivitamin/i.test(text)) {
+    return 'supplements'
+  }
+
+  if (/steps|activity|walking|movement/i.test(text)) {
+    return 'activity_steps'
+  }
+
+  if (/nutrition|protein|carbs|calories|macro|food|meal|eat/i.test(text)) {
+    return 'nutrition_question'
+  }
+
+  if (/health|wellness|body|symptom|condition/i.test(text)) {
+    return 'health_information_question'
+  }
 
   return 'general_conversation'
 }
 
 export function getKAYVENSystemPrompt(): string {
-  return `You are KAYVEN, the nutrition and fitness intelligence layer for a health tracking product. Use the provided KAYVEN context, conversation history, and user data. Never invent facts about the user, their health history, or their logs. If the data is missing, say exactly what is missing. Keep recommendations practical, safe, and non-diagnostic. Avoid pretending to be a medical professional. Recommend professional medical care for emergency or high-risk concerns. Keep the tone helpful, grounded, and specific to the user's actual context. Prefer concise, action-oriented guidance. Do not mention hidden chain-of-thought or private internal reasoning. Only provide safe summaries and decisions.`
+  return `KAYVEN uses a local intelligence system built from intent classification, safety rules, user context, deterministic calculations, and Supabase data. KAYVEN never invents user data and only uses information available in the current request context.`
 }
 
 export function getKAYVENMemory(context: Record<string, unknown>): KAYVENMemory {
@@ -49,63 +81,61 @@ export function getKAYVENMemory(context: Record<string, unknown>): KAYVENMemory 
   const preferences = (context as any)?.user?.preferences ?? {}
 
   const keySignals: string[] = []
-  const goal = (profile as any)?.goal || (context as any)?.user?.goals?.goal
-  if (goal) keySignals.push(`Goal: ${String(goal)}`)
 
-  const calorieTarget = (context as any)?.user?.goals?.calorieTarget ?? (context as any)?.nutrition?.calorieTarget
+  const goal = (context as any)?.user?.goals?.goal
+  const calorieTarget = (context as any)?.user?.goals?.calorieTarget
+  const proteinTarget = (context as any)?.user?.goals?.proteinTargetG
+
+  if (goal) keySignals.push(`Goal: ${goal}`)
   if (typeof calorieTarget === 'number') keySignals.push(`Calorie target: ${calorieTarget} kcal`)
-
-  const proteinTarget = (context as any)?.user?.goals?.proteinTargetG ?? (context as any)?.nutrition?.proteinTarget
   if (typeof proteinTarget === 'number') keySignals.push(`Protein target: ${proteinTarget} g`)
 
   return {
     shortTerm: {
       recentMessages: [],
-      summary: 'Current conversation context is active and should be used before historical assumptions.'
+      summary: 'Current conversation context is active.'
     },
     longTerm: {
-      profile: profile ?? null,
-      nutrition: nutrition ?? {},
-      fitness: fitness ?? {},
-      body: body ?? {},
-      preferences: preferences ?? {},
-      mealPlan: mealPlan ?? null,
-      supplements: supplements ?? {}
+      profile,
+      nutrition,
+      fitness,
+      body,
+      preferences,
+      mealPlan,
+      supplements
     },
     keySignals
   }
 }
 
-export function evaluateKayvenSafety(message: string, context?: Record<string, unknown>): KAYVENSafetyDecision {
-  const reasons: string[] = []
-  const restrictions: string[] = []
+export function evaluateKayvenSafety(
+  message: string,
+  context?: Record<string, unknown>
+): KAYVENSafetyDecision {
   const text = message.toLowerCase()
 
   if (/emergency|chest pain|shortness of breath|stroke|faint|severe bleeding|suicid/i.test(text)) {
-    reasons.push('High-risk medical issue detected')
-    restrictions.push('Do not provide diagnostic guidance or treatment instructions')
-    return { status: 'escalate', reasons, restrictions, shouldEscalate: true }
+    return {
+      status: 'escalate',
+      reasons: ['High-risk health concern detected'],
+      restrictions: ['Do not diagnose or provide treatment instructions'],
+      shouldEscalate: true
+    }
   }
 
   if (/diagnose|cure|treat|stop medication|increase medication|replace doctor/i.test(text)) {
-    reasons.push('Medical advice request detected')
-    restrictions.push('Use general wellness guidance only and direct to a qualified professional')
-    return { status: 'constrained', reasons, restrictions, shouldEscalate: false }
-  }
-
-  if (context && typeof context === 'object') {
-    const profile = (context as any)?.user?.profile
-    if (profile && !profile?.id) {
-      reasons.push('No authenticated user context available')
-      restrictions.push('Avoid using assumed health data when identity is missing')
-      return { status: 'constrained', reasons, restrictions, shouldEscalate: false }
+    return {
+      status: 'constrained',
+      reasons: ['Medical treatment request detected'],
+      restrictions: ['Provide general wellness information only'],
+      shouldEscalate: false
     }
   }
 
   return {
     status: 'allowed',
-    reasons: ['Routine nutrition or fitness question'],
-    restrictions: ['Use only actual KAYVEN data and avoid assumptions'],
+    reasons: ['Routine nutrition or fitness request'],
+    restrictions: ['Use actual KAYVEN data and avoid assumptions'],
     shouldEscalate: false
   }
 }
@@ -114,81 +144,54 @@ export function getDefaultReadTools(): KAYVENTool[] {
   return [
     {
       name: 'getUserProfile',
-      description: 'Read the user profile and current goals.',
+      description: 'Read user profile and goals.',
       inputSchema: { type: 'object', properties: {} },
       permission: 'read'
     },
     {
       name: 'getNutrition',
-      description: 'Read nutrition logs and targets for the selected time range.',
-      inputSchema: { type: 'object', properties: { range: { type: 'string', enum: ['today', '7d', '30d'] } } },
+      description: 'Read nutrition logs and targets.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          range: {
+            type: 'string',
+            enum: ['today', '7d', '30d']
+          }
+        }
+      },
       permission: 'read'
     },
     {
       name: 'getProgress',
-      description: 'Read progress and weight trend information.',
+      description: 'Read weight and progress information.',
       inputSchema: { type: 'object', properties: {} },
       permission: 'read'
     },
     {
       name: 'getWorkout',
-      description: 'Read recent workouts and workout history.',
-      inputSchema: { type: 'object', properties: {} },
-      permission: 'read'
-    },
-    {
-      name: 'getMealPlan',
-      description: 'Read the user current meal plan for context.',
+      description: 'Read workout information.',
       inputSchema: { type: 'object', properties: {} },
       permission: 'read'
     }
   ]
 }
 
-export function selectKAYVENProvider(intent: KAYVENIntent): AIProvider {
-  if (process.env.AI_PROVIDER === 'openai') return new OpenAIProvider()
-  return new AnthropicProvider()
-}
-
-export async function routeKAYVENRequest(request: KAYVENAIRequest): Promise<KAYVENAIResponse> {
-  const selectedProvider = selectKAYVENProvider(request.intent)
-  const providerRequest: AITextRequest = {
-    prompt: buildKAYVENPrompt(request),
-    system: getKAYVENSystemPrompt(),
-    maxTokens: 350,
-    metadata: {
-      intent: request.intent,
-      responseMode: request.responseMode,
-      conversationId: request.conversationId,
-    },
-  }
-
-  const text = await selectedProvider.generateResponse(providerRequest)
-
-  return {
-    text,
-    safetyStatus: 'allowed',
-    provider: {
-      name: selectedProvider.name,
-      model: process.env.ANTHROPIC_MODEL || process.env.OPENAI_MODEL || 'default'
-    },
-  }
-}
-
 export function buildKAYVENPrompt(request: KAYVENAIRequest): string {
-  const contextSummary = JSON.stringify(request.context, null, 2)
-  const historySummary = request.conversationHistory
-    .slice(-8)
-    .map(entry => `${entry.role.toUpperCase()}: ${entry.content}`)
-    .join('\n')
-
-  return `KAYVEN SYSTEM:\n${getKAYVENSystemPrompt()}\n\nINTENT: ${request.intent}\nRESPONSE MODE: ${request.responseMode}\n\nUSER: ${request.user.displayName || request.user.email || request.user.id}\n\nKAYVEN CONTEXT:\n${contextSummary}\n\nCONVERSATION HISTORY:\n${historySummary || '(no prior messages)'}\n\nCURRENT USER MESSAGE:\n${request.message}`
+  return JSON.stringify({
+    intent: request.intent,
+    message: request.message,
+    context: request.context
+  })
 }
 
 export async function attemptDeterministicToolResponse(
   request: KAYVENAIRequest,
   supabase: any
 ): Promise<KAYVENAIResponse | null> {
+  const { decideTool } = await import('./kayven-tools')
+  const { executeSafeTool } = await import('./kayven-tool-executor')
+
   const decision = decideTool(request.intent, request.message)
 
   if (!decision.canHandle || !decision.tool) {
@@ -207,13 +210,13 @@ export async function attemptDeterministicToolResponse(
     return null
   }
 
-  const toolData = toolResult.data
-  const responseText = formatToolResponseAsText(decision.tool, toolData)
-
   return {
-    text: responseText,
+    text: formatToolResponseAsText(decision.tool, toolResult.data),
     safetyStatus: 'allowed',
-    provider: { name: 'anthropic', model: 'deterministic_tool' },
+    provider: {
+      name: 'custom',
+      model: 'kayven-deterministic'
+    },
     metadata: {
       usedAI: false,
       toolUsed: decision.tool,
@@ -223,52 +226,239 @@ export async function attemptDeterministicToolResponse(
   }
 }
 
-function formatToolResponseAsText(toolName: string, data: unknown): string {
-  const toolData = data as Record<string, unknown>
+export async function attemptLocalIntelligenceResponse(
+  request: KAYVENAIRequest
+): Promise<KAYVENAIResponse> {
+  const context: any = request.context
+  const message = request.message.trim()
+  const intent = request.intent
+
+  const goals = context?.user?.goals || {}
+  const nutrition = context?.nutrition || {}
+  const body = context?.body || {}
+  const hydration = context?.hydration || {}
+  const fitness = context?.fitness || {}
+  const supplements = context?.supplements || {}
+
+  const currentWeight = numberValue(body.currentWeightKg)
+  const weightGoal = numberValue(goals.weightGoalKg)
+  const calorieTarget = numberValue(goals.calorieTarget)
+  const proteinTarget = numberValue(goals.proteinTargetG)
+  const currentCalories = numberValue(nutrition?.today?.calories) ?? 0
+  const currentProtein = numberValue(nutrition?.today?.proteinG) ?? 0
+  const currentWater = numberValue(hydration.todayMl) ?? 0
+  const waterTarget = numberValue(hydration.targetMl)
+  const weightTrend = numberValue(body.weightTrendKg)
+
+  let text = ''
+  let suggestedActions: string[] = []
+
+  if (intent === 'emergency_high_risk_health_question') {
+    text = `This could be serious. Please seek urgent medical care or contact your local emergency service now. KAYVEN cannot safely assess or diagnose an emergency through chat.`
+  }
+
+  else if (intent === 'nutrition_question') {
+    const asksProtein = /protein/i.test(message)
+
+    if (asksProtein) {
+      if (proteinTarget !== null) {
+        text =
+          `Your current KAYVEN protein target is ${formatNumber(proteinTarget)} g per day. ` +
+          `Today you have logged ${formatNumber(currentProtein, 1)} g. ` +
+          `That leaves approximately ${formatNumber(Math.max(0, proteinTarget - currentProtein), 1)} g remaining.`
+      } else if (weightGoal !== null) {
+        const minimum = Math.round(weightGoal * 1.6)
+        const maximum = Math.round(weightGoal * 2.2)
+        const practical = Math.round((minimum + maximum) / 2)
+
+        text =
+          `Using your goal weight of ${formatNumber(weightGoal, 1)} kg as a practical reference, ` +
+          `a general protein range is approximately ${minimum}–${maximum} g per day. ` +
+          `A practical starting target is around ${practical} g per day.`
+      } else {
+        text =
+          `I can calculate a more personalized protein target, but I need your current weight or goal weight in your KAYVEN profile.`
+      }
+
+      suggestedActions = ['Check protein target', 'Log your next meal']
+    }
+
+    else if (calorieTarget !== null) {
+      const remaining = Math.max(0, calorieTarget - currentCalories)
+
+      text =
+        `Today you have logged ${formatNumber(currentCalories)} kcal out of your ${formatNumber(calorieTarget)} kcal target. ` +
+        `${formatNumber(remaining)} kcal remain based on your current target. ` +
+        `You have also logged ${formatNumber(currentProtein, 1)} g of protein.`
+
+      suggestedActions = ['Log your next meal', 'Check daily nutrition']
+    }
+
+    else {
+      text =
+        `I can analyse your nutrition from your logged meals. Your calorie or macro targets are not fully available yet, so I will not invent a target.`
+    }
+  }
+
+  else if (intent === 'hydration') {
+    if (waterTarget !== null && waterTarget > 0) {
+      const remaining = Math.max(0, waterTarget - currentWater)
+      const percentage = Math.min(100, Math.round((currentWater / waterTarget) * 100))
+
+      text =
+        `Today you have logged ${formatNumber(currentWater)} ml of water out of your ${formatNumber(waterTarget)} ml target. ` +
+        `${formatNumber(remaining)} ml remain, and you are at approximately ${percentage}% of your target.`
+
+      suggestedActions = ['Log water', 'Check hydration target']
+    } else {
+      text =
+        `You have logged ${formatNumber(currentWater)} ml of water today. Your KAYVEN hydration target is not set, so I will not assume one.`
+    }
+  }
+
+  else if (intent === 'progress_question') {
+    if (currentWeight !== null) {
+      const trendText =
+        weightTrend === null
+          ? 'There is not enough weight history yet to calculate a trend.'
+          : weightTrend < 0
+            ? `Your recorded trend over this period is down ${formatNumber(Math.abs(weightTrend), 1)} kg.`
+            : weightTrend > 0
+              ? `Your recorded trend over this period is up ${formatNumber(weightTrend, 1)} kg.`
+              : `Your recorded weight trend is currently stable.`
+
+      text =
+        `Your latest recorded weight is ${formatNumber(currentWeight, 1)} kg. ${trendText}`
+
+      if (weightGoal !== null) {
+        text += ` Your goal weight is ${formatNumber(weightGoal, 1)} kg.`
+      }
+
+      suggestedActions = ['Check weight progress', 'Log weight']
+    } else {
+      text = `I don't have a current weight entry available in your KAYVEN data yet. Log your weight to start tracking progress.`
+    }
+  }
+
+  else if (intent === 'workout_question') {
+    const frequency = numberValue(fitness.workoutFrequency) ?? 0
+
+    text =
+      frequency > 0
+        ? `You have recorded workouts on ${formatNumber(frequency)} day${frequency === 1 ? '' : 's'} in the current KAYVEN context period.`
+        : `I don't see recent workout data in the current context yet.`
+
+    suggestedActions = ['Log workout', 'Check workout history']
+  }
+
+  else if (intent === 'weight_loss_question') {
+    if (currentWeight !== null && weightGoal !== null) {
+      const difference = currentWeight - weightGoal
+
+      text =
+        difference > 0
+          ? `Your current recorded weight is ${formatNumber(currentWeight, 1)} kg and your goal is ${formatNumber(weightGoal, 1)} kg. ` +
+            `That is ${formatNumber(difference, 1)} kg above your current goal. We can focus on consistent nutrition, activity, and progress tracking rather than chasing extreme changes.`
+          : `Your latest recorded weight is ${formatNumber(currentWeight, 1)} kg and your goal is ${formatNumber(weightGoal, 1)} kg.`
+    } else {
+      text =
+        `I can personalise your fat-loss guidance, but I need both your current weight and goal weight recorded in KAYVEN.`
+    }
+
+    suggestedActions = ['Check weight progress', 'Review calorie target']
+  }
+
+  else if (intent === 'supplements') {
+    const items = Array.isArray(supplements.currentItems)
+      ? supplements.currentItems
+      : []
+
+    if (items.length > 0) {
+      const names = items
+        .slice(0, 6)
+        .map((item: any) => String(item.name || item.supplement_name || 'Supplement'))
+        .join(', ')
+
+      text = `You currently have ${items.length} active supplement${items.length === 1 ? '' : 's'} in KAYVEN: ${names}.`
+    } else {
+      text = `I don't see any active supplements recorded in your KAYVEN data.`
+    }
+
+    suggestedActions = ['Review supplements']
+  }
+
+  else {
+    const recentUserMessage = request.conversationHistory
+      .slice()
+      .reverse()
+      .find(item => item.role === 'user' && item.content !== message)
+
+    if (/^(yes|yeah|yep|ok|okay|sure)$/i.test(message) && recentUserMessage) {
+      text =
+        `Got it. Based on what we were discussing, tell me what you want to check next and I can use your logged KAYVEN data for nutrition, protein, weight progress, hydration, or workouts.`
+    } else {
+      text =
+        `I'm KAYVEN, your nutrition and fitness intelligence system. I can analyse your logged nutrition, protein, calories, weight progress, hydration, workouts, supplements, and goals using your actual KAYVEN data.`
+    }
+
+    suggestedActions = [
+      'Check today’s nutrition',
+      'Check protein target'
+    ]
+  }
+
+  return {
+    text,
+    suggestedActions,
+    safetyStatus: 'allowed',
+    provider: {
+      name: 'custom',
+      model: 'kayven-local-intelligence'
+    },
+    metadata: {
+      usedAI: false,
+      provider: 'custom',
+      intent: request.intent,
+      executionPath: 'local_intelligence'
+    }
+  }
+}
+
+function formatToolResponseAsText(
+  toolName: string,
+  data: unknown
+): string {
+  const toolData = (data || {}) as Record<string, any>
 
   switch (toolName) {
     case 'get_user_profile': {
-      const targets = toolData.targets as Record<string, unknown> || {}
-      return `Your fitness goals: ${toolData.goal}. Targets: ${targets.calories} kcal, ${targets.protein_g}g protein.`
+      const targets = toolData.targets || {}
+
+      return `Your fitness goal is ${toolData.goal || 'not set'}. ` +
+        `Targets: ${targets.calories ?? 'not set'} kcal and ${targets.protein_g ?? 'not set'} g protein.`
     }
 
     case 'get_today_nutrition': {
-      const mealsLogged = typeof toolData.meals_logged === 'number' ? toolData.meals_logged : 0
-      return `You've logged ${mealsLogged} meals today with ${toolData.calories} calories, ${toolData.protein_g}g protein, ${toolData.carbs_g}g carbs, ${toolData.fat_g}g fat. Target: ${toolData.target_calories} kcal.`
+      const mealsLogged = numberValue(toolData.meals_logged) ?? 0
+
+      return `You've logged ${mealsLogged} meals today with ` +
+        `${toolData.calories ?? 0} calories, ` +
+        `${toolData.protein_g ?? 0} g protein, ` +
+        `${toolData.carbs_g ?? 0} g carbs, and ` +
+        `${toolData.fat_g ?? 0} g fat.`
     }
 
     case 'get_weight_progress': {
-      const latest = toolData.latest_entry as Record<string, unknown> || {}
-      const trend = toolData.trend_kg as number | undefined
-      const trendText = trend ? (trend > 0 ? `up ${trend}kg` : `down ${Math.abs(trend as number)}kg`) : 'stable'
-      return `Current weight: ${toolData.current_weight_kg}kg (trend: ${trendText}). Latest: ${latest.weight_kg}kg on ${latest.date}.`
+      return `Your current recorded weight is ${toolData.current_weight_kg ?? 'not available'} kg.`
     }
 
     case 'get_hydration': {
-      const remaining = typeof toolData.remaining_ml === 'number' ? toolData.remaining_ml : 0
-      const percentage = typeof toolData.percentage === 'number' ? toolData.percentage : 0
-      return `You've consumed ${toolData.consumed_ml}ml of ${toolData.target_ml}ml water today. ${remaining}ml remaining (${percentage}%).`
-    }
-
-    case 'get_recent_workouts': {
-      const count = typeof toolData.recent_count === 'number' ? toolData.recent_count : 0
-      return `You've done ${count} recent workouts (${toolData.frequency}). Latest: ${count > 0 ? 'recorded' : 'none yet'}.`
-    }
-
-    case 'get_supplements': {
-      const count = typeof toolData.count === 'number' ? toolData.count : 0
-      const supplements = (toolData.active_supplements as Array<Record<string, unknown>>) || []
-      const list = supplements.map(s => `${s.name} (${s.dose})`).join(', ')
-      return `You're taking ${count} supplement${count !== 1 ? 's' : ''}: ${list || 'none'}.`
-    }
-
-    case 'get_current_meal_plan': {
-      const meals = (toolData.meals as Array<Record<string, unknown>>) || []
-      if (meals.length === 0) return (toolData.message as string) || 'No meal plan created yet.'
-      return `Your meal plan includes: ${meals.map(m => m.type).join(', ')}. Total meals: ${meals.length}.`
+      return `You've consumed ${toolData.consumed_ml ?? 0} ml of ` +
+        `${toolData.target_ml ?? 'your target'} ml water today. ` +
+        `${toolData.remaining_ml ?? 0} ml remain.`
     }
 
     default:
-      return 'Tool result retrieved.'
+      return 'Your KAYVEN data was retrieved successfully.'
   }
 }

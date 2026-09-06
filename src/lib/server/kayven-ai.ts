@@ -82,7 +82,7 @@ export interface KAYVENAIResponse {
     provider?: string
     toolUsed?: string
     intent?: string
-    executionPath?: 'deterministic_tool' | 'ai_fallback' | 'error'
+    executionPath?: 'deterministic_tool' | 'local_intelligence' | 'ai_fallback' | 'error'
   }
 }
 

@@ -334,7 +334,7 @@ function buildLocalCoachResponse(
         usedAI: false,
         provider: 'custom',
         intent,
-        executionPath: 'deterministic_tool',
+        executionPath: 'local_intelligence',
       },
     }
   }
@@ -441,7 +441,7 @@ function buildLocalCoachResponse(
       usedAI: false,
       provider: 'custom',
       intent,
-      executionPath: 'deterministic_tool',
+      executionPath: 'local_intelligence',
     },
   }
 }

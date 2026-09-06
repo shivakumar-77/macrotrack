@@ -101,14 +101,44 @@ function numeric(value: unknown): number {
   return Number.isFinite(result) ? result : 0
 }
 
+const KAYVEN_TIME_ZONE = 'Asia/Kolkata'
+
 function dateOnly(value: unknown): string {
-  return String(value ?? '').slice(0, 10)
+  const date = new Date(String(value ?? ''))
+
+  if (Number.isNaN(date.getTime())) {
+    return String(value ?? '').slice(0, 10)
+  }
+
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: KAYVEN_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
+function getKayvenToday(): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: KAYVEN_TIME_ZONE,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date())
 }
 
 function startDate(range: DateRange): string {
-  const date = new Date()
-  date.setUTCHours(0, 0, 0, 0)
-  date.setUTCDate(date.getUTCDate() - (range === 'today' ? 0 : range === '7d' ? 6 : 29))
+  const [year, month, day] = getKayvenToday()
+    .split('-')
+    .map(Number)
+
+  const date = new Date(Date.UTC(year, month - 1, day))
+
+  date.setUTCDate(
+    date.getUTCDate() -
+      (range === 'today' ? 0 : range === '7d' ? 6 : 29),
+  )
+
   return date.toISOString().slice(0, 10)
 }
 
@@ -156,7 +186,7 @@ export async function getKayvenIntelligenceContext(
 ): Promise<KayvenIntelligenceContext> {
   const range = options.range || '7d'
   const from = startDate(range)
-  const today = new Date().toISOString().slice(0, 10)
+  const today = getKayvenToday()
 
   const [profileResult, foodResult, weightResult, ...optionalResults] = await Promise.all([
     supabase.from('profiles').select('id,name,dob,age,gender,height,goal,cal_target,protein_target,carb_target,fat_target,fiber_target,weight_goal,water_goal,reminder_times,created_at').eq('id', userId).maybeSingle(),

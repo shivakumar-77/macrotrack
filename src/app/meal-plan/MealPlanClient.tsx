@@ -89,7 +89,12 @@ export default function MealPlanPage() {
       if (prof) setProfile(prof)
       const saved = localStorage.getItem('Kayven_mealplan_date')
       const savedPlan = localStorage.getItem('Kayven_mealplan')
-      const today = new Date().toISOString().slice(0,10)
+      const today = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date())
       if (saved===today && savedPlan) {
         try { setPlan(JSON.parse(savedPlan)); setStep('plan') } catch (e) { console.error(e) }
       }
@@ -129,7 +134,12 @@ Create ONLY a JSON response with: summary, meals array (with type, time, items w
       const data = await res.json()
       if (data.result) {
         setPlan(data.result)
-        const today = new Date().toISOString().slice(0,10)
+        const today = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date())
         localStorage.setItem('Kayven_mealplan_date', today)
         localStorage.setItem('Kayven_mealplan', JSON.stringify(data.result))
         setStep('plan')
@@ -146,7 +156,12 @@ Create ONLY a JSON response with: summary, meals array (with type, time, items w
   async function logMeal(meal) {
     const { data:{ user } } = await supabase.auth.getUser(); if (!user) return
     setLogging(meal.type)
-    const today = new Date().toISOString().slice(0,10)
+    const today = new Intl.DateTimeFormat('en-CA', {
+          timeZone: 'Asia/Kolkata',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(new Date())
     try {
       await Promise.all(meal.items.map(item =>
         supabase.from('food_logs').insert({

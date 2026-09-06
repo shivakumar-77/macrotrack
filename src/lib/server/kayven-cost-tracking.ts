@@ -3,7 +3,7 @@ export interface KAYVENCostMetadata {
   provider?: string
   toolUsed?: string
   intent?: string
-  executionPath: 'deterministic_tool' | 'ai_fallback' | 'error'
+  executionPath: 'deterministic_tool' | 'local_intelligence' | 'ai_fallback' | 'error'
   timestamp: string
 }
 
@@ -12,7 +12,7 @@ export function createCostMetadata(options: {
   provider?: string
   toolUsed?: string
   intent?: string
-  executionPath: 'deterministic_tool' | 'ai_fallback' | 'error'
+  executionPath: 'deterministic_tool' | 'local_intelligence' | 'ai_fallback' | 'error'
 }): KAYVENCostMetadata {
   return {
     usedAI: options.usedAI,

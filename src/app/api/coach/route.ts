@@ -9,11 +9,12 @@ import {
 } from '@/lib/server/kayven-intelligence-engine'
 import { validateKAYVENSafety } from '@/lib/server/kayven-safety'
 import {
+  generateKayvenAIResponse,
+  shouldPreferAIResponse,
+} from '@/lib/server/kayven-brain/ai-chat'
+import {
   understandKayvenConversation,
 } from '@/lib/server/kayven-brain/conversation-brain'
-import {
-  generateKayvenAIResponse,
-} from '@/lib/server/kayven-brain/ai-response-engine'
 import {
   composeKAYVENResponse,
 } from '@/lib/server/kayven-brain/response-composer'
@@ -985,6 +986,11 @@ export async function POST(request: NextRequest) {
       '[Kayven Coach] Response generated',
       {
         executionPath,
+        usedAI:
+          kayvenResponse.metadata?.usedAI === true,
+        aiProvider:
+          kayvenResponse.metadata?.provider ||
+          kayvenResponse.provider.name,
         toolUsed:
           kayvenResponse.metadata?.toolUsed ||
           undefined,

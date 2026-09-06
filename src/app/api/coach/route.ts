@@ -32,6 +32,78 @@ type ChatMessage = {
   content: string
 }
 
+function isShortContextualFollowUp(
+  message: string,
+  brainDecision: any,
+): boolean {
+  const text = message.trim().toLowerCase()
+
+  const shortFollowUp =
+    text.length <= 40 &&
+    /^(why|how|what about that|what about it|is that enough|really|then what|and|so|explain|why though)\??$/i.test(
+      text,
+    )
+
+  return Boolean(
+    shortFollowUp ||
+    brainDecision?.resolvedReferences?.length > 0,
+  )
+}
+
+function getResolvedCoachMessage(
+  message: string,
+  conversation: ChatMessage[],
+  brainDecision: any,
+): string {
+  if (!isShortContextualFollowUp(message, brainDecision)) {
+    return message
+  }
+
+  const previousTurns = conversation
+    .slice(0, -1)
+    .slice(-4)
+    .map(
+      item =>
+        `${item.role === 'user' ? 'User' : 'KAYVEN'}: ${item.content}`,
+    )
+    .join('\n')
+
+  if (!previousTurns) {
+    return message
+  }
+
+  return `${message}
+
+The user is asking this as a follow-up to the conversation below. Resolve the reference and answer the actual underlying question naturally. Do not say you cannot understand the context if the answer is present below.
+
+Conversation context:
+${previousTurns}`
+}
+
+function shouldPreferKAYVENComposer(
+  message: string,
+  brainDecision: any,
+): boolean {
+  if (isShortContextualFollowUp(message, brainDecision)) {
+    return true
+  }
+
+  if (brainDecision?.complexity === 'complex') {
+    return true
+  }
+
+  const analyticalIntent =
+    /why|progress|trend|plateau|losing weight|not losing|compare|analyse|analyze|reason/i.test(
+      message,
+    )
+
+  return Boolean(
+    brainDecision?.needsUserData &&
+    (brainDecision?.complexity === 'moderate' ||
+      analyticalIntent),
+  )
+}
+
 function contextRange(message: string): 'today' | '7d' | '30d' {
   if (/weight|lose|losing|trend|progress|month|30 day|30-day/i.test(message)) {
     return '30d'
@@ -693,6 +765,20 @@ export async function POST(request: NextRequest) {
       )
 
     const memory = getKAYVENMemory(context as any)
+
+    const resolvedMessage =
+      getResolvedCoachMessage(
+        message,
+        conversation,
+        brainDecision,
+      )
+
+    const preferComposer =
+      shouldPreferKAYVENComposer(
+        message,
+        brainDecision,
+      )
+
     const safety = validateKAYVENSafety(message)
 
     console.info(
@@ -725,7 +811,7 @@ export async function POST(request: NextRequest) {
           null,
       },
 
-      message,
+      message: resolvedMessage,
 
       conversationId,
 
@@ -771,20 +857,27 @@ export async function POST(request: NextRequest) {
       intent,
     }
 
-    let kayvenResponse =
-      await attemptDeterministicToolResponse(
-        kyRequest,
-        supabase,
-      )
+    let kayvenResponse: KAYVENAIResponse | null =
+      null
 
     let executionPath:
       'deterministic_tool' | 'local_intelligence' =
-      'deterministic_tool'
+      'local_intelligence'
 
-    if (!kayvenResponse) {
+    /*
+     * Complex, analytical and contextual follow-up questions
+     * go to the Conversation Brain + Response Composer first.
+     *
+     * This prevents simple deterministic tools from answering:
+     * - "Why?"
+     * - weight plateau questions
+     * - progress analysis
+     * - contextual follow-ups
+     */
+    if (preferComposer) {
       const composedResponse =
         composeKAYVENResponse({
-          message,
+          message: resolvedMessage,
           intent,
           context,
           conversation,
@@ -796,8 +889,6 @@ export async function POST(request: NextRequest) {
         !composedResponse.shouldFallback &&
         composedResponse.text
       ) {
-        executionPath = 'local_intelligence'
-
         kayvenResponse = {
           text: composedResponse.text,
           safetyStatus: safety.status,
@@ -806,7 +897,7 @@ export async function POST(request: NextRequest) {
             model: 'kayven-response-composer',
           },
           suggestedActions:
-            composedResponse.suggestedActions,
+            composedResponse.suggestedActions || [],
           metadata: {
             usedAI: false,
             provider: 'custom',
@@ -817,11 +908,47 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    /*
+     * Simple direct questions can still use deterministic tools.
+     */
+    if (!kayvenResponse && !preferComposer) {
+      const deterministicResponse =
+        await attemptDeterministicToolResponse(
+          kyRequest,
+          supabase,
+        )
+
+      if (deterministicResponse) {
+        kayvenResponse = deterministicResponse
+        executionPath = 'deterministic_tool'
+      }
+    }
+
+    /*
+     * If the preferred composer could not answer,
+     * try deterministic tools as a secondary fallback.
+     */
+    if (!kayvenResponse && preferComposer) {
+      const deterministicResponse =
+        await attemptDeterministicToolResponse(
+          kyRequest,
+          supabase,
+        )
+
+      if (deterministicResponse) {
+        kayvenResponse = deterministicResponse
+        executionPath = 'deterministic_tool'
+      }
+    }
+
+    /*
+     * Final fallback: existing local intelligence.
+     */
     if (!kayvenResponse) {
       executionPath = 'local_intelligence'
 
       kayvenResponse = buildLocalCoachResponse(
-        message,
+        resolvedMessage,
         intent,
         context,
         safety.status,

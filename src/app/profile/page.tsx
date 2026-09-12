@@ -290,7 +290,7 @@ export default function ProfilePage() {
     { id:'profile', icon:<IconPerson size={18} color="#fff"/>, iconBg:'var(--primary)', label:'Profile', sub:`${profilePct}% complete`, action:()=>setView('edit') },
     { id:'goals', icon:<TargetIcon size={18} color="#fff"/>, iconBg:'#10b981', label:'Goals', sub:'Calories, macros, weight goal', action:()=>setView('goals') },
     { id:'progress', icon:<TrophyIcon size={18} color="#fff"/>, iconBg:'#f59e0b', label:'Progress & Achievements', sub:'Streaks, badges, challenges', action:()=>router.push('/progress') },
-    { id:'subscription', icon:<IconCrown size={18} color="#fff"/>, iconBg:'#8b5cf6', label:'Subscription', sub:'Free plan', action:()=>setView('subscription') },
+    { id:'subscription', icon:<IconCrown size={18} color="#fff"/>, iconBg:'#8b5cf6', label:'Subscription', sub:'View your plan and AI Coach usage', action:()=>router.push('/subscription') },
     { id:'privacy', icon:<LockIcon size={18} color="#fff"/>, iconBg:'#3b82f6', label:'Privacy', sub:'How your data is handled', action:()=>{ setLegalPage('privacy'); setView('legal') } },
     { id:'notifications', icon:<BellIcon size={18} color="#fff"/>, iconBg:'#f97316', label:'Notifications', sub: notifPermission==='granted' ? `${reminders.filter(r=>r.enabled).length} reminders active` : 'Set meal reminders', action:()=>setView('notifications') },
     { id:'dataExport', icon:<IconDownloadTray size={18} color="#fff"/>, iconBg:'#0ea5e9', label:'Data Export', sub:'Request a copy of your data', action:()=>{ setLegalPage('data'); setView('legal') } },
@@ -411,31 +411,6 @@ export default function ProfilePage() {
           <AppleRow icon={<IconDownloadTray size={16} color="#fff"/>} iconBg="#0ea5e9" label="Data & Privacy Controls" last onClick={()=>{ setLegalPage('data'); setView('legal') }}/>
         </AppleGroup>
         <div style={{ textAlign:'center', fontSize:11, color:'var(--muted)', marginTop:8 }}>© {new Date().getFullYear()} Kayven</div>
-      </div>
-      <BottomNav/>
-    </div>
-  )
-
-  // ── SUBSCRIPTION (new — honest placeholder, no fake plan/payment logic) ──
-  if (view === 'subscription') return (
-    <div style={{background:'var(--surface)',minHeight:'100dvh',maxWidth:430,margin:'0 auto',paddingBottom:'calc(var(--sab) + 120px)'}}>
-      {sharedStyles}
-      <div style={{padding:'calc(env(safe-area-inset-top,0px) + 12px) 20px 0'}}>
-        <BackBtn label="Subscription"/>
-      </div>
-      <div style={{padding:'0 20px'}}>
-        <div className="fade-in-up" style={{ background:'var(--card)', border:'1px solid var(--border)', borderRadius:20, padding:'20px 18px' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12 }}>
-            <div style={{ width:44, height:44, borderRadius:14, background:'#8b5cf6', display:'flex', alignItems:'center', justifyContent:'center' }}><IconCrown size={20} color="#fff"/></div>
-            <div>
-              <div style={{ fontWeight:700, fontSize:16, color:'var(--text)' }}>Free plan</div>
-              <div style={{ fontSize:12, color:'var(--muted)', marginTop:2 }}>No subscription tiers yet</div>
-            </div>
-          </div>
-          <div style={{ fontSize:13, color:'var(--muted)', lineHeight:1.7 }}>
-            Kayven doesn't have a paid subscription system built yet — everything in the app is available to every account right now. This screen is here so the card has an honest destination instead of doing nothing when tapped.
-          </div>
-        </div>
       </div>
       <BottomNav/>
     </div>

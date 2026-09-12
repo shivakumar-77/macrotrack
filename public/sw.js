@@ -1,4 +1,4 @@
-const CACHE = 'Kayven-v2'
+const CACHE = 'Kayven-v3'
 const STATIC = [
   '/',
   '/dashboard',

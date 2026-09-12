@@ -30,9 +30,8 @@ export default function SubscriptionPage() {
     return <main style={{ minHeight: '100dvh', background: 'var(--surface)' }}><PageHeader title="Plans" href="/dashboard" /><div style={{ maxWidth: 900, margin: '0 auto', padding: 20, color: 'var(--muted)' }}>Loading your plan...</div><BottomNav /></main>
   }
 
-  if (error || !state) {
-    const signedOut = error === 'Please sign in to view subscription state.'
-    return <main style={{ minHeight: '100dvh', background: 'var(--surface)' }}><PageHeader title="Plans" href="/dashboard" /><div style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}><UpgradePrompt title={signedOut ? 'Sign in to view plans' : 'Plans are unavailable'} message={signedOut ? 'Sign in to see your current plan, AI Coach usage, and available upgrades.' : 'We could not load your subscription state. Please try again later.'} /></div><BottomNav /></main>
+  if (!state) {
+    return <main style={{ minHeight: '100dvh', background: 'var(--surface)' }}><PageHeader title="Plans" href="/dashboard" /><div style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}><UpgradePrompt title="Plans are unavailable" message="We could not load your subscription state. Please try again later." /></div><BottomNav /></main>
   }
 
   const currentPlan = PLANS[state.currentPlan] || PLANS.free
@@ -52,6 +51,7 @@ export default function SubscriptionPage() {
     <main style={{ minHeight: '100dvh', background: 'var(--surface)', paddingBottom: 112 }}>
       <PageHeader title="KAYVEN Plans" subtitle="Your access, clearly explained" href="/dashboard" />
       <div style={{ maxWidth: 900, margin: '0 auto', padding: '20px 16px' }}>
+        {state.statusUnavailable && <p role="status" style={{ marginBottom: 12, color: 'var(--muted)', fontSize: 13 }}>Unable to refresh subscription status. Showing available plans; your access is verified when you use protected features.</p>}
         <section style={{ padding: 20, borderRadius: 20, background: 'linear-gradient(135deg, var(--primary-bg), var(--card))', border: '1px solid color-mix(in srgb, var(--primary) 18%, var(--border))' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'start', flexWrap: 'wrap' }}>
             <div><div style={{ color: 'var(--muted)', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>Current plan</div><h1 style={{ marginTop: 6, fontSize: 28 }}>{currentPlan.displayName}</h1><p style={{ marginTop: 6, color: 'var(--muted)', lineHeight: 1.5 }}>{currentPlan.description}</p></div>

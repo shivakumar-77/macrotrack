@@ -10,6 +10,35 @@ let cachedError: string | null = null
 let request: Promise<ClientSubscriptionState> | null = null
 const listeners = new Set<(state: ClientSubscriptionState | null) => void>()
 
+function unavailableSubscriptionState(): ClientSubscriptionState {
+  return {
+    currentPlan: 'free',
+    subscriptionStatus: 'free',
+    entitlements: {
+      food_tracking: true,
+      basic_insights: true,
+      ai_coach: { enabled: true, limit: 10 },
+      advanced_ai_coach: false,
+      meal_planning: true,
+      advanced_meal_planning: false,
+      workout_planning: false,
+      advanced_progress: false,
+      supplements: true,
+      health_insights: false,
+    },
+    aiUsage: 0,
+    aiLimit: 10,
+    remainingAIRequests: 10,
+    currentPeriodStart: null,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    billingProvider: null,
+    managementUrl: null,
+    managementUrlAvailable: false,
+    statusUnavailable: true,
+  }
+}
+
 export async function authenticatedBillingFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
   const { data } = await supabase.auth.getSession()
   const accessToken = data?.session?.access_token
@@ -34,7 +63,10 @@ async function fetchSubscriptionState(): Promise<ClientSubscriptionState> {
       })
       .catch(error => {
         cachedError = error instanceof Error ? error.message : 'Unable to load subscription state'
-        throw error
+        const fallback = unavailableSubscriptionState()
+        cachedState = fallback
+        listeners.forEach(listener => listener(fallback))
+        return fallback
       })
       .finally(() => { request = null })
   }
@@ -89,6 +121,7 @@ export interface ClientSubscriptionState {
   billingProvider: string | null
   managementUrl: string | null
   managementUrlAvailable: boolean
+  statusUnavailable?: boolean
 }
 
 export function useSubscription() {

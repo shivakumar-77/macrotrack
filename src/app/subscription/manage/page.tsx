@@ -7,7 +7,7 @@ import PageHeader from '@/components/PageHeader'
 import SubscriptionStatusCard from '@/components/SubscriptionStatusCard'
 import AIUsageMeter from '@/components/AIUsageMeter'
 import UpgradePrompt from '@/components/UpgradePrompt'
-import { refreshSubscription, useSubscription } from '@/lib/billing/client'
+import { authenticatedBillingFetch, refreshSubscription, useSubscription } from '@/lib/billing/client'
 import { useRevenueCat } from '@/lib/billing/revenuecat-client'
 
 export default function ManageSubscriptionPage() {
@@ -22,7 +22,7 @@ export default function ManageSubscriptionPage() {
     setRefreshing(true)
     try {
       await revenueCat.refresh()
-      await fetch('/api/subscription/refresh', { method: 'POST' }).catch(() => undefined)
+      await authenticatedBillingFetch('/api/subscription/refresh', { method: 'POST' }).catch(() => undefined)
       await refreshSubscription()
     } finally {
       setRefreshing(false)

@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/server/supabase'
 import { getBillingState } from '@/lib/billing/server'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
-  const supabase = createSupabaseServerClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
+export async function GET(request: NextRequest) {
+  const authorization = request.headers.get('authorization')
+  const accessToken = authorization?.startsWith('Bearer ')
+    ? authorization.slice('Bearer '.length)
+    : null
+  const supabase = createSupabaseServerClient(accessToken)
+  const { data: { user }, error } = await supabase.auth.getUser(accessToken || undefined)
 
   if (error || !user) {
     return NextResponse.json({ error: 'Please sign in to view subscription state.' }, { status: 401 })

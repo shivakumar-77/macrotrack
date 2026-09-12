@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 import type { EntitlementId, Entitlements } from './entitlements'
 import type { PlanId } from './plans'
 
@@ -9,9 +10,17 @@ let cachedError: string | null = null
 let request: Promise<ClientSubscriptionState> | null = null
 const listeners = new Set<(state: ClientSubscriptionState | null) => void>()
 
+export async function authenticatedBillingFetch(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+  const { data } = await supabase.auth.getSession()
+  const accessToken = data?.session?.access_token
+  const headers = new Headers(init.headers)
+  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
+  return fetch(input, { ...init, headers, cache: 'no-store' })
+}
+
 async function fetchSubscriptionState(): Promise<ClientSubscriptionState> {
   if (!request) {
-    request = fetch('/api/subscription', { cache: 'no-store' })
+    request = authenticatedBillingFetch('/api/subscription')
       .then(async response => {
         const payload = await response.json()
         if (!response.ok) throw new Error(payload.error || 'Unable to load subscription state')

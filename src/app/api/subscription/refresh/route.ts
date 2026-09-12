@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/server/supabase'
 import { RevenueCatProvider } from '@/lib/billing/revenuecat'
 import { getRevenueCatConfig } from '@/lib/billing/revenuecat-config'
@@ -6,9 +6,13 @@ import { syncSubscriptionState } from '@/lib/billing/sync'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST() {
-  const supabase = createSupabaseServerClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
+export async function POST(request: NextRequest) {
+  const authorization = request.headers.get('authorization')
+  const accessToken = authorization?.startsWith('Bearer ')
+    ? authorization.slice('Bearer '.length)
+    : null
+  const supabase = createSupabaseServerClient(accessToken)
+  const { data: { user }, error: authError } = await supabase.auth.getUser(accessToken || undefined)
 
   if (authError || !user) {
     return NextResponse.json({ error: 'Please sign in to refresh subscription state.' }, { status: 401 })

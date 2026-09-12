@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { Purchases, type CustomerInfo, type Offering, type Package } from '@revenuecat/purchases-js'
 import { supabase } from '@/lib/supabase'
-import { clearSubscriptionState, refreshSubscription, waitForSubscriptionPlan } from './client'
+import { authenticatedBillingFetch, clearSubscriptionState, refreshSubscription, waitForSubscriptionPlan } from './client'
 import type { PlanId } from './plans'
 
 export interface RevenueCatClientState {
@@ -117,7 +117,7 @@ export async function refreshRevenueCatState(): Promise<RevenueCatClientState> {
 }
 
 async function syncServerSubscription(expectedPlan?: Exclude<PlanId, 'free'>): Promise<void> {
-  await fetch('/api/subscription/refresh', { method: 'POST' }).catch(() => undefined)
+  await authenticatedBillingFetch('/api/subscription/refresh', { method: 'POST' }).catch(() => undefined)
   if (expectedPlan) {
     await waitForSubscriptionPlan(expectedPlan)
   } else {

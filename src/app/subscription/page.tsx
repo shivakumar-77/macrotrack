@@ -31,7 +31,8 @@ export default function SubscriptionPage() {
   }
 
   if (error || !state) {
-    return <main style={{ minHeight: '100dvh', background: 'var(--surface)' }}><PageHeader title="Plans" href="/dashboard" /><div style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}><UpgradePrompt title="Plans are unavailable" message="We could not load your subscription state. Please try again later." /></div><BottomNav /></main>
+    const signedOut = error === 'Please sign in to view subscription state.'
+    return <main style={{ minHeight: '100dvh', background: 'var(--surface)' }}><PageHeader title="Plans" href="/dashboard" /><div style={{ maxWidth: 900, margin: '0 auto', padding: 20 }}><UpgradePrompt title={signedOut ? 'Sign in to view plans' : 'Plans are unavailable'} message={signedOut ? 'Sign in to see your current plan, AI Coach usage, and available upgrades.' : 'We could not load your subscription state. Please try again later.'} /></div><BottomNav /></main>
   }
 
   const currentPlan = PLANS[state.currentPlan] || PLANS.free

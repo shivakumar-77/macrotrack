@@ -6,6 +6,94 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 )
 
+type UsdaNutrient = {
+  nutrientName?: string
+  value?: number
+}
+
+type UsdaFood = {
+  fdcId?: number
+  description?: string
+  brandOwner?: string
+  brandName?: string
+  servingSize?: number
+  servingSizeUnit?: string
+  foodNutrients?: UsdaNutrient[]
+}
+
+const USDA_SEARCH_CACHE = new Map<string, { expiresAt: number; foods: Record<string, unknown>[] }>()
+const USDA_CACHE_TTL_MS = 5 * 60 * 1000
+
+function usdaNutrientValue(food: UsdaFood, names: string[]): number {
+  const nutrient = food.foodNutrients?.find(item => names.includes(String(item.nutrientName || '').toLowerCase()))
+  const value = Number(nutrient?.value)
+  return Number.isFinite(value) ? value : 0
+}
+
+function normalizeUsdaFood(food: UsdaFood): Record<string, unknown> | null {
+  const sourceFoodId = food.fdcId
+  const name = String(food.description || '').trim()
+  if (!sourceFoodId || !name) return null
+
+  const servingSize = Number(food.servingSize)
+  const servingUnit = String(food.servingSizeUnit || 'g').trim() || 'g'
+
+  return {
+    id: `usda_${sourceFoodId}`,
+    source: 'usda',
+    sourceFoodId: String(sourceFoodId),
+    name,
+    name_local: null,
+    category: 'USDA FoodData Central',
+    brand: food.brandOwner || food.brandName || null,
+    // FoodData Central search nutrients use a 100 g basis. Keep this base for
+    // the existing quantity scaler and retain package servings as source metadata.
+    serving_size: 100,
+    serving_unit: 'g',
+    source_serving_size: Number.isFinite(servingSize) && servingSize > 0 ? servingSize : null,
+    source_serving_unit: servingUnit,
+    cal: usdaNutrientValue(food, ['energy']),
+    protein: usdaNutrientValue(food, ['protein']),
+    carb: usdaNutrientValue(food, ['carbohydrate, by difference', 'carbohydrate']),
+    fat: usdaNutrientValue(food, ['total lipid (fat)', 'total fat (nlea)']),
+    fiber: usdaNutrientValue(food, ['fiber, total dietary', 'dietary fiber']),
+    sugar: usdaNutrientValue(food, ['sugars, total including nlea', 'sugars, total']),
+    sodium: usdaNutrientValue(food, ['sodium, na']),
+    is_indian: false,
+  }
+}
+
+async function searchUsdaFoods(query: string): Promise<Record<string, unknown>[]> {
+  const apiKey = process.env.USDA_API_KEY
+  if (!apiKey) return []
+
+  const cacheKey = query.trim().toLowerCase()
+  const cached = USDA_SEARCH_CACHE.get(cacheKey)
+  if (cached && cached.expiresAt > Date.now()) return cached.foods
+
+  try {
+    const url = new URL('https://api.nal.usda.gov/fdc/v1/foods/search')
+    url.searchParams.set('api_key', apiKey)
+    url.searchParams.set('query', query)
+    url.searchParams.set('pageSize', '10')
+    const response = await fetch(url, { signal: AbortSignal.timeout(4000), cache: 'no-store' })
+    if (!response.ok) {
+      console.warn('[Kayven Food Search] USDA search unavailable', { status: response.status })
+      return []
+    }
+
+    const payload = await response.json() as { foods?: UsdaFood[] }
+    const foods = (payload.foods || [])
+      .map(normalizeUsdaFood)
+      .filter((food): food is Record<string, unknown> => food !== null)
+    USDA_SEARCH_CACHE.set(cacheKey, { foods, expiresAt: Date.now() + USDA_CACHE_TTL_MS })
+    return foods
+  } catch {
+    console.warn('[Kayven Food Search] USDA search request failed')
+    return []
+  }
+}
+
 export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get('q') || ''
   const cat = req.nextUrl.searchParams.get('cat') || ''
@@ -32,10 +120,8 @@ export async function GET(req: NextRequest) {
 
     const { data: localResults, error } = await query
 
-    // TEMP DEBUG: surface the real Supabase error instead of silently swallowing it.
-    // Remove the debug_supabase_error field once search is confirmed working.
     if (error) {
-      console.error('meal-search: Supabase query error:', error)
+      console.error('[Kayven Food Search] Local search unavailable', { code: error.code })
     }
 
     let combined: any[] = localResults || []
@@ -73,14 +159,22 @@ export async function GET(req: NextRequest) {
       } catch {}
     }
 
+    if (q && combined.length < 10) {
+      const knownNames = new Set(combined.map(food => String(food.name || '').trim().toLowerCase()))
+      const usdaFoods = await searchUsdaFoods(q)
+      combined = [
+        ...combined,
+        ...usdaFoods.filter(food => !knownNames.has(String(food.name || '').trim().toLowerCase())),
+      ]
+    }
+
     return NextResponse.json({
       results: combined,
       page,
       hasMore: (localResults?.length || 0) === limit,
-      ...(error ? { debug_supabase_error: error.message, debug_supabase_code: error.code } : {})
     })
   } catch (err) {
-    console.error('meal-search: unexpected error:', err)
-    return NextResponse.json({ results: [], error: 'Search failed', debug: String(err) }, { status: 500 })
+    console.error('[Kayven Food Search] Search failed')
+    return NextResponse.json({ results: [], error: 'Search failed' }, { status: 500 })
   }
 }

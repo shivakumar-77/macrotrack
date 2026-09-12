@@ -104,7 +104,16 @@ export function getKAYVENMemory(context: Record<string, unknown>): KAYVENMemory 
       mealPlan,
       supplements
     },
-    keySignals
+    keySignals,
+    persistent: Array.isArray((context as any)?.memory)
+      ? (context as any).memory.map((memory: any) => ({
+          category: String(memory.category || ''),
+          key: String(memory.key || ''),
+          value: memory.value,
+          source: String(memory.source || ''),
+          importance: typeof memory.importance === 'number' ? memory.importance : undefined,
+        }))
+      : [],
   }
 }
 

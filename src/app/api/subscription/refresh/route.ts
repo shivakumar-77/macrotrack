@@ -1,0 +1,25 @@
+import { NextResponse } from 'next/server'
+import { createSupabaseServerClient } from '@/lib/server/supabase'
+import { RevenueCatProvider } from '@/lib/billing/revenuecat'
+import { getRevenueCatConfig } from '@/lib/billing/revenuecat-config'
+import { syncSubscriptionState } from '@/lib/billing/sync'
+
+export const dynamic = 'force-dynamic'
+
+export async function POST() {
+  const supabase = createSupabaseServerClient()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    return NextResponse.json({ error: 'Please sign in to refresh subscription state.' }, { status: 401 })
+  }
+
+  const config = getRevenueCatConfig()
+  if (!config) {
+    return NextResponse.json({ synced: false, reason: 'Billing is not configured.' })
+  }
+
+  const provider = new RevenueCatProvider(config)
+  const synced = await syncSubscriptionState(supabase, user.id, provider, user.id)
+  return NextResponse.json({ synced })
+}

@@ -2,7 +2,6 @@ import type { KAYVENMemoryCandidate, MemoryExtractorResult } from './kayven-memo
 
 export function extractMemoryCandidates(message: string): MemoryExtractorResult {
   const candidates: KAYVENMemoryCandidate[] = []
-  const text = message.toLowerCase()
 
   // Food dislikes
   const dislikePatterns = [
@@ -16,7 +15,8 @@ export function extractMemoryCandidates(message: string): MemoryExtractorResult 
     const match = message.match(pattern.regex)
     if (match && match[1]) {
       const food = match[1].trim()
-      if (food.length > 0 && food.length < 50) {
+      const isWorkoutActivity = /^(running|cardio|weights|lifting)$/i.test(food)
+      if (food.length > 0 && food.length < 50 && !isWorkoutActivity) {
         candidates.push({
           category: pattern.category,
           key: `${pattern.category}_${food.replace(/\s+/g, '_')}`,
@@ -136,7 +136,7 @@ export function extractMemoryCandidates(message: string): MemoryExtractorResult 
   for (const pattern of routinePatterns) {
     const match = message.match(pattern.regex)
     if (match && match[1]) {
-      const routine = match[1].trim()
+      const routine = match[1].trim().replace(/^(?:at|in the)\s+/i, '')
       if (routine.length > 0 && routine.length < 50) {
         candidates.push({
           category: 'routine',
@@ -178,20 +178,21 @@ export function extractMemoryCandidates(message: string): MemoryExtractorResult 
 
   // User corrections (contradicting previous info)
   const correctionPatterns = [
-    { regex: /actually,?\s+i\s+(?:like|hate|prefer|don't\s+like)\s+([a-z\s]+)/i },
-    { regex: /i\s+was\s+wrong,?\s+i\s+(?:like|hate|prefer)\s+([a-z\s]+)/i },
-    { regex: /i\s+changed\s+my\s+mind,?\s+i\s+(?:like|hate|prefer)\s+([a-z\s]+)/i }
+    { regex: /actually,?\s+i\s+(like|love|prefer|hate|don't\s+like)\s+([a-z\s]+?)[.,!?]?$/i },
+    { regex: /i\s+was\s+wrong,?\s+i\s+(like|love|prefer|hate)\s+([a-z\s]+?)[.,!?]?$/i },
+    { regex: /i\s+changed\s+my\s+mind,?\s+i\s+(like|love|prefer|hate)\s+([a-z\s]+?)[.,!?]?$/i }
   ]
 
   for (const pattern of correctionPatterns) {
     const match = message.match(pattern.regex)
-    if (match && match[1]) {
-      const correction = match[1].trim()
+    if (match && match[1] && match[2]) {
+      const preference = match[1].toLowerCase()
+      const correction = match[2].trim().replace(/\s+now$/i, '')
       if (correction.length > 0 && correction.length < 50) {
         candidates.push({
           category: 'user_correction',
           key: `correction_${correction.replace(/\s+/g, '_')}`,
-          value: correction,
+          value: { item: correction, preference },
           source: 'user_correction',
           confidence: 0.95,
           importance: 4,

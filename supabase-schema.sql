@@ -120,6 +120,125 @@ create index if not exists idx_user_memories_user_id on user_memories(user_id);
 create index if not exists idx_user_memories_user_active on user_memories(user_id, is_active);
 create index if not exists idx_user_memories_category on user_memories(user_id, category);
 
+create table if not exists subscriptions (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  provider text not null,
+  provider_customer_id text,
+  provider_subscription_id text,
+  plan_id text not null default 'free' check (plan_id in ('free', 'premium', 'pro')),
+  status text not null check (status in ('active', 'trialing', 'past_due', 'canceled', 'expired')),
+  current_period_start timestamptz,
+  current_period_end timestamptz,
+  cancel_at_period_end boolean default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create unique index if not exists idx_subscriptions_provider_subscription
+  on subscriptions(provider, provider_subscription_id)
+  where provider_subscription_id is not null;
+create unique index if not exists idx_subscriptions_one_current_per_user
+  on subscriptions(user_id)
+  where status in ('active', 'trialing', 'past_due');
+create index if not exists idx_subscriptions_user_id on subscriptions(user_id);
+
+-- Normalize and constrain plans for databases created by an earlier version.
+update subscriptions
+set plan_id = 'free', updated_at = now()
+where plan_id not in ('free', 'premium', 'pro');
+
+alter table subscriptions
+  drop constraint if exists subscriptions_plan_id_check;
+
+alter table subscriptions
+  add constraint subscriptions_plan_id_check
+  check (plan_id in ('free', 'premium', 'pro'));
+
+create table if not exists ai_usage (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references profiles(id) on delete cascade not null,
+  period_start timestamptz not null,
+  period_end timestamptz not null,
+  request_count integer not null default 0 check (request_count >= 0),
+  input_tokens bigint not null default 0 check (input_tokens >= 0),
+  output_tokens bigint not null default 0 check (output_tokens >= 0),
+  estimated_cost numeric(12,6) not null default 0 check (estimated_cost >= 0),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(user_id, period_start)
+);
+
+create index if not exists idx_ai_usage_user_period on ai_usage(user_id, period_start);
+
+create table if not exists billing_webhook_events (
+  id uuid default gen_random_uuid() primary key,
+  provider text not null,
+  provider_event_id text not null,
+  event_type text not null,
+  provider_user_id text,
+  status text not null default 'processing'
+    check (status in ('processing', 'processed', 'failed')),
+  processed_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique(provider, provider_event_id)
+);
+
+create index if not exists idx_billing_webhook_events_provider_user
+  on billing_webhook_events(provider, provider_user_id);
+
+alter table billing_webhook_events enable row level security;
+
+drop policy if exists "No client access to billing webhook events" on billing_webhook_events;
+create policy "No client access to billing webhook events"
+  on billing_webhook_events for all using (false) with check (false);
+
+alter table subscriptions enable row level security;
+alter table ai_usage enable row level security;
+
+drop policy if exists "own subscriptions" on subscriptions;
+drop policy if exists "own ai usage" on ai_usage;
+create policy "own subscriptions" on subscriptions for select using (auth.uid() = user_id);
+create policy "own ai usage" on ai_usage for select using (auth.uid() = user_id);
+
+create or replace function record_ai_usage(
+  p_period_start timestamptz,
+  p_period_end timestamptz,
+  p_input_tokens integer default 0,
+  p_output_tokens integer default 0,
+  p_estimated_cost numeric default 0
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if auth.uid() is null then
+    raise exception 'Authentication required';
+  end if;
+
+  insert into public.ai_usage (
+    user_id, period_start, period_end, request_count,
+    input_tokens, output_tokens, estimated_cost
+  )
+  values (
+    auth.uid(), p_period_start, p_period_end, 1,
+    greatest(p_input_tokens, 0), greatest(p_output_tokens, 0), greatest(p_estimated_cost, 0)
+  )
+  on conflict (user_id, period_start) do update set
+    request_count = public.ai_usage.request_count + 1,
+    input_tokens = public.ai_usage.input_tokens + excluded.input_tokens,
+    output_tokens = public.ai_usage.output_tokens + excluded.output_tokens,
+    estimated_cost = public.ai_usage.estimated_cost + excluded.estimated_cost,
+    period_end = excluded.period_end,
+    updated_at = now();
+end;
+$$;
+
+revoke all on function record_ai_usage(timestamptz, timestamptz, integer, integer, numeric) from public;
+grant execute on function record_ai_usage(timestamptz, timestamptz, integer, integer, numeric) to authenticated;
+
 drop trigger if exists on_auth_user_created on auth.users;
 drop function if exists handle_new_user();
 

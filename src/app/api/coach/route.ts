@@ -22,6 +22,9 @@ import {
   globalKAYVENCostTracker,
   createCostMetadata,
 } from '@/lib/server/kayven-cost-tracking'
+import { extractMemoryCandidates } from '@/lib/server/kayven-memory-extractor'
+import { processMemoryCandidates } from '@/lib/server/kayven-memory-manager'
+import { canUseAI, recordAIUsage, suggestedUpgradePlan } from '@/lib/billing/server'
 import type {
   KAYVENAIRequest,
   KAYVENAIResponse,
@@ -761,6 +764,27 @@ export async function POST(request: NextRequest) {
       range = '7d'
     }
 
+    const memoryExtraction = extractMemoryCandidates(message)
+    let memoryOperations = {
+      memoriesExtracted: memoryExtraction.candidates.length,
+      memoriesStored: 0,
+      memoriesRejected: 0,
+      memoryDuplicates: 0,
+      memoryConflicts: 0,
+    }
+
+    try {
+      memoryOperations = await processMemoryCandidates(
+        supabase,
+        user.id,
+        memoryExtraction.candidates,
+      )
+    } catch {
+      memoryOperations.memoriesRejected = memoryExtraction.candidates.length
+    }
+
+    globalKAYVENCostTracker.recordMemoryOperations(memoryOperations)
+
     const context =
       await getKayvenIntelligenceContext(
         supabase,
@@ -802,6 +826,10 @@ export async function POST(request: NextRequest) {
         shouldAskClarification:
           brainDecision.shouldAskClarification,
         range,
+        memoryStored: memoryOperations.memoriesStored,
+        memoryRejected: memoryOperations.memoriesRejected,
+        memoryDuplicates: memoryOperations.memoryDuplicates,
+        memoryConflicts: memoryOperations.memoryConflicts,
       },
     )
 
@@ -865,7 +893,7 @@ export async function POST(request: NextRequest) {
       null
 
     let executionPath:
-      'deterministic_tool' | 'local_intelligence' =
+      'deterministic_tool' | 'local_intelligence' | 'ai_fallback' =
       'local_intelligence'
 
     /*
@@ -945,6 +973,37 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    if (!kayvenResponse && safety.status !== 'escalate' && shouldPreferAIResponse(resolvedMessage, conversation)) {
+      const aiAccess = await canUseAI(supabase, user.id)
+
+      if (!aiAccess.allowed) {
+        return NextResponse.json({
+          error: 'AI_USAGE_LIMIT_REACHED',
+          message: 'You have reached your AI Coach limit for this period.',
+          upgradeRequired: true,
+          planId: aiAccess.planId,
+          aiUsage: aiAccess.usage.request_count,
+          aiLimit: aiAccess.limit,
+          suggestedPlan: suggestedUpgradePlan(aiAccess.planId),
+        }, { status: 429 })
+      }
+
+      const aiResponse = await generateKayvenAIResponse({
+        message: resolvedMessage,
+        intent,
+        context: context as unknown as Record<string, unknown>,
+        conversation: conversation as KAYVENMessage[],
+        brainDecision,
+        safetyStatus: safety.status,
+      })
+
+      if (aiResponse) {
+        kayvenResponse = aiResponse
+        executionPath = 'ai_fallback'
+        await recordAIUsage(supabase, user.id)
+      }
+    }
+
     /*
      * Final fallback: existing local intelligence.
      */
@@ -960,7 +1019,8 @@ export async function POST(request: NextRequest) {
     }
 
     const costMetadata = createCostMetadata({
-      usedAI: false,
+      usedAI: kayvenResponse.metadata?.usedAI === true,
+      provider: kayvenResponse.metadata?.provider || kayvenResponse.provider.name,
       toolUsed: kayvenResponse.metadata?.toolUsed,
       intent,
       executionPath,

@@ -81,6 +81,7 @@ export async function validateMemory(
     if (existing) {
       if (String(existing.value).toLowerCase() === valueStr.toLowerCase()) {
         isDuplicate = true
+        conflictsWith = existing.id
       } else if (candidate.category === 'user_correction') {
         // Corrections are allowed even if they conflict with existing memories
         conflictsWith = existing.id

@@ -6,6 +6,8 @@ import BottomNav from '@/components/BottomNav'
 import PageHeader from '@/components/PageHeader'
 import { BoltIcon, CheckIcon, ChevronRightIcon } from '@/lib/icons'
 import { supabase } from '@/lib/supabase'
+import UpgradePrompt from '@/components/UpgradePrompt'
+import AIUsageMeter from '@/components/AIUsageMeter'
 
 type Message = { role: 'user' | 'assistant'; content: string; actions?: string[] }
 
@@ -18,6 +20,8 @@ export default function CoachPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [conversationId, setConversationId] = useState<string | null>(null)
+  const [upgradeMessage, setUpgradeMessage] = useState('')
+  const [suggestedPlan, setSuggestedPlan] = useState<'premium' | 'pro'>('premium')
   const endRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -37,6 +41,13 @@ export default function CoachPage() {
     try {
       const response = await fetch('/api/coach', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: trimmed, messages, conversationId }) })
       const data = await response.json()
+      if (data.error === 'AI_USAGE_LIMIT_REACHED') {
+        setUpgradeMessage(data.message || 'You have reached your AI Coach limit for this period.')
+        if (data.suggestedPlan === 'pro' || data.suggestedPlan === 'premium') setSuggestedPlan(data.suggestedPlan)
+        setInput(trimmed)
+        setMessages(nextMessages)
+        return
+      }
       if (!response.ok) throw new Error(data.error || 'Unable to reach the Coach')
       if (data.conversationId) setConversationId(data.conversationId)
       setMessages([...nextMessages, { role: 'assistant', content: data.answer, actions: data.actions }])
@@ -73,12 +84,14 @@ export default function CoachPage() {
           ))}
           {loading && <div className="coach-message assistant"><div className="coach-avatar"><BoltIcon size={15} color="var(--primary)"/></div><div className="coach-bubble coach-typing"><i/><i/><i/></div></div>}
           {error && <div className="coach-error" role="alert">{error}<button onClick={() => setError('')}>Dismiss</button></div>}
+          {upgradeMessage && <div className="coach-upgrade"><UpgradePrompt context="ai_limit" suggestedPlan={suggestedPlan} message={upgradeMessage} /></div>}
           <div ref={endRef}/>
         </div>
         <form className="coach-composer" onSubmit={submit}>
           <input value={input} onChange={event => setInput(event.target.value)} placeholder="Ask your Coach..." maxLength={1200} aria-label="Ask your Coach" disabled={loading}/>
           <button type="submit" aria-label="Send question" disabled={!input.trim() || loading}><ChevronRightIcon size={19} color="currentColor" strokeWidth={2.4}/></button>
         </form>
+        <div style={{ marginTop: 10, textAlign: 'center' }}><AIUsageMeter compact /></div>
         <p className="coach-disclaimer">General nutrition and fitness guidance only. Not medical advice.</p>
       </section>
       <BottomNav />
@@ -108,6 +121,7 @@ export default function CoachPage() {
         .coach-composer input { min-width: 0; flex: 1; border: 0; outline: 0; color: var(--text); background: transparent; font: inherit; font-size: 14px; }
         .coach-composer input::placeholder { color: var(--muted); }.coach-composer button { width: 38px; height: 38px; border: 0; border-radius: 13px; display: grid; place-items: center; background: var(--primary); color: #fff; cursor: pointer; }.coach-composer button:disabled { opacity: .45; cursor: default; }
         .coach-disclaimer { text-align: center; color: var(--muted); font-size: 10px; margin: 9px 0 0; }
+        .coach-upgrade { margin-top: 4px; }
         @keyframes coachPulse { 0%, 60%, 100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
         @media (max-width: 480px) { .coach-shell { padding-left: 16px; padding-right: 16px; }.coach-welcome { margin-top: 25px; } }
       `}</style>

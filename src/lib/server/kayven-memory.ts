@@ -101,7 +101,10 @@ export async function createMemory(
   try {
     const { data, error } = await supabase
       .from('user_memories')
-      .insert([{ user_id: userId, ...memory, is_active: true }])
+      .upsert(
+        [{ user_id: userId, ...memory, is_active: true }],
+        { onConflict: 'user_id,category,key' },
+      )
       .select()
       .single()
 
@@ -110,7 +113,7 @@ export async function createMemory(
       return null
     }
 
-    console.info('[Memory Service] Memory created', { category: memory.category, key: memory.key, importance: memory.importance })
+    console.info('[Memory Service] Memory stored', { category: memory.category, source: memory.source })
     return data || null
   } catch (error) {
     console.error('[Memory Service] Unexpected error creating memory:', error)
@@ -193,7 +196,7 @@ export async function clearUserMemories(supabase: any, userId: string): Promise<
       return false
     }
 
-    console.info('[Memory Service] User memories cleared', { userId })
+    console.info('[Memory Service] User memories cleared')
     return true
   } catch (error) {
     console.error('[Memory Service] Unexpected error clearing memories:', error)

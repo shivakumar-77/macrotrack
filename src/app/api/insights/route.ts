@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createSupabaseServerClient } from '@/lib/server/supabase'
+import { entitlementDeniedPayload, requireEntitlement } from '@/lib/billing/server'
 
 export async function POST(req: NextRequest) {
   try {
+    const supabase = createSupabaseServerClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const entitlement = await requireEntitlement(supabase, user.id, 'advanced_progress')
+    if (!entitlement.allowed) return NextResponse.json(entitlementDeniedPayload(entitlement), { status: 403 })
+
     const { weeklyLogs, targets, profile } = await req.json()
     if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: 'No key' }, { status: 503 })
 

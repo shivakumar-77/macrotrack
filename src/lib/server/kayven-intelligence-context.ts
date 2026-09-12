@@ -1,3 +1,6 @@
+import { getRelevantMemories } from './kayven-memory'
+import type { KAYVENMemoryRecord } from './kayven-memory-schema'
+
 type DateRange = 'today' | '7d' | '30d'
 
 export interface IntelligenceContextOptions {
@@ -54,6 +57,7 @@ export interface KayvenIntelligenceContext {
     existingInsights: Record<string, unknown>[]
   }
   dataSources: Record<string, boolean>
+  memory: KAYVENMemoryRecord[]
 }
 
 interface NutritionSummary {
@@ -217,6 +221,7 @@ export async function getKayvenIntelligenceContext(
     id: String(log.id), date: dateOnly(log.logged_at), weightKg: numeric(log.weight_kg)
   }))
   const optional = Object.fromEntries(OPTIONAL_TABLES.map((table, index) => [table, optionalResults[index]]))
+  const memories = await getRelevantMemories(supabase, userId, { minImportance: 2, limit: 20 })
   const daily = Array.from(new Set(foodLogs.map(log => log.date))).sort().map(date => ({ date, ...summarize(foodLogs.filter(log => log.date === date)) }))
   const water = optional.water_logs?.data || []
   const workouts = optional.workout_logs?.data || []
@@ -238,6 +243,7 @@ export async function getKayvenIntelligenceContext(
     mealPlanning: { currentPlan: optional.meal_plans?.data?.[0] ? removeOwnership([optional.meal_plans.data[0]])[0] : null, upcomingMeals: [] },
     supplements: { currentItems: removeOwnership(optional.supplements?.data || []) },
     generatedInsights: { existingInsights: removeOwnership(optional.insights?.data || []) },
+    memory: memories.map(({ user_id: _userId, ...memory }) => memory),
     dataSources: Object.fromEntries([['profiles', true], ['food_logs', true], ['weight_logs', true], ...OPTIONAL_TABLES.map(table => [table, !!optional[table]?.available])])
   }
 }

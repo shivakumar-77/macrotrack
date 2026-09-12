@@ -30,6 +30,11 @@ export class KAYVENCostTracker {
     aiCalls: 0,
     toolCalls: 0,
     errors: 0,
+    memoriesExtracted: 0,
+    memoriesStored: 0,
+    memoriesRejected: 0,
+    memoryDuplicates: 0,
+    memoryConflicts: 0,
     toolsByName: new Map<string, number>(),
     intentsByName: new Map<string, number>()
   }
@@ -59,6 +64,20 @@ export class KAYVENCostTracker {
     }
   }
 
+  recordMemoryOperations(stats: {
+    memoriesExtracted: number
+    memoriesStored: number
+    memoriesRejected: number
+    memoryDuplicates: number
+    memoryConflicts: number
+  }): void {
+    this.metrics.memoriesExtracted += stats.memoriesExtracted
+    this.metrics.memoriesStored += stats.memoriesStored
+    this.metrics.memoriesRejected += stats.memoriesRejected
+    this.metrics.memoryDuplicates += stats.memoryDuplicates
+    this.metrics.memoryConflicts += stats.memoryConflicts
+  }
+
   getDeterministicRate(): number {
     if (this.metrics.totalRequests === 0) return 0
     return this.metrics.toolCalls / this.metrics.totalRequests
@@ -75,6 +94,11 @@ export class KAYVENCostTracker {
       aiCalls: this.metrics.aiCalls,
       toolCalls: this.metrics.toolCalls,
       errors: this.metrics.errors,
+      memoriesExtracted: this.metrics.memoriesExtracted,
+      memoriesStored: this.metrics.memoriesStored,
+      memoriesRejected: this.metrics.memoriesRejected,
+      memoryDuplicates: this.metrics.memoryDuplicates,
+      memoryConflicts: this.metrics.memoryConflicts,
       deterministicRate: this.getDeterministicRate(),
       aiFallbackRate: this.getAIFallbackRate(),
       toolUsage: Object.fromEntries(this.metrics.toolsByName),

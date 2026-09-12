@@ -101,4 +101,11 @@ export interface KAYVENMemory {
     supplements: Record<string, unknown>
   }
   keySignals: string[]
+  persistent: Array<{
+    category: string
+    key: string
+    value: unknown
+    source: string
+    importance?: number
+  }>
 }

@@ -7,6 +7,7 @@ import NextBestActionCard from '@/components/NextBestActionCard'
 import { SkeletonDashboard, PageLoader } from '@/components/Skeleton'
 import { useToast } from '@/components/Toast'
 import { FireIcon, DropletIcon, TargetIcon, BoltIcon, ChartBarIcon, MealPlanIcon, AIIcon, ScaleIcon, CheckIcon, MuscleIcon, WarningIcon, TrophyIcon, SunriseIcon, SunIcon, MoonIcon, AppleIcon, FoodIcon, PartyIcon, SupplementIcon, RobotIcon, WaveIcon } from '@/lib/icons'
+import { useSubscription } from '@/lib/billing/client'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -137,6 +138,7 @@ export default function Dashboard() {
   const [sugLoading, setSugLoading] = useState(false)
   const [expanded, setExpanded] = useState(null)
   const [scrolled, setScrolled] = useState(false) // new: drives the floating header's frosted state
+  const { state: subscriptionState } = useSubscription()
 
   const load = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -256,6 +258,9 @@ export default function Dashboard() {
           <p style={{ color:'var(--muted)', fontSize:11, fontWeight:700, textTransform:'uppercase', letterSpacing:'0.06em' }}>
             {new Date().toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long' })}
           </p>
+          {subscriptionState && <button type="button" onClick={() => router.push('/subscription')} style={{ marginTop: 5, border: 0, padding: 0, background: 'none', color: 'var(--primary)', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>
+            {subscriptionState.currentPlan.charAt(0).toUpperCase() + subscriptionState.currentPlan.slice(1)} Plan · {subscriptionState.remainingAIRequests === null ? 'AI unlimited' : `${subscriptionState.remainingAIRequests} AI left`}
+          </button>}
           <h1 style={{ fontSize:28, fontWeight:800, letterSpacing:'-0.03em', marginTop:3, display:'flex', alignItems:'center', gap:8 }}>
             {profile?.name ? <>Hey, {profile.name.split(' ')[0]} <WaveIcon size={22}/></> : 'Today'}
           </h1>

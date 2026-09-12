@@ -4,6 +4,8 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import BottomNav from '@/components/BottomNav'
 import { PageLoader } from '@/components/Skeleton'
+import UpgradePrompt from '@/components/UpgradePrompt'
+import { useEntitlement } from '@/lib/billing/client'
 
 export default function InsightsPage() {
   const router = useRouter()
@@ -13,6 +15,7 @@ export default function InsightsPage() {
   const [profile, setProfile] = useState(null)
   const [todayLogs, setTodayLogs] = useState([])
   const [allLogs, setAllLogs] = useState([])
+  const { enabled: hasAdvancedProgress, loading: entitlementLoading } = useEntitlement('advanced_progress')
 
   useEffect(() => { loadData() }, [])
 
@@ -48,6 +51,10 @@ export default function InsightsPage() {
   }
 
   async function generateInsights(weeklyLogs, prof, logs) {
+    if (!entitlementLoading && !hasAdvancedProgress) {
+      setInsights({ locked: true, message: 'Advanced progress insights are available with KAYVEN Premium.' })
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/insights', {
@@ -59,6 +66,10 @@ export default function InsightsPage() {
         })
       })
       const data = await res.json()
+      if (data.error === 'FEATURE_NOT_AVAILABLE') {
+        setInsights({ locked: true, message: data.message })
+        return
+      }
       if (data.result) setInsights(data.result)
     } catch {} finally { setLoading(false) }
   }
@@ -219,6 +230,7 @@ export default function InsightsPage() {
 
         {insights&&!loading&&(
           <>
+            {insights.locked ? <UpgradePrompt context="feature_locked" suggestedPlan="premium" title="Advanced progress insights" message={insights.message || 'Advanced progress insights are available with KAYVEN Premium.'} /> : <>
             {/* Score card */}
             <div style={{background:'linear-gradient(135deg,#10b981,#059669)',borderRadius:20,padding:'20px',marginBottom:16,color:'#fff'}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
@@ -264,6 +276,7 @@ export default function InsightsPage() {
               onClick={()=>generateInsights(weekData,profile,allLogs)}>
               🔄 Refresh analysis
             </button>
+            </>}
           </>
         )}
 

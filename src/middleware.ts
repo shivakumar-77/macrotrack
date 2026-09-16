@@ -15,12 +15,13 @@ export function middleware(request: NextRequest) {
   response.headers.set('Permissions-Policy', 'camera=self, microphone=(), geolocation=()')
   response.headers.set('Content-Security-Policy',
     "default-src 'self'; " +
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com; " +
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
     "font-src 'self' https://fonts.gstatic.com; " +
     "img-src 'self' data: blob: https:; " +
-    "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://world.openfoodfacts.org https://accounts.google.com https://www.googleapis.com; " +
+    "connect-src 'self' https://*.supabase.co https://api.anthropic.com https://world.openfoodfacts.org https://accounts.google.com https://www.googleapis.com https://*.razorpay.com; " +
     "media-src 'self' blob:; " +
+    "frame-src https://checkout.razorpay.com https://api.razorpay.com; " +
     "frame-ancestors 'none'; " +
     "form-action 'self' https://accounts.google.com https://*.supabase.co;"
   )

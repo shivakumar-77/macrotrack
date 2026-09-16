@@ -5,6 +5,7 @@ import { useState } from 'react'
 import BottomNav from '@/components/BottomNav'
 import PageHeader from '@/components/PageHeader'
 import AIUsageMeter from '@/components/AIUsageMeter'
+import RazorpayCheckout from '@/components/RazorpayCheckout'
 import UpgradePrompt from '@/components/UpgradePrompt'
 import { refreshSubscription, useSubscription } from '@/lib/billing/client'
 import { ENTITLEMENT_DEFINITIONS, canUseFeature, getPlanEntitlements } from '@/lib/billing/entitlements'
@@ -62,6 +63,12 @@ export default function SubscriptionPage() {
         </section>
 
         <div style={{ marginTop: 16 }}><AIUsageMeter /></div>
+
+        <section style={{ marginTop: 16, padding: 18, borderRadius: 18, background: 'var(--card)', border: '1px solid var(--border)' }}>
+          <h2 style={{ fontSize: 18 }}>Razorpay test checkout</h2>
+          <p style={{ marginTop: 6, marginBottom: 14, color: 'var(--muted)', fontSize: 13 }}>Complete a ₹1 test payment securely with Razorpay.</p>
+          <RazorpayCheckout amount={100} description="KAYVEN test payment" label="Pay ₹1 with Razorpay" />
+        </section>
 
         {revenueCat.configured && revenueCat.initialized && <div style={{ marginTop: 16, display: 'flex', gap: 8, flexWrap: 'wrap' }}><button type="button" onClick={async () => { if (actionState === 'restoring') return; setActionState('restoring'); setActionMessage('Restoring purchases...'); try { const restored = await revenueCat.restore(); const refreshed = await refreshSubscription(); if (refreshed.currentPlan !== 'free') { setActionState('success'); setActionMessage('Purchase restored. Your subscription is active.') } else if (!restored.customerInfo?.entitlements.active || Object.keys(restored.customerInfo.entitlements.active).length === 0) { setActionState('empty'); setActionMessage('No active subscription was found.') } else { setActionState('syncing'); setActionMessage("Purchase restored. We're syncing your subscription...") } } catch { setActionState('error'); setActionMessage('We could not restore purchases. Please try again.') } }} disabled={actionState === 'restoring'} aria-busy={actionState === 'restoring'} style={{ padding: '10px 13px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text-2)', fontWeight: 700 }}>{actionState === 'restoring' ? 'Restoring purchases...' : 'Restore purchases'}</button></div>}
         {actionMessage && <p role="status" aria-live="polite" style={{ marginTop: 10, color: actionState === 'error' ? 'var(--red)' : 'var(--muted)', fontSize: 13 }}>{actionMessage}</p>}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 declare global {
   interface Window {
@@ -36,22 +36,39 @@ interface RazorpayCheckoutProps {
   label: string
 }
 
+let checkoutScriptPromise: Promise<boolean> | null = null
+
 function loadCheckoutScript(): Promise<boolean> {
   if (window.Razorpay) return Promise.resolve(true)
+  if (checkoutScriptPromise) return checkoutScriptPromise
 
-  return new Promise(resolve => {
-    const script = document.createElement('script')
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-    script.onload = () => resolve(true)
-    script.onerror = () => resolve(false)
-    document.body.appendChild(script)
+  checkoutScriptPromise = new Promise(resolve => {
+    const existingScript = document.getElementById('razorpay-checkout-js') as HTMLScriptElement | null
+    const script = existingScript || document.createElement('script')
+
+    const complete = () => resolve(Boolean(window.Razorpay))
+    script.addEventListener('load', complete, { once: true })
+    script.addEventListener('error', () => resolve(false), { once: true })
+
+    if (!existingScript) {
+      script.id = 'razorpay-checkout-js'
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
+      script.async = true
+      document.head.appendChild(script)
+    }
   })
+
+  return checkoutScriptPromise
 }
 
 export default function RazorpayCheckout({ amount, description, label }: RazorpayCheckoutProps) {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
   const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+
+  useEffect(() => {
+    void loadCheckoutScript()
+  }, [])
 
   const startCheckout = async () => {
     if (!keyId) {
@@ -72,7 +89,9 @@ export default function RazorpayCheckout({ amount, description, label }: Razorpa
       const order = await orderResponse.json()
       if (!orderResponse.ok) throw new Error(order.error || 'Unable to create payment order.')
 
-      if (!await loadCheckoutScript() || !window.Razorpay) throw new Error('Unable to load secure checkout.')
+      if (!await loadCheckoutScript() || !window.Razorpay) {
+        throw new Error('Unable to load secure checkout. Disable Safari content blockers for this site and try again.')
+      }
 
       const checkout = new window.Razorpay({
         key: keyId,

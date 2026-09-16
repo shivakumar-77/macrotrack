@@ -1,4 +1,4 @@
-const CACHE = 'Kayven-v3'
+const CACHE = 'Kayven-v4'
 const STATIC = [
   '/',
   '/dashboard',
@@ -24,6 +24,9 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url)
+
+  // Third-party payment and authentication resources must remain network-only.
+  if (url.origin !== self.location.origin) return
 
   // Skip API calls — always network
   if (url.pathname.startsWith('/api/')) return
